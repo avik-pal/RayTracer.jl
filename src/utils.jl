@@ -7,24 +7,31 @@ Vec3(a) = (x = a, y = a, z = a)
 
 Vec3(a::T, b::T, c::T) where {T} = (x = a, y = b, z = c)
 
-+(a::NamedTuple{(:x, :y, :z)}, b::NamedTuple{(:x, :y, :z)}) =
-    Vec3(a.x .+ b.x, a.y .+ b.y, a.z .+ b.z)
+for op in (:+, :*, :-)
+    @eval begin
+        function $(op)(a::NamedTuple{(:x, :y, :z)}, b::NamedTuple{(:x, :y, :z)})
+            return Vec3(broadcast($(op), a.x, b.x),
+                        broadcast($(op), a.y, b.y),
+                        broadcast($(op), a.z, b.z)) 
+        end
+    end
+end
 
-*(a::NamedTuple{(:x, :y, :z)}, b::NamedTuple{(:x, :y, :z)}) =
-    Vec3(a.x .* b.x, a.y .* b.y, a.z .* b.z)
-
--(a::NamedTuple{(:x, :y, :z)}, b::NamedTuple{(:x, :y, :z)}) =
-    Vec3(a.x .- b.x, a.y .- b.y, a.z .- b.z)
-
-+(a::NamedTuple{(:x, :y, :z)}, b) = Vec3(a.x .+ b, a.y .+ b, a.z .+ b)
-
-*(a::NamedTuple{(:x, :y, :z)}, b) = Vec3(a.x .* b, a.y .* b, a.z .* b)
-
--(a::NamedTuple{(:x, :y, :z)}, b) = Vec3(a.x .- b, a.y .- b, a.z .- b)
-
-/(a::NamedTuple{(:x, :y, :z)}, b) = Vec3(a.x ./ b, a.y ./ b, a.z ./ b)
-
-%(a::NamedTuple{(:x, :y, :z)}, b) = Vec3(a.x .% b, a.y .% b, a.z .% b)
+for op in (:+, :*, :-, :/, :%)
+    @eval begin
+        function $(op)(a::NamedTuple{(:x, :y, :z)}, b)
+            return Vec3(broadcast($(op), a.x, b),
+                        broadcast($(op), a.y, b),
+                        broadcast($(op), a.z, b))
+        end
+        
+        function $(op)(b, a::NamedTuple{(:x, :y, :z)})
+            return Vec3(broadcast($(op), a.x, b),
+                        broadcast($(op), a.y, b),
+                        broadcast($(op), a.z, b))
+        end
+    end
+end
 
 dot(a::NamedTuple{(:x, :y, :z)}, b::NamedTuple{(:x, :y, :z)}) =
     a.x .* b.x .+ a.y .* b.y .+ a.z .* b.z
