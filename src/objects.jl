@@ -17,6 +17,7 @@ struct CheckeredSphere{C, R, D, M} <: Sphere
     center::C
     radius::R
     diffuse::D
+    diffuse2::D
     mirror::M
 end
 
@@ -40,7 +41,7 @@ diffusecolor(s::S, pt) where {S<:Sphere} = s.diffuse
 function diffusecolor(cs::CheckeredSphere, pt) 
     checker = (Int.(floor.(abs.(pt.x .* 2.0f0))) .% 2) .==
               (Int.(floor.(abs.(pt.z .* 2.0f0))) .% 2)
-    return cs.diffuse * checker
+    return cs.diffuse * checker + cs.diffuse2 * (1.0f0 .- checker)
 end
 
 function light(s::S, origin, direction, dist, light_pos, eye_pos,
