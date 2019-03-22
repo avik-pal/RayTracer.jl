@@ -37,27 +37,6 @@ function intersect(s::Sphere, origin, direction)
     b = dot(direction, origin - s.center)  # direction is a vec3 with array
     c = abs(s.center) .+ abs(origin) .- 2 * dot(s.center, origin) .- (s.radius ^ 2)
     disc = (b .^ 2) .- c
-    
-    # disc[findall(x -> x < 0, disc)] .= typemax(eltype(disc))
-    # sq = sqrt.(max.(disc, 0.0f0))
-    # sq = sqrt.(disc)
-    # h₀ = -b .- sq
-    # h₁ = -b .+ sq
-    # result = min.(h₀, h₁)
-    # nohit = typemax(eltype(result))
-    # pos₁ = h₀ .> 0.0f0
-    # pos₁ = (h₀ .> 0.0f0) .& (h₀ .< h₁)
-    # h₁[pos₁] .= h₀[pos₁]
-    # result = h₁
-    # FIXME: Need to modify this for running properly on GPUs
-    # result[(disc .<= zero(eltype(disc))) .| (h₁ .<= zero(eltype(h₁)))] .=
-    #     typemax(eltype(h₁)) 
-    # FIXME: Might be slow on GPUs
-    # result[findall(x -> x <= 0, result)] .= nohit
-    # result[findall(x -> x <= 0, disc)] .= nohit
-    
-    # NOTE: This version using broadcasting is faster on cpu. Also should be
-    #       GPU friendly.
     function get_intersections(x, y)
         t = typemax(x)
         if y > 0
