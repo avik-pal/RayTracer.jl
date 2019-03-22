@@ -42,3 +42,17 @@ img = colorview(RGB, im_arr)
 
 save("simple_spheres_scene.jpg", img)
 
+light_pos = Vec3(5.0f0, 55.0f0, -10.0f0)
+
+color = raytrace(eye_pos, norm(Q - eye_pos), scene, light_pos, eye_pos, 0)
+
+col1 = proper_shape(color.x)
+col2 = proper_shape(color.y)
+col3 = proper_shape(color.z)
+
+im_arr = permutedims(cat(col1, col2, col3, dims = 3), (3, 2, 1))
+
+img = colorview(RGB, im_arr)
+
+save("simple_spheres_scene_altlight.jpg", img)
+

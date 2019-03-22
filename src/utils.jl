@@ -33,6 +33,8 @@ for op in (:+, :*, :-, :/, :%)
     end
 end
 
+-(a::NamedTuple{(:x, :y, :z)}) = Vec3(-a.x, -a.y, -a.z)
+
 dot(a::NamedTuple{(:x, :y, :z)}, b::NamedTuple{(:x, :y, :z)}) =
     a.x .* b.x .+ a.y .* b.y .+ a.z .* b.z
 

@@ -34,27 +34,54 @@ function CheckeredSphere(center, radius; color1 = rgb(0.1f0), color2 = rgb(0.9f0
 end
 
 function intersect(s::Sphere, origin, direction)
-    b = 2 * dot(direction, origin - s.center)  # direction is a vec3 with array
+    b = dot(direction, origin - s.center)  # direction is a vec3 with array
     c = abs(s.center) .+ abs(origin) .- 2 * dot(s.center, origin) .- (s.radius ^ 2)
-    disc = (b .^ 2) .- (4.0f0 .* c)
-    sq = sqrt.(max.(disc, 0.0f0))
-    h₀ = 0.5f0 * (-b .- sq)
-    h₁ = 0.5f0 * (-b .+ sq)
-    pos₁ = (h₀ .> 0.0f0) .& (h₀ .< h₁)
-    h₁[pos₁] .= h₀[pos₁]
-    result = h₁
+    disc = (b .^ 2) .- c
+    
+    # disc[findall(x -> x < 0, disc)] .= typemax(eltype(disc))
+    # sq = sqrt.(max.(disc, 0.0f0))
+    # sq = sqrt.(disc)
+    # h₀ = -b .- sq
+    # h₁ = -b .+ sq
+    # result = min.(h₀, h₁)
+    # nohit = typemax(eltype(result))
+    # pos₁ = h₀ .> 0.0f0
+    # pos₁ = (h₀ .> 0.0f0) .& (h₀ .< h₁)
+    # h₁[pos₁] .= h₀[pos₁]
+    # result = h₁
     # FIXME: Need to modify this for running properly on GPUs
-    result[(disc .<= zero(eltype(disc))) .| (h₁ .<= zero(eltype(h₁)))] .=
-        typemax(eltype(h₁)) 
+    # result[(disc .<= zero(eltype(disc))) .| (h₁ .<= zero(eltype(h₁)))] .=
+    #     typemax(eltype(h₁)) 
+    # FIXME: Might be slow on GPUs
+    # result[findall(x -> x <= 0, result)] .= nohit
+    # result[findall(x -> x <= 0, disc)] .= nohit
+    
+    # NOTE: This version using broadcasting is faster on cpu. Also should be
+    #       GPU friendly.
+    function get_intersections(x, y)
+        t = typemax(x)
+        if y > 0
+            sqrty = sqrt(y)
+            z1 = -x - sqrty 
+            z2 = -x + sqrty
+            if z1 <= 0
+                if z2 > 0
+                    t = z2
+                end
+            else
+                t = z1
+            end
+        end
+        return t
+    end
+    result = broadcast(get_intersections, b, disc)
     return result
 end
 
-get_normal(s::Sphere, pt, direction) = norm(pt - s.center)
+get_normal(s::Sphere, pt) = norm(pt - s.center)
 
 ## Cylinder
 
-# TODO: Specialize the function for length == Inf. We don't need to consider
-#       intersection will 2 slabs in that case
 struct Cylinder{C, R, L} <: Object
     center::C
     radius::R
@@ -86,29 +113,53 @@ function CheckeredCylinder(center, radius, axis, length; color1 = rgb(0.1f0),
     return Cylinder(center, radius, norm(axis), length, mat)
 end
 
-# Currently Cylinder means Solid Cyclinder. Generalize for Hollow Cylinder
-# FIXME: intersect is for infinite cylinder
-function intersect(c::Cylinder, origin, direction)
-    diff = origin - c.center
-    a_vec = direction - dot(c.axis, direction) * c.axis
-    c_vec = diff - dot(diff, c.axis) * c.axis 
+# TODO: Currently Cylinder means Hollow Cyclinder. Generalize for Solid Cylinder
+#       The easiest way to do this would be to treat Solid Cylinder as 3 different
+#       objects - Hollow Cylinder + 2 Solid Discs
+function intersect(cy::Cylinder, origin, direction)
+    diff = origin - cy.center
+    a_vec = direction - dot(cy.axis, direction) * cy.axis
+    c_vec = diff - dot(diff, cy.axis) * cy.axis 
     a = 2 .* abs(a_vec) # No point in doing 2 .* a everywhere so doing it here itself
     b = 2 .* dot(a_vec, c_vec)
-    c = abs(c_vec) .- (c.radius ^ 2)
+    c = abs(c_vec) .- (cy.radius ^ 2)
     disc = (b .^ 2) .- 2 .* a .* c
+    
     sq = sqrt.(max.(disc, 0.0f0))
     h₀ = (-b .- sq) ./ a
     h₁ = (-b .+ sq) ./ a
-    pos₁ = (h₀ .> 0.0f0) .& (h₀ .< h₁)
-    h₁[pos₁] .= h₀[pos₁]
-    result = h₁
-    # FIXME: Need to modify this for running properly on GPUs
-    result[(disc .<= zero(eltype(disc))) .| (h₁ .<= zero(eltype(h₁)))] .=
-        typemax(eltype(h₁)) 
+    zt1 = dot(origin + direction * h₀, cy.axis)
+    center_comp = dot(cy.center, cy.axis)
+    zmax = center_comp + cy.length / 2
+    zmin = center_comp - cy.length / 2
+    zt2 = dot(origin + direction * h₁, cy.axis)
+    
+    function get_intersections(d, z1, z2, zt1, zt2)
+        t = typemax(z1)
+        if d > 0
+            if z1 <= 0
+                if z2 > 0
+                    if zmin <= zt2 <= zmax
+                        t = z2
+                    end
+                end
+            else
+                if zmin <= zt1 <= zmax
+                    t = z1
+                elseif z2 > 0
+                    if zmin <= zt2 <= zmax
+                        t = z2
+                    end
+                end
+            end
+        end
+        return t
+    end
+    result = broadcast(get_intersections, disc, h₀, h₁, zt1, zt2)
     return result
 end
 
-function get_normal(c::Cylinder, pt, direction)
+function get_normal(c::Cylinder, pt)
     pt_c = pt - c.center
     return norm(pt_c - dot(pt_c, c.axis) * c.axis)
 end
@@ -121,10 +172,10 @@ end
 function light(s::S, origin, direction, dist, light_pos, eye_pos,
                scene, obj_num, bounce) where {S<:Object}
     pt = origin + direction * dist
-    normal = get_normal(s, pt, direction)
+    normal = get_normal(s, pt)
     dir_light = norm(light_pos - pt)
     dir_origin = norm(eye_pos - pt)
-    nudged = pt + normal * 0.0001f0
+    nudged = pt + normal * 0.0001f0 # Nudged to miss itself
     
     # Shadow
     light_distances = [intersect(obj, nudged, dir_light) for obj in scene]

@@ -26,5 +26,5 @@ y = repeat(range(screen_coord.y₀, stop = screen_coord.y₁, length = screen_si
 
 Q = Vec3(x, y, zeros(eltype(x), size(x)...))
 
-@benchmark raytrace($eye_pos, $norm($Q - $eye_pos), $scene, $light_pos, $eye_pos, 0)
+@show @benchmark raytrace($eye_pos, $norm($Q - $eye_pos), $scene, $light_pos, $eye_pos, 0)
 
