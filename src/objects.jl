@@ -1,4 +1,6 @@
-# Objects
+# ------- #
+# Objects #
+# ------- #
 
 # NOTE: All objects **MUST** have the material field
 abstract type Object end
@@ -14,7 +16,9 @@ end
 diffusecolor(obj::O, pt::NamedTuple{(:x, :y, :z)}) where {O<:Object} =
     diffusecolor(obj.material, pt)
 
-## Sphere
+# ---------- #
+# - Sphere - #
+# ---------- #
 
 struct Sphere{C, R} <: Object
     center::C
@@ -43,11 +47,9 @@ function intersect(s::Sphere, origin, direction)
             sqrty = sqrt(y)
             z1 = -x - sqrty 
             z2 = -x + sqrty
-            if z1 <= 0
-                if z2 > 0
-                    t = z2
-                end
-            else
+            if z1 <= 0 && z2 > 0
+                t = z2
+            elseif z1 > 0
                 t = z1
             end
         end
@@ -59,7 +61,9 @@ end
 
 get_normal(s::Sphere, pt) = norm(pt - s.center)
 
-## Cylinder
+# ------------ #
+# - Cylinder - #
+# ------------ #
 
 struct Cylinder{C, R, L} <: Object
     center::C
@@ -116,19 +120,13 @@ function intersect(cy::Cylinder, origin, direction)
     function get_intersections(d, z1, z2, zt1, zt2)
         t = typemax(z1)
         if d > 0
-            if z1 <= 0
-                if z2 > 0
-                    if zmin <= zt2 <= zmax
-                        t = z2
-                    end
-                end
-            else
+            if z1 <= 0 && z2 > 0 && zmin <= zt2 <= zmax
+                t = z2
+            elseif z1 > 0
                 if zmin <= zt1 <= zmax
                     t = z1
-                elseif z2 > 0
-                    if zmin <= zt2 <= zmax
-                        t = z2
-                    end
+                elseif z2 > 0 && zmin <= zt2 <= zmax
+                    t = z2
                 end
             end
         end
@@ -143,7 +141,55 @@ function get_normal(c::Cylinder, pt)
     return norm(pt_c - dot(pt_c, c.axis) * c.axis)
 end
 
-## General Object Properties
+# ------------ #
+# - Triangle - #
+# ------------ #
+
+# TODO: Use barycentric coordinates and Moller-Trumbore Algorithm
+struct Triangle{V} <: Object
+    v1::V
+    v2::V
+    v3::V
+# NOTE: We only support double sided. Here is the defination of single and double sided
+# http://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/single-vs-double-sided-triangle-backface-culling
+    normal::V
+    material::Material
+end 
+
+function Triangle(v1, v2, v3; color = rgb(0.5f0), reflection = 0.5f0)
+    mat = Material(PlainColor(color), reflection)
+    normal = norm(cross(v2 - v1, v3 - v1)) 
+    return Triangle(v1, v2, v3, normal, mat)
+end
+
+function intersect(t::Triangle, origin, direction)
+    h = - (dot(t.normal, origin) .+ dot(t.normal, t.v1)) ./ dot(t.normal, direction)
+    pt = origin + direction * h
+    edge1 = t.v2 - t.v1
+    edge2 = t.v3 - t.v2
+    edge3 = t.v1 - t.v3
+    c₁ = pt - t.v1
+    c₂ = pt - t.v2
+    c₃ = pt - t.v3
+    val1 = dot(t.normal, cross(edge1, c₁))
+    val2 = dot(t.normal, cross(edge2, c₂))
+    val3 = dot(t.normal, cross(edge3, c₃))
+    get_intersections(a, b, c, d) =
+        (a > 0 && b > 0 && c > 0 && d > 0) ? a : typemax(a)
+    result = broadcast(get_intersections, h, val1, val2, val3)
+    return result
+end
+
+function get_normal(t::Triangle, pt)
+    normal = Vec3(fill(t.normal.x, size(pt.x)),
+                  fill(t.normal.y, size(pt.y)),
+                  fill(t.normal.z, size(pt.z)))
+    return normal
+end
+
+# ----------------------------- #
+# - General Object Properties - #
+# ----------------------------- #
 
 # NOTE: We should be good to go for any arbitrary object if we implement
 #       `get_normal` and `intersect` functions for that object.
