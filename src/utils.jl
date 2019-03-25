@@ -42,6 +42,10 @@ abs(a::NamedTuple{(:x, :y, :z)}) = dot(a, a)
 
 norm(a::NamedTuple{(:x, :y, :z)}) = a / sqrt.(abs(a))
 
+cross(a::NamedTuple{(:x, :y, :z)}, b::NamedTuple{(:x, :y, :z)}) =
+    Vec3(a.y .* b.z .- a.z .* b.y, a.z .* b.x .- a.x .* b.z,
+         a.x .* b.y .- a.y .* b.x)
+
 function place(a::NamedTuple{(:x, :y, :z)}, cond)
     r = Vec3(zeros(eltype(a.x), size(cond)...),
              zeros(eltype(a.y), size(cond)...),
