@@ -3,14 +3,14 @@
 abstract type SurfaceColor end
 
 struct PlainColor <: SurfaceColor
-    color
+    color::NamedTuple{(:x, :y, :z)}
 end
 
 diffusecolor(c::PlainColor, pt::NamedTuple{(:x, :y, :z)}) = c.color
 
 struct CheckeredSurface <: SurfaceColor
-    color1
-    color2
+    color1::NamedTuple{(:x, :y, :z)}
+    color2::NamedTuple{(:x, :y, :z)}
 end
 
 function diffusecolor(c::CheckeredSurface, pt::NamedTuple{(:x, :y, :z)})
