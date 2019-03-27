@@ -13,18 +13,6 @@ scene = [
     CheckeredSphere(Vec3(0.0f0, -99999.5f0, 0.0f0), 99999.0f0)
     ]
 
-aspect_ratio = Float32.(screen_size.w / screen_size.h)
+origin, direction = get_primary_rays(Float32, 400, 300, 30, eye_pos)
 
-screen_coord = (x₀ = -1.0f0, y₀ = 1.0f0 / aspect_ratio + 0.25f0, x₁ = 1.0f0,
-                y₁ = -1.0f0 / aspect_ratio + 0.25f0)
-
-x = repeat(range(screen_coord.x₀, stop = screen_coord.x₁, length = screen_size.w),
-           outer = screen_size.h)
-
-y = repeat(range(screen_coord.y₀, stop = screen_coord.y₁, length = screen_size.h),
-           inner = screen_size.w)
-
-Q = Vec3(x, y, zeros(eltype(x), size(x)...))
-
-@show @benchmark raytrace($eye_pos, $norm($Q - $eye_pos), $scene, $light_pos, $eye_pos, 0)
-
+@show @benchmark raytrace($origin, $direction, $scene, $light_pos, $eye_pos, 0)

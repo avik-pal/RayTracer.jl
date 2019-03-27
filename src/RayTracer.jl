@@ -3,7 +3,7 @@ module RayTracer
 using Requires
 
 export raytrace
-export Vec3, rgb, norm
+export Vec3, rgb
 export SimpleSphere, CheckeredSphere, SimpleCylinder, CheckeredCylinder,
        Triangle
 export get_primary_rays

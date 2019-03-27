@@ -3,17 +3,17 @@
 abstract type SurfaceColor end
 
 struct PlainColor <: SurfaceColor
-    color::NamedTuple{(:x, :y, :z)}
+    color::Vec3
 end
 
-diffusecolor(c::PlainColor, pt::NamedTuple{(:x, :y, :z)}) = c.color
+diffusecolor(c::PlainColor, pt::Vec3) = c.color
 
 struct CheckeredSurface <: SurfaceColor
-    color1::NamedTuple{(:x, :y, :z)}
-    color2::NamedTuple{(:x, :y, :z)}
+    color1::Vec3
+    color2::Vec3
 end
 
-function diffusecolor(c::CheckeredSurface, pt::NamedTuple{(:x, :y, :z)})
+function diffusecolor(c::CheckeredSurface, pt::Vec3)
     checker = (Int.(floor.(abs.(pt.x .* 2.0f0))) .% 2) .==
               (Int.(floor.(abs.(pt.z .* 2.0f0))) .% 2)
     return c.color1 * checker + c.color2 * (1.0f0 .- checker)
@@ -26,6 +26,6 @@ struct Material{S<:SurfaceColor, R<:AbstractFloat}
     reflection::R
 end                          
 
-diffusecolor(m::Material, pt::NamedTuple{(:x, :y, :z)}) =
+diffusecolor(m::Material, pt::Vec3) =
     diffusecolor(m.color, pt)
 

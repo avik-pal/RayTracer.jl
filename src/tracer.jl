@@ -4,7 +4,7 @@ function raytrace(origin, direction, scene, light_pos, eye_pos, bounce = 0)
     distances = [intersect(s, origin, direction) for s in scene]
 
     nearest = map(min, distances...)
-    h = typemax.(nearest) .!= nearest
+    h = bigmul.(nearest) .!= nearest
 
     color = rgb(0.0f0)
 

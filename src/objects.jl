@@ -13,7 +13,7 @@ function Base.getproperty(obj::O, k::Symbol) where {O<:Object}
     end
 end
 
-diffusecolor(obj::O, pt::NamedTuple{(:x, :y, :z)}) where {O<:Object} =
+diffusecolor(obj::O, pt::Vec3) where {O<:Object} =
     diffusecolor(obj.material, pt)
 
 # ---------- #
@@ -39,10 +39,10 @@ end
 
 function intersect(s::Sphere, origin, direction)
     b = dot(direction, origin - s.center)  # direction is a vec3 with array
-    c = abs(s.center) .+ abs(origin) .- 2 .* dot(s.center, origin) .- (s.radius ^ 2)
+    c = l2norm(s.center) .+ l2norm(origin) .- 2 .* dot(s.center, origin) .- (s.radius ^ 2)
     disc = (b .^ 2) .- c
     function get_intersections(x, y)
-        t = typemax(x)
+        t = bigmul(x)
         if y > 0
             sqrty = sqrt(y)
             z1 = -x - sqrty 
@@ -59,7 +59,7 @@ function intersect(s::Sphere, origin, direction)
     return result
 end
 
-get_normal(s::Sphere, pt) = norm(pt - s.center)
+get_normal(s::Sphere, pt) = normalize(pt - s.center)
 
 # ------------ #
 # - Cylinder - #
@@ -75,25 +75,25 @@ end
 
 function SimpleCylinder(center, radius, axis; color = rgb(0.5f0), reflection = 0.5f0)
     mat = Material(PlainColor(color), reflection)
-    return Cylinder(center, radius, norm(axis), abs(axis), mat)
+    return Cylinder(center, radius, normalize(axis), l2norm(axis), mat)
 end
 
 function SimpleCylinder(center, radius, axis, length; color = rgb(0.5f0),
                         reflection = 0.5f0)
     mat = Material(PlainColor(color), reflection)
-    return Cylinder(center, radius, norm(axis), length, mat)
+    return Cylinder(center, radius, normalize(axis), length, mat)
 end
 
 function CheckeredCylinder(center, radius, axis; color1 = rgb(0.1f0), color2 = rgb(0.9f0),
                            reflection = 0.5f0)
     mat = Material(CheckeredSurface(color1, color2), reflection)
-    return Cylinder(center, radius, norm(axis), abs(axis), mat)
+    return Cylinder(center, radius, normalize(axis), l2norm(axis), mat)
 end
 
 function CheckeredCylinder(center, radius, axis, length; color1 = rgb(0.1f0),
                           color2 = rgb(0.9f0), reflection = 0.5f0)
     mat = Material(CheckeredSurface(color1, color2), reflection)
-    return Cylinder(center, radius, norm(axis), length, mat)
+    return Cylinder(center, radius, normalize(axis), length, mat)
 end
 
 # TODO: Currently Cylinder means Hollow Cyclinder. Generalize for Solid Cylinder
@@ -103,9 +103,9 @@ function intersect(cy::Cylinder, origin, direction)
     diff = origin - cy.center
     a_vec = direction - dot(cy.axis, direction) * cy.axis
     c_vec = diff - dot(diff, cy.axis) * cy.axis 
-    a = 2 .* abs(a_vec) # No point in doing 2 .* a everywhere so doing it here itself
+    a = 2 .* l2norm(a_vec) # No point in doing 2 .* a everywhere so doing it here itself
     b = 2 .* dot(a_vec, c_vec)
-    c = abs(c_vec) .- (cy.radius ^ 2)
+    c = l2norm(c_vec) .- (cy.radius ^ 2)
     disc = (b .^ 2) .- 2 .* a .* c
     
     sq = sqrt.(max.(disc, 0.0f0))
@@ -118,7 +118,7 @@ function intersect(cy::Cylinder, origin, direction)
     zt2 = dot(origin + direction * h₁, cy.axis)
     
     function get_intersections(d, z1, z2, zt1, zt2)
-        t = typemax(z1)
+        t = bigmul(z1)
         if d > 0
             if z1 <= 0 && z2 > 0 && zmin <= zt2 <= zmax
                 t = z2
@@ -138,7 +138,7 @@ end
 
 function get_normal(c::Cylinder, pt)
     pt_c = pt - c.center
-    return norm(pt_c - dot(pt_c, c.axis) * c.axis)
+    return normalize(pt_c - dot(pt_c, c.axis) * c.axis)
 end
 
 # ------------ #
@@ -158,7 +158,7 @@ end
 
 function Triangle(v1, v2, v3; color = rgb(0.5f0), reflection = 0.5f0)
     mat = Material(PlainColor(color), reflection)
-    normal = norm(cross(v2 - v1, v3 - v1)) 
+    normal = normalize(cross(v2 - v1, v3 - v1)) 
     return Triangle(v1, v2, v3, normal, mat)
 end
 
@@ -175,7 +175,7 @@ function intersect(t::Triangle, origin, direction)
     val2 = dot(t.normal, cross(edge2, c₂))
     val3 = dot(t.normal, cross(edge3, c₃))
     get_intersections(a, b, c, d) =
-        (a > 0 && b > 0 && c > 0 && d > 0) ? a : typemax(a)
+        (a > 0 && b > 0 && c > 0 && d > 0) ? a : bigmul(a)
     result = broadcast(get_intersections, h, val1, val2, val3)
     return result
 end
@@ -198,8 +198,8 @@ function light(s::S, origin, direction, dist, light_pos, eye_pos,
                scene, obj_num, bounce) where {S<:Object}
     pt = origin + direction * dist
     normal = get_normal(s, pt)
-    dir_light = norm(light_pos - pt)
-    dir_origin = norm(eye_pos - pt)
+    dir_light = normalize(light_pos - pt)
+    dir_origin = normalize(eye_pos - pt)
     nudged = pt + normal * 0.0001f0 # Nudged to miss itself
     
     # Shadow
@@ -216,12 +216,12 @@ function light(s::S, origin, direction, dist, light_pos, eye_pos,
 
     # Reflection
     if bounce < 2
-        rayD = norm(direction - normal * 2.0f0 * dot(direction, normal))
+        rayD = normalize(direction - normal * 2.0f0 * dot(direction, normal))
         color += raytrace(nudged, rayD, scene, light_pos, eye_pos, bounce + 1) * s.reflection
     end
 
     # Blinn-Phong shading (specular)
-    phong = dot(normal, norm(dir_light + dir_origin))
+    phong = dot(normal, normalize(dir_light + dir_origin))
     color += rgb(1.0f0) * ((clamp.(phong, 0.0f0, 1.0f0) .^ 50) .* seelight)
 
     return color
