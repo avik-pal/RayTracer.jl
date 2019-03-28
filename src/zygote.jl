@@ -61,5 +61,28 @@ end
 @adjoint Sphere(center, radius, material::Material) =
     Sphere(center, radius, material), Δ -> (Δ.sphere, Δ.radius, Δ.material)
 
-@adjoint literal_getproperty(v::Sphere, ::Val{f}) where {f} =
-    getproperty(v, f), Δ -> (Sphere(Δ), nothing)
+@adjoint literal_getproperty(s::Sphere, ::Val{f}) where {f} =
+    getproperty(s, f), Δ -> (Sphere(Δ), nothing)
+
+# ------------ #
+# - Cylinder - #
+# ------------ #
+
+@adjoint Cylinder(center, radius, axis, length, material::Material) =
+    Cylinder(center, radius, axis, length, material),
+    Δ -> (Δ.center, Δ.radius, Δ.axis, Δ.length, Δ.material)
+
+@adjoint literal_getproperty(c::Cylinder, ::Val{f}) where {f} =
+    getproperty(c, f), Δ -> (Cylinder(Δ, f), nothing)
+
+# ------------ #
+# - Triangle - #
+# ------------ #
+
+@adjoint Triangle(v1, v2, v3, normal, material::Material) =
+    Triangle(v1, v2, v3, normal, material),
+    Δ -> Triangle(Δ.v1, Δ.v2, Δ.v3, Δ.normal, Δ.material)
+
+@adjoint literal_getproperty(t::Triangle, ::Val{f}) where {f} =
+    getproperty(t, f), Δ -> (Triangle(Δ, f), nothing)
+

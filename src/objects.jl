@@ -88,17 +88,51 @@ get_normal(s::Sphere, pt) = normalize(pt - s.center)
 # - Cylinder - #
 # ------------ #
 
-struct Cylinder{C, R, L} <: Object
-    center::C
+struct Cylinder{C, R<:Real, L<:Real} <: Object
+    center::Vec3{C}
     radius::R
-    axis::C
+    axis::Vec3{C}
     length::L
     material::Material
 end
 
+c1::Cylinder + c2::Cylinder = Cylinder(c1.center + c2.center,
+                                       c1.radius + c2.radius,
+                                       c1.axis + c2.axis,
+                                       c1.length + c2.length,
+                                       c1.material + c2.material)
+
+# The next 3 functions are just convenience functions for handling
+# gradients properly for getproperty function
+function Cylinder(v::Vec3{T}, sym::Symbol) where {T}
+    z = eltype(T)(0)
+    mat = Material(PlainColor(rgb(z)), z)
+    if sym == :center
+        return Cylinder(v, z, Vec3(z), z, mat)
+    else # :axis
+        return Cylinder(Vec3(z), z, v, z, mat)
+    end
+end
+
+function Cylinder(v::T, sym::Symbol) where {T<:Real}
+    z = T(0)
+    mat = Material(PlainColor(rgb(z)), z)
+    if sym == :radius
+        return Cylinder(Vec3(z), v, Vec3(z), z, mat)
+    else # :length
+        return Cylinder(Vec3(z), z, Vec3(z), v, mat)
+    end
+end
+
+# The symbol is not needed but maintains uniformity
+function Cylinder(mat::Material{S, R}, ::Symbol) where {S, R}
+    z = R(0)
+    return Cylinder(Vec3(z), z, Vec3(z), z, mat)
+end
+
 function SimpleCylinder(center, radius, axis; color = rgb(0.5f0), reflection = 0.5f0)
     mat = Material(PlainColor(color), reflection)
-    return Cylinder(center, radius, normalize(axis), l2norm(axis), mat)
+    return Cylinder(center, radius, normalize(axis), l2norm(axis)[1], mat)
 end
 
 function SimpleCylinder(center, radius, axis, length; color = rgb(0.5f0),
@@ -110,7 +144,7 @@ end
 function CheckeredCylinder(center, radius, axis; color1 = rgb(0.1f0), color2 = rgb(0.9f0),
                            reflection = 0.5f0)
     mat = Material(CheckeredSurface(color1, color2), reflection)
-    return Cylinder(center, radius, normalize(axis), l2norm(axis), mat)
+    return Cylinder(center, radius, normalize(axis), l2norm(axis)[1], mat)
 end
 
 function CheckeredCylinder(center, radius, axis, length; color1 = rgb(0.1f0),
@@ -119,7 +153,7 @@ function CheckeredCylinder(center, radius, axis, length; color1 = rgb(0.1f0),
     return Cylinder(center, radius, normalize(axis), length, mat)
 end
 
-# TODO: Currently Cylinder means Hollow Cyclinder. Generalize for Solid Cylinder
+# TODO: Currently Cylinder means Hollow Cylinder. Generalize for Solid Cylinder
 #       The easiest way to do this would be to treat Solid Cylinder as 3 different
 #       objects - Hollow Cylinder + 2 Solid Discs
 function intersect(cy::Cylinder, origin, direction)
@@ -135,7 +169,7 @@ function intersect(cy::Cylinder, origin, direction)
     h₀ = (-b .- sq) ./ a
     h₁ = (-b .+ sq) ./ a
     zt1 = dot(origin + direction * h₀, cy.axis)
-    center_comp = dot(cy.center, cy.axis)
+    center_comp = dot(cy.center, cy.axis)[1] # Will return an array
     zmax = center_comp + cy.length / 2
     zmin = center_comp - cy.length / 2
     zt2 = dot(origin + direction * h₁, cy.axis)
@@ -170,16 +204,44 @@ end
 
 # TODO: Use barycentric coordinates and Moller-Trumbore Algorithm
 struct Triangle{V} <: Object
-    v1::V
-    v2::V
-    v3::V
+    v1::Vec3{V}
+    v2::Vec3{V}
+    v3::Vec3{V}
 # NOTE: We only support double sided. Here is the defination of single and double sided
 # http://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/single-vs-double-sided-triangle-backface-culling
-    normal::V
+    normal::Vec3{V}
     material::Material
 end 
 
-function Triangle(v1, v2, v3; color = rgb(0.5f0), reflection = 0.5f0)
+t1::Triangle + t2::Triangle = Triangle(t1.v1 + t2.v1,
+                                       t1.v2 + t2.v2,
+                                       t1.v3 + t2.v3,
+                                       t1.normal + t2.normal,
+                                       t1.material + t2.material)
+
+# The next 2 functions are just convenience functions for handling
+# gradients properly for getproperty function
+function Triangle(v::Vec3{T}, sym::Symbol) where {T}
+    z = eltype(T)(0)
+    mat = Material(PlainColor(rgb(z)), z)
+    if sym == :v1
+        return Triangle(v, Vec3(z), Vec3(z), Vec3(z), mat)
+    elseif sym == :v2
+        return Triangle(Vec3(z), v, Vec3(z), Vec3(z), mat)
+    elseif sym == :v3
+        return Triangle(Vec3(z), Vec3(z), v, Vec3(z), mat)
+    else # :normal
+        return Triangle(Vec3(z), Vec3(z), Vec3(z), v, mat)
+    end
+end
+
+# Symbol argument not needed but helps in writing the adjoint code
+function Triangle(mat::Material{S, R}, ::Symbol) where {S, R}
+    z = R(0)
+    return Cylinder(Vec3(z), Vec3(z), Vec3(z), Vec3(z), mat)
+end
+
+function Triangle(v1::Vec3, v2::Vec3, v3::Vec3; color = rgb(0.5f0), reflection = 0.5f0)
     mat = Material(PlainColor(color), reflection)
     normal = normalize(cross(v2 - v1, v3 - v1)) 
     return Triangle(v1, v2, v3, normal, mat)

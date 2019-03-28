@@ -1,6 +1,9 @@
-# RayTrace
+# -------- #
+# RayTrace #
+# -------- #
 
-function raytrace(origin, direction, scene, light_pos, eye_pos, bounce = 0)
+function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
+                  light_pos::Vec3, eye_pos::Vec3, bounce::Int = 0)
     distances = [intersect(s, origin, direction) for s in scene]
 
     nearest = map(min, distances...)
