@@ -1,4 +1,4 @@
-using RayTracer, Images
+using RayTracer, BenchmarkTools
 
 screen_size = (w = 400, h = 300)
 
@@ -18,17 +18,5 @@ scene = [
 
 origin, direction = get_primary_rays(Float32, screen_size.w, screen_size.h, 90, eye_pos)
 
-color = raytrace(origin, direction, scene, light_pos, eye_pos, 0)
-
-proper_shape(a) = clamp.(reshape(a, screen_size.w, screen_size.h), 0.0f0, 1.0f0)
-
-col1 = proper_shape(color.x)
-col2 = proper_shape(color.y)
-col3 = proper_shape(color.z)
-
-im_arr = permutedims(cat(col1, col2, col3, dims = 3), (3, 2, 1))
-
-img = colorview(RGB, im_arr)
-
-save("cylinder_scene.jpg", img)
+@show @benchmark raytrace($origin, $direction, $scene, $light_pos, $eye_pos, 0)
 

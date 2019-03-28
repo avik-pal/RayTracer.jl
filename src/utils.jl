@@ -1,15 +1,24 @@
 # Imports
-import Base: +, *, -, /, %, abs, intersect
+import Base: +, *, -, /, %, intersect
 
 # Vector 3
 
-Vec3(a) = (x = a, y = a, z = a)
+# Making the fields arrays allow us to collect gradients for them
+struct Vec3{T<:AbstractArray}
+    x::T
+    y::T
+    z::T
+end    
 
-Vec3(a::T, b::T, c::T) where {T} = (x = a, y = b, z = c)
+Vec3(a::T) where {T<:Real} = Vec3([a], [a], [a])
+
+Vec3(a::T) where {T<:AbstractArray} = Vec3(copy(a), copy(a), copy(a))
+
+Vec3(a::T, b::T, c::T) where {T<:Real} = Vec3([a], [b], [c])
 
 for op in (:+, :*, :-)
     @eval begin
-        function $(op)(a::NamedTuple{(:x, :y, :z)}, b::NamedTuple{(:x, :y, :z)})
+        function $(op)(a::Vec3, b::Vec3)
             return Vec3(broadcast($(op), a.x, b.x),
                         broadcast($(op), a.y, b.y),
                         broadcast($(op), a.z, b.z)) 
@@ -19,13 +28,13 @@ end
 
 for op in (:+, :*, :-, :/, :%)
     @eval begin
-        function $(op)(a::NamedTuple{(:x, :y, :z)}, b)
+        function $(op)(a::Vec3, b)
             return Vec3(broadcast($(op), a.x, b),
                         broadcast($(op), a.y, b),
                         broadcast($(op), a.z, b))
         end
         
-        function $(op)(b, a::NamedTuple{(:x, :y, :z)})
+        function $(op)(b, a::Vec3)
             return Vec3(broadcast($(op), a.x, b),
                         broadcast($(op), a.y, b),
                         broadcast($(op), a.z, b))
@@ -33,16 +42,20 @@ for op in (:+, :*, :-, :/, :%)
     end
 end
 
--(a::NamedTuple{(:x, :y, :z)}) = Vec3(-a.x, -a.y, -a.z)
+-(a::Vec3) = Vec3(-a.x, -a.y, -a.z)
 
-dot(a::NamedTuple{(:x, :y, :z)}, b::NamedTuple{(:x, :y, :z)}) =
+dot(a::Vec3, b::Vec3) =
     a.x .* b.x .+ a.y .* b.y .+ a.z .* b.z
 
-abs(a::NamedTuple{(:x, :y, :z)}) = dot(a, a)
+l2norm(a::Vec3) = dot(a, a)
 
-norm(a::NamedTuple{(:x, :y, :z)}) = a / sqrt.(abs(a))
+normalize(a::Vec3) = a / sqrt.(l2norm(a))
 
-function place(a::NamedTuple{(:x, :y, :z)}, cond)
+cross(a::Vec3, b::Vec3) =
+    Vec3(a.y .* b.z .- a.z .* b.y, a.z .* b.x .- a.x .* b.z,
+         a.x .* b.y .- a.y .* b.x)
+
+function place(a::Vec3, cond)
     r = Vec3(zeros(eltype(a.x), size(cond)...),
              zeros(eltype(a.y), size(cond)...),
              zeros(eltype(a.z), size(cond)...))
@@ -62,8 +75,11 @@ extract(cond, x::T) where {T<:Number} = x
 
 extract(cond, x::T) where {T<:AbstractArray} = x[cond]
 
-extract(cond, a::NamedTuple{(:x, :y, :z)}) =
-    Vec3(a.x[cond], a.y[cond], a.z[cond])
+function extract(cond, a::Vec3)
+    if length(a.x) == 1
+        return Vec3(a.x, a.y, a.z)
+    end
+    return Vec3(a.x[cond], a.y[cond], a.z[cond])
+end
 
-extract(cond, a::NamedTuple{(:x, :y, :z), Tuple{T, T, T}}) where {T<:Number} =
-    Vec3(a.x, a.y, a.z)
+bigmul(x::T) where {T} = typemax(x)
