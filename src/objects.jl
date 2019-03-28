@@ -20,10 +20,33 @@ diffusecolor(obj::O, pt::Vec3) where {O<:Object} =
 # - Sphere - #
 # ---------- #
 
-struct Sphere{C, R} <: Object
-    center::C
+struct Sphere{C, R<:Real} <: Object
+    center::Vec3{C}
     radius::R
     material::Material
+end
+
+s1::Sphere + s2::Sphere = Sphere(s1.center + s2.center,
+                                 s1.radius + s2.radius,
+                                 s1.material + s2.material)
+
+# The next 3 functions are just convenience functions for handling
+# gradients properly for getproperty function
+function Sphere(center::Vec3{T}) where {T}
+    z = eltype(T)(0)
+    mat = Material(PlainColor(rgb(z)), z)
+    return Sphere(center, z, mat)
+end
+
+function Sphere(radius::T) where {T<:Real}
+    z = T(0)
+    mat = Material(PlainColor(rgb(z)), z)
+    return Sphere(Vec3(z), radius, mat)
+end
+
+function Sphere(mat::Material{S, R}) where {S, R}
+    z = R(0)
+    return Sphere(Vec3(z), z, mat)
 end
 
 function SimpleSphere(center, radius; color = rgb(0.5f0), reflection = 0.5f0)
@@ -42,7 +65,7 @@ function intersect(s::Sphere, origin, direction)
     c = l2norm(s.center) .+ l2norm(origin) .- 2 .* dot(s.center, origin) .- (s.radius ^ 2)
     disc = (b .^ 2) .- c
     function get_intersections(x, y)
-        t = bigmul(x)
+        t = bigmul(x + y) # Hack to split the 0.0 gradient to both. Otherwise one gets nothing
         if y > 0
             sqrty = sqrt(y)
             z1 = -x - sqrty 
@@ -118,7 +141,7 @@ function intersect(cy::Cylinder, origin, direction)
     zt2 = dot(origin + direction * h₁, cy.axis)
     
     function get_intersections(d, z1, z2, zt1, zt2)
-        t = bigmul(z1)
+        t = bigmul(d + z1 + z2 + zt1 + zt2)
         if d > 0
             if z1 <= 0 && z2 > 0 && zmin <= zt2 <= zmax
                 t = z2
@@ -175,7 +198,7 @@ function intersect(t::Triangle, origin, direction)
     val2 = dot(t.normal, cross(edge2, c₂))
     val3 = dot(t.normal, cross(edge3, c₃))
     get_intersections(a, b, c, d) =
-        (a > 0 && b > 0 && c > 0 && d > 0) ? a : bigmul(a)
+        (a > 0 && b > 0 && c > 0 && d > 0) ? a : bigmul(a + b + c + d)
     result = broadcast(get_intersections, h, val1, val2, val3)
     return result
 end

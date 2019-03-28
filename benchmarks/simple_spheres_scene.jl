@@ -13,6 +13,6 @@ scene = [
     CheckeredSphere(Vec3(0.0f0, -99999.5f0, 0.0f0), 99999.0f0)
     ]
 
-origin, direction = get_primary_rays(Float32, 400, 300, 30, eye_pos)
+origin, direction = get_primary_rays(Float32, 400, 300, 90, eye_pos)
 
 @show @benchmark raytrace($origin, $direction, $scene, $light_pos, $eye_pos, 0)

@@ -3,15 +3,18 @@ import Base: +, *, -, /, %, intersect
 
 # Vector 3
 
-struct Vec3{T}
+# Making the fields arrays allow us to collect gradients for them
+struct Vec3{T<:AbstractArray}
     x::T
     y::T
     z::T
 end    
 
-Vec3(a) = Vec3(a, a, a)
+Vec3(a::T) where {T<:Real} = Vec3([a], [a], [a])
 
 Vec3(a::T) where {T<:AbstractArray} = Vec3(copy(a), copy(a), copy(a))
+
+Vec3(a::T, b::T, c::T) where {T<:Real} = Vec3([a], [b], [c])
 
 for op in (:+, :*, :-)
     @eval begin
@@ -72,10 +75,11 @@ extract(cond, x::T) where {T<:Number} = x
 
 extract(cond, x::T) where {T<:AbstractArray} = x[cond]
 
-extract(cond, a::Vec3) =
-    Vec3(a.x[cond], a.y[cond], a.z[cond])
-
-extract(cond, a::Vec3{T}) where {T<:Number} =
-    Vec3(a.x, a.y, a.z)
+function extract(cond, a::Vec3)
+    if length(a.x) == 1
+        return Vec3(a.x, a.y, a.z)
+    end
+    return Vec3(a.x[cond], a.y[cond], a.z[cond])
+end
 
 bigmul(x::T) where {T} = typemax(x)

@@ -16,7 +16,7 @@ function get_primary_rays(T, width, height, fov, cam_pos)
     x = repeat(x_part, outer = height)
     y = repeat(y_part, inner = width)
     
-    Q = Vec3(x, y, fill(T(origin.z + 1), size(x)...))
+    Q = Vec3(x, y, repeat(origin.z .+ 1, inner = length(x)))
     direction = normalize(Q - origin)
 
     return origin, direction

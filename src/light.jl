@@ -36,7 +36,7 @@ struct DistantLight{I<:AbstractFloat} <: Light
     intensity::I
     position::Vec3 
     direction::Vec3  # Must be normalized
-    DistantLight(c, i, p, d) = new(c, i, p, normalize(d))
+    DistantLight(c, i, p, d) = new{typeof(i)}(c, i, p, normalize(d))
 end
 
 get_direction(d::DistantLight, pt::Vec3) =

@@ -15,7 +15,7 @@ scene = [
                     color2 = rgb(0.0f0, 0.0f0, 1.0f0), reflection = 0.25f0)
     ]
 
-origin, direction = get_primary_rays(Float32, 400, 300, 30, eye_pos)
+origin, direction = get_primary_rays(Float32, 400, 300, 90, eye_pos)
 
 color = raytrace(origin, direction, scene, light_pos, eye_pos, 0)
 
@@ -33,7 +33,7 @@ save("simple_spheres_scene.jpg", img)
 
 light_pos = Vec3(5.0f0, 55.0f0, -10.0f0)
 
-color = raytrace(eye_pos, norm(Q - eye_pos), scene, light_pos, eye_pos, 0)
+color = raytrace(origin, direction, scene, light_pos, eye_pos, 0)
 
 col1 = proper_shape(color.x)
 col2 = proper_shape(color.y)
