@@ -2,7 +2,7 @@ using RayTracer, Images
 
 screen_size = (w = 400, h = 300)
 
-light_pos = Vec3(5.0f0, 5.0f0, -10.0f0)
+light = PointLight(Vec3(1.0f0), 20.0f0, Vec3(5.0f0, 5.0f0, -10.0f0))
 
 eye_pos = Vec3(0.0f0, 0.35f0, -1.0f0)
 
@@ -15,9 +15,9 @@ scene = [
                     color2 = rgb(0.0f0, 0.0f0, 1.0f0), reflection = 0.25f0)
     ]
 
-origin, direction = get_primary_rays(Float32, 400, 300, 90, eye_pos)
+origin, direction = get_primary_rays(Float32, 400, 300, 90, eye_pos);
 
-color = raytrace(origin, direction, scene, light_pos, eye_pos, 0)
+color = raytrace(origin, direction, scene, light, eye_pos, 0)
 
 proper_shape(a) = clamp.(reshape(a, screen_size.w, screen_size.h), 0.0f0, 1.0f0)
 
@@ -31,9 +31,9 @@ img = colorview(RGB, im_arr)
 
 save("simple_spheres_scene.jpg", img)
 
-light_pos = Vec3(5.0f0, 55.0f0, -10.0f0)
+light = PointLight(Vec3(1.0f0), 50.0f0, Vec3(5.0f0, 55.0f0, -10.0f0))
 
-color = raytrace(origin, direction, scene, light_pos, eye_pos, 0)
+color = raytrace(origin, direction, scene, light, eye_pos, 0)
 
 col1 = proper_shape(color.x)
 col2 = proper_shape(color.y)

@@ -1,14 +1,28 @@
-# Imports
 import Base: +, *, -, /, %, intersect
 
-# Vector 3
+# -------- #
+# Vector 3 #
+# -------- #
 
 # Making the fields arrays allow us to collect gradients for them
 struct Vec3{T<:AbstractArray}
     x::T
     y::T
     z::T
+    function Vec3(x::T, y::T, z::T) where {T<:AbstractArray}
+        @assert size(x) == size(y) == size(z)
+        new{T}(x, y, z)
+    end
+    function Vec3(x::T1, y::T2, z::T3) where {T1<:AbstractArray, T2<:AbstractArray, T3<:AbstractArray}
+        # Yes, I know it is a terrible hack but Zygote.FillArray was pissing me off.
+        T = eltype(x) <: Real ? eltype(x) : eltype(y) <: Real ? eltype(y) : eltype(z)
+        @warn "Converting the type to $(T) by default" maxlog=1
+        @assert size(x) == size(y) == size(z)
+        new{AbstractArray{T, ndims(x)}}(T.(x), T.(y), T.(z))
+    end
 end    
+
+# Base.show(io::IO, v::Vec3) = print(io, "(x = $(v.x), y = $(v.y), z = $(v.z))")
 
 Vec3(a::T) where {T<:Real} = Vec3([a], [a], [a])
 
@@ -18,7 +32,7 @@ Vec3(a::T, b::T, c::T) where {T<:Real} = Vec3([a], [b], [c])
 
 for op in (:+, :*, :-)
     @eval begin
-        function $(op)(a::Vec3, b::Vec3)
+        @inline function $(op)(a::Vec3, b::Vec3)
             return Vec3(broadcast($(op), a.x, b.x),
                         broadcast($(op), a.y, b.y),
                         broadcast($(op), a.z, b.z)) 
@@ -28,13 +42,13 @@ end
 
 for op in (:+, :*, :-, :/, :%)
     @eval begin
-        function $(op)(a::Vec3, b)
+        @inline function $(op)(a::Vec3, b)
             return Vec3(broadcast($(op), a.x, b),
                         broadcast($(op), a.y, b),
                         broadcast($(op), a.z, b))
         end
         
-        function $(op)(b, a::Vec3)
+        @inline function $(op)(b, a::Vec3)
             return Vec3(broadcast($(op), a.x, b),
                         broadcast($(op), a.y, b),
                         broadcast($(op), a.z, b))
@@ -42,16 +56,15 @@ for op in (:+, :*, :-, :/, :%)
     end
 end
 
--(a::Vec3) = Vec3(-a.x, -a.y, -a.z)
+@inline -(a::Vec3) = Vec3(-a.x, -a.y, -a.z)
 
-dot(a::Vec3, b::Vec3) =
-    a.x .* b.x .+ a.y .* b.y .+ a.z .* b.z
+@inline dot(a::Vec3, b::Vec3) = a.x .* b.x .+ a.y .* b.y .+ a.z .* b.z
 
-l2norm(a::Vec3) = dot(a, a)
+@inline l2norm(a::Vec3) = dot(a, a)
 
-normalize(a::Vec3) = a / sqrt.(l2norm(a))
+@inline normalize(a::Vec3) = a / sqrt.(l2norm(a))
 
-cross(a::Vec3, b::Vec3) =
+@inline cross(a::Vec3, b::Vec3) =
     Vec3(a.y .* b.z .- a.z .* b.y, a.z .* b.x .- a.x .* b.z,
          a.x .* b.y .- a.y .* b.x)
 
@@ -65,11 +78,15 @@ function place(a::Vec3, cond)
     return r
 end
 
-# Color
+# ----- #
+# Color #
+# ----- #
 
 rgb = Vec3
 
-# Utils
+# ----- #
+# Utils #
+# ----- #
 
 extract(cond, x::T) where {T<:Number} = x
 

@@ -25,7 +25,7 @@ end
 # Hack to avoid nothing in the gradient due to typemax
 @adjoint bigmul(x::T) where {T} = bigmul(x), Δ -> (zero(T),)
 
-@adjoint Vec3(a::T, b::T, c::T) where {T} = Vec3(a, b, c), Δ -> (Δ.x, Δ.y, Δ.z)
+@adjoint Vec3(a, b, c) = Vec3(a, b, c), Δ -> (Δ.x, Δ.y, Δ.z)
 
 @adjoint function literal_getproperty(v::Vec3, ::Val{f}) where {f}
     return getproperty(v, f), function (Δ)
@@ -42,6 +42,8 @@ end
     end
 end
 
+@adjoint place(a::Vec3, cond) = place(a, cond), Δ -> (Vec3(Δ.x[cond], Δ.y[cond], Δ.z[cond]), nothing)
+
 # ----- #
 # Light #
 # ----- #
@@ -49,6 +51,35 @@ end
 # -------- #
 # Material #
 # -------- #
+
+@adjoint PlainColor(color::Vec3) = PlainColor(color), Δ -> (Δ.color,)
+    
+@adjoint literal_getproperty(c::PlainColor, ::Val{f}) where {f} =
+    getproperty(c, f), Δ -> (PlainColor(Δ), nothing)
+
+@adjoint CheckeredSurface(color1::Vec3, color2::Vec3) =
+    CheckeredSurface(color1, color2), Δ -> (Δ.color1, Δ.color2)
+    
+@adjoint literal_getproperty(c::CheckeredSurface, ::Val{f}) where {f} =
+    getproperty(c, f), Δ -> begin
+        if f == :color1
+            (CheckeredSurface(Δ, Vec3(similar(Δ.x))), nothing)
+        else
+            (CheckeredSurface(Vec3(similar(Δ.x)), Δ), nothing)
+        end
+    end
+
+@adjoint Material(col::S, reflection::R) where {S<:SurfaceColor, R<:Real} =
+    Material(col, reflection), Δ -> (Δ.color, Δ.reflection)
+
+@adjoint literal_getproperty(m::Material, ::Val{f}) where {f} =
+    getproperty(m, f), Δ -> begin
+        if f == :color
+            (Material(Δ, 0.0), nothing)
+        else
+            (Material(typeof(m.color)(), Δ), nothing)
+        end
+    end
 
 # ------- #
 # Objects #

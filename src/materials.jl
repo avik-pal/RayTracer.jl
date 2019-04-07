@@ -4,13 +4,15 @@
 
 abstract type SurfaceColor end
 
-# ---------- #
-# PlainColor #
-# ---------- #
+# -------------- #
+# - PlainColor - #
+# -------------- #
 
 struct PlainColor <: SurfaceColor
     color::Vec3
 end
+
+PlainColor() = PlainColor(Vec3(0.0f0))
 
 # Addition does not make much sense here but is needed for gradient accumulation
 p1::PlainColor + p2::PlainColor = PlainColor(p1.color + p2.color)
@@ -26,6 +28,8 @@ struct CheckeredSurface <: SurfaceColor
     color2::Vec3
 end
 
+CheckeredSurface() = CheckeredSurface(Vec3(0.0f0), Vec3(0.0f0))
+
 c1::CheckeredSurface + c2::CheckeredSurface = CheckeredSurface(c1.color1 + c2.color1,
                                                                c1.color2 + c2.color2)
 
@@ -35,12 +39,15 @@ function diffusecolor(c::CheckeredSurface, pt::Vec3)
     return c.color1 * checker + c.color2 * (1.0f0 .- checker)
 end
 
-# Materials
+# --------- #
+# Materials #
+# --------- #
 
-struct Material{S<:SurfaceColor, R<:AbstractFloat}
+# NOTE: For calculating the gradient of reflection it has to be an array
+struct Material{S<:SurfaceColor, R<:Real}
     color::S
     reflection::R
-end                          
+end
 
 m1::Material + m2::Material = Material(m1.color + m2.color, m1.reflection + m2.reflection)
 

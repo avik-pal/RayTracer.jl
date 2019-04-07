@@ -2,7 +2,7 @@ using RayTracer, Images
 
 screen_size = (w = 400, h = 300)
 
-light_pos = Vec3(5.0f0, 5.0f0, -10.0f0)
+light = PointLight(Vec3(1.0f0), 20.0f0, Vec3(5.0f0, 5.0f0, -10.0f0))
 
 eye_pos = Vec3(0.0f0, 1.0f0, -1.0f0)
 
@@ -18,7 +18,7 @@ scene = [
 
 origin, direction = get_primary_rays(Float32, screen_size.w, screen_size.h, 90, eye_pos)
 
-color = raytrace(origin, direction, scene, light_pos, eye_pos, 0)
+color = raytrace(origin, direction, scene, light, eye_pos, 0)
 
 proper_shape(a) = clamp.(reshape(a, screen_size.w, screen_size.h), 0.0f0, 1.0f0)
 

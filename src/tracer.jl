@@ -3,8 +3,8 @@
 # -------- #
 
 function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
-                  light_pos::Vec3, eye_pos::Vec3, bounce::Int = 0)
-    distances = [intersect(s, origin, direction) for s in scene]
+                  lgt::L, eye_pos::Vec3, bounce::Int = 0) where {L<:Light}
+    distances = broadcast(x -> intersect(x, origin, direction), scene)
 
     nearest = map(min, distances...)
     h = bigmul.(nearest) .!= nearest
@@ -17,8 +17,7 @@ function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
             dc = extract(hit, d)
             originc = extract(hit, origin)
             dirc = extract(hit, direction)
-            cc = light(s, originc, dirc, dc, light_pos, eye_pos,
-                       scene, i, bounce)
+            cc = light(s, originc, dirc, dc, lgt, eye_pos, scene, i, bounce)
             color += place(cc, hit)
         end
     end
