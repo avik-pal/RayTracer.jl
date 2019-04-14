@@ -21,6 +21,11 @@ struct PointLight{I<:AbstractFloat} <: Light
     position::Vec3
 end
 
+# Needed for gradient accumulation
+p1::PointLight + p2::PointLight = PointLight(p1.color + p2.color,
+                                             p1.intensity + p2.intensity,
+                                             p1.position + p2.position)
+
 get_direction(p::PointLight, pt::Vec3) = normalize(p.position - pt)
 
 get_intensity(p::PointLight, pt::Vec3, dist) =

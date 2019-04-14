@@ -48,6 +48,23 @@ end
 # Light #
 # ----- #
 
+@adjoint PointLight(color::Vec3, intensity::I, pos::Vec3) where {I<:AbstractFloat} =
+    PointLight(color, intensity, pos), Δ -> (Δ.color, Δ.intensity, Δ.position)
+
+# NOTE: Can be implemented without conditionals
+@adjoint literal_getproperty(p::PointLight, ::Val{f}) where {f} =
+    getproperty(p, f), Δ -> begin
+        if f == :color
+            return (PointLight(Δ, 0.0f0, zero(p.position)), nothing)
+        elseif f == :intensity
+            return (PointLight(zero(p.color), Δ, zero(p.position)), nothing)
+        else
+            return (PointLight(zero(p.color), 0.0f0, Δ), nothing)
+        end
+    end
+
+# TODO: Implement for DistantLight
+
 # -------- #
 # Material #
 # -------- #
@@ -63,9 +80,9 @@ end
 @adjoint literal_getproperty(c::CheckeredSurface, ::Val{f}) where {f} =
     getproperty(c, f), Δ -> begin
         if f == :color1
-            (CheckeredSurface(Δ, Vec3(similar(Δ.x))), nothing)
+            return (CheckeredSurface(Δ, zero(c.color2)), nothing)
         else
-            (CheckeredSurface(Vec3(similar(Δ.x)), Δ), nothing)
+            return (CheckeredSurface(zero(c.color1), Δ), nothing)
         end
     end
 
@@ -75,15 +92,26 @@ end
 @adjoint literal_getproperty(m::Material, ::Val{f}) where {f} =
     getproperty(m, f), Δ -> begin
         if f == :color
-            (Material(Δ, 0.0), nothing)
+            return (Material(Δ, 0.0), nothing)
         else
-            (Material(typeof(m.color)(), Δ), nothing)
+            return (Material(typeof(m.color)(), Δ), nothing)
         end
     end
 
 # ------- #
 # Objects #
 # ------- #
+
+# TODO: Verify correctness
+@adjoint function fseelight(n::Int, light_distances)
+    res = fseelight(n, light_distances)
+    return res, function (Δ)
+        ∇res = [zero(i) for i in light_distances]
+        ∇res[n] .= res .* light_distances[n]
+        (nothing, ∇res)
+    end
+end
+    
 
 # ---------- #
 # - Sphere - #

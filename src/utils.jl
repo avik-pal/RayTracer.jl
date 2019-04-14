@@ -78,6 +78,14 @@ function place(a::Vec3, cond)
     return r
 end
 
+
+for f in (:zero, :similar, :one)
+    @eval begin
+        Base.$(f)(v::Vec3) = Vec3($(f)(v.x), $(f)(v.y), $(f)(v.z))
+    end
+end
+
+
 # ----- #
 # Color #
 # ----- #
