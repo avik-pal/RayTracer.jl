@@ -10,9 +10,9 @@ abstract type SurfaceColor end
 
 struct PlainColor <: SurfaceColor
     color::Vec3
+    PlainColor(c::Vec3{T}) where {T} = new(clamp(c, eltype(T)(0), eltype(T)(1)))
+    PlainColor() = new(Vec3(0.0f0))
 end
-
-PlainColor() = PlainColor(Vec3(0.0f0))
 
 # Addition does not make much sense here but is needed for gradient accumulation
 p1::PlainColor + p2::PlainColor = PlainColor(p1.color + p2.color)
@@ -26,9 +26,10 @@ diffusecolor(c::PlainColor, pt::Vec3) = c.color
 struct CheckeredSurface <: SurfaceColor
     color1::Vec3
     color2::Vec3
+    CheckeredSphere(c1::Vec3{T1}, c2::Vec3{T2}) where {T1, T2} = new(clamp(c1, eltype(T1)(0), eltype(T1)(1)),
+                                                                     clamp(c2, eltype(T2)(0), eltype(T2)(1)))
+    CheckeredSurface() = new(Vec3(0.0f0), Vec3(0.0f0))
 end
-
-CheckeredSurface() = CheckeredSurface(Vec3(0.0f0), Vec3(0.0f0))
 
 c1::CheckeredSurface + c2::CheckeredSurface = CheckeredSurface(c1.color1 + c2.color1,
                                                                c1.color2 + c2.color2)

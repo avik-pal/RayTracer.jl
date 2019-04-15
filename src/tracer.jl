@@ -13,7 +13,7 @@ function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
 
     for (i, (s, d)) in enumerate(zip(scene, distances))
         hit = h .& (d .== nearest)
-        if any(hit)
+        if sum(hit) != 0
             dc = extract(hit, d)
             originc = extract(hit, origin)
             dirc = extract(hit, direction)

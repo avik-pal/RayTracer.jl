@@ -19,6 +19,7 @@ struct PointLight{I<:AbstractFloat} <: Light
     color::Vec3
     intensity::I
     position::Vec3
+    PointLight(c, i, p) = new{typeof(i)}(clamp(c, 0.0f0, 1.0f0), i, p)
 end
 
 # Needed for gradient accumulation

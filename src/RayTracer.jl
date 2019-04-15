@@ -2,6 +2,8 @@ module RayTracer
 
 using Requires
 
+# NOTE: Gradients for the colors are broken for now.
+
 export raytrace
 export Vec3, rgb
 export SimpleSphere, CheckeredSphere, SimpleCylinder, CheckeredCylinder,

@@ -22,8 +22,6 @@ struct Vec3{T<:AbstractArray}
     end
 end    
 
-# Base.show(io::IO, v::Vec3) = print(io, "(x = $(v.x), y = $(v.y), z = $(v.z))")
-
 Vec3(a::T) where {T<:Real} = Vec3([a], [a], [a])
 
 Vec3(a::T) where {T<:AbstractArray} = Vec3(copy(a), copy(a), copy(a))
@@ -78,6 +76,7 @@ function place(a::Vec3, cond)
     return r
 end
 
+Base.clamp(v::Vec3, lo, hi) = Vec3(clamp.(v.x, lo, hi), clamp.(v.y, lo, hi), clamp.(v.z, lo, hi))
 
 for f in (:zero, :similar, :one)
     @eval begin
@@ -100,11 +99,6 @@ extract(cond, x::T) where {T<:Number} = x
 
 extract(cond, x::T) where {T<:AbstractArray} = x[cond]
 
-function extract(cond, a::Vec3)
-    if length(a.x) == 1
-        return Vec3(a.x, a.y, a.z)
-    end
-    return Vec3(a.x[cond], a.y[cond], a.z[cond])
-end
+extract(cond, a::Vec3) = length(a.x) == 1 ? Vec3(a.x, a.y, a.z) : Vec3(a.x[cond], a.y[cond], a.z[cond])
 
 bigmul(x::T) where {T} = typemax(x)
