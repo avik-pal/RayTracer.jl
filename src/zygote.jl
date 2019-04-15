@@ -107,7 +107,7 @@ end
     res = fseelight(n, light_distances)
     return res, function (Δ)
         ∇res = [zero(i) for i in light_distances]
-        ∇res[n] .= light_distances[n]
+        ∇res[n] .= res .* Δ
         (nothing, ∇res)
     end
 end
