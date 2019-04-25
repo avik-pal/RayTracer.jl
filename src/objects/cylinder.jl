@@ -10,11 +10,7 @@ struct Cylinder{C, R<:Real, L<:Real} <: Object
     material::Material
 end
 
-c1::Cylinder + c2::Cylinder = Cylinder(c1.center + c2.center,
-                                       c1.radius + c2.radius,
-                                       c1.axis + c2.axis,
-                                       c1.length + c2.length,
-                                       c1.material + c2.material)
+@diffops Cylinder
 
 # The next 3 functions are just convenience functions for handling
 # gradients properly for getproperty function

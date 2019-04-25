@@ -13,11 +13,7 @@ struct Triangle{V} <: Object
     material::Material
 end 
 
-t1::Triangle + t2::Triangle = Triangle(t1.v1 + t2.v1,
-                                       t1.v2 + t2.v2,
-                                       t1.v3 + t2.v3,
-                                       t1.normal + t2.normal,
-                                       t1.material + t2.material)
+@diffops Triangle
 
 # The next 2 functions are just convenience functions for handling
 # gradients properly for getproperty function
@@ -31,6 +27,8 @@ function Triangle(v::Vec3{T}, sym::Symbol) where {T}
     elseif sym == :v3
         return Triangle(Vec3(z), Vec3(z), v, Vec3(z), mat)
     else # :normal
+        # This is wrong as the normal should be enforced by the vertices and not differentiated.
+        # Alternatives are not to store it at all and compute the vaue when it is needed.
         return Triangle(Vec3(z), Vec3(z), Vec3(z), v, mat)
     end
 end
@@ -38,7 +36,12 @@ end
 # Symbol argument not needed but helps in writing the adjoint code
 function Triangle(mat::Material{S, R}, ::Symbol) where {S, R}
     z = R(0)
-    return Cylinder(Vec3(z), Vec3(z), Vec3(z), Vec3(z), mat)
+    return Triangle(Vec3(z), Vec3(z), Vec3(z), Vec3(z), mat)
+end
+
+function Triangle(v1::Vec3, v2::Vec3, v3::Vec3, mat::Material)
+    normal = normalize(cross(v2 - v1, v3 - v1)) 
+    return Triangle(v1, v2, v3, normal, mat)
 end
 
 function Triangle(v1::Vec3, v2::Vec3, v3::Vec3; color = rgb(0.5f0), reflection = 0.5f0)
@@ -66,8 +69,8 @@ function intersect(t::Triangle, origin, direction)
 end
 
 function get_normal(t::Triangle, pt)
-    normal = Vec3(fill(t.normal.x, size(pt.x)),
-                  fill(t.normal.y, size(pt.y)),
-                  fill(t.normal.z, size(pt.z)))
+    normal = Vec3(repeat(t.normal.x, inner = size(pt.x)),
+                  repeat(t.normal.y, inner = size(pt.y)),
+                  repeat(t.normal.z, inner = size(pt.z)))
     return normal
 end

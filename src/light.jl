@@ -22,10 +22,7 @@ struct PointLight{I<:AbstractFloat} <: Light
     PointLight(c, i, p) = new{typeof(i)}(clamp(c, 0.0f0, 1.0f0), i, p)
 end
 
-# Needed for gradient accumulation
-p1::PointLight + p2::PointLight = PointLight(p1.color + p2.color,
-                                             p1.intensity + p2.intensity,
-                                             p1.position + p2.position)
+@diffops PointLight
 
 get_direction(p::PointLight, pt::Vec3) = normalize(p.position - pt)
 
@@ -43,6 +40,8 @@ struct DistantLight{I<:AbstractFloat} <: Light
     direction::Vec3  # Must be normalized
     DistantLight(c, i, p, d) = new{typeof(i)}(c, i, p, normalize(d))
 end
+
+@diffops DistantLight
 
 get_direction(d::DistantLight, pt::Vec3) = d.direction
 

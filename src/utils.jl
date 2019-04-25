@@ -102,3 +102,30 @@ extract(cond, x::T) where {T<:AbstractArray} = x[cond]
 extract(cond, a::Vec3) = length(a.x) == 1 ? Vec3(a.x, a.y, a.z) : Vec3(a.x[cond], a.y[cond], a.z[cond])
 
 bigmul(x::T) where {T} = typemax(x)
+
+# ----------------- #
+# - Helper Macros - #
+# ----------------- #
+
+macro diffops(a)
+    quote
+        # Addition for gradient accumulation
+        function $(esc(:+))(x::$(esc(a)), y::$(esc(a)))
+            return $(esc(a))([getfield(x, i) + getfield(y, i) for i in fieldnames($(esc(a)))]...)
+        end
+        # Subtraction for gradient updates
+        function $(esc(:-))(x::$(esc(a)), y::$(esc(a)))
+            return $(esc(a))([getfield(x, i) - getfield(y, i) for i in fieldnames($(esc(a)))]...)
+        end
+        # Multiply for learning rate and misc ops
+        function $(esc(:*))(x::T, y::$(esc(a))) where {T<:Real}
+            return $(esc(a))([x * getfield(y, i) for i in fieldnames($(esc(a)))]...)
+        end
+        function $(esc(:*))(x::$(esc(a)), y::T) where {T<:Real}
+            return $(esc(a))([getfield(x, i) * y for i in fieldnames($(esc(a)))]...)
+        end
+        function $(esc(:*))(x::$(esc(a)), y::$(esc(a)))
+            return $(esc(a))([getfield(x, i) * getfield(y, i) for i in fieldnames($(esc(a)))]...)
+        end
+    end
+end

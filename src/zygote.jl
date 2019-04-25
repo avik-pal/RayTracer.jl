@@ -9,7 +9,8 @@ import Zygote.literal_getproperty
 # ---- #
 
 @adjoint function dot(a::Vec3, b::Vec3)
-    dot(a, b), Δ -> begin 
+    dot(a, b), Δ -> begin
+        Δ = map(x -> isnothing(x) ? zero(eltype(a.x)) : x, Δ)
         t1 = Δ * b
         t2 = Δ * a
         if length(a.x) != length(t1.x)

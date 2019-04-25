@@ -8,9 +8,7 @@ struct Sphere{C, R<:Real} <: Object
     material::Material
 end
 
-s1::Sphere + s2::Sphere = Sphere(s1.center + s2.center,
-                                 s1.radius + s2.radius,
-                                 s1.material + s2.material)
+@diffops Sphere
 
 # The next 3 functions are just convenience functions for handling
 # gradients properly for getproperty function

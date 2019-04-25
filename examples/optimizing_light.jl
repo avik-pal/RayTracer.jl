@@ -39,8 +39,6 @@ end
 
 ldiff(lgt) = diff(raytrace(origin, direction, scene, lgt, eye_pos, 0))
 
-update(l, g, η) = PointLight(l.color - η * g.color, l.intensity - η * g.intensity, l.position - η * g.position)
-
 l = light2
 
 for i in 0:1000
@@ -48,7 +46,7 @@ for i in 0:1000
     y, back = Zygote._forward(ldiff, l)
     println("Loss = $y")
     g = back(1.0f0)[2]
-    l = update(l, g, 1.0f0)
+    l = l - 1.0f0 * g
     if i % 30 == 0
         create_and_save(raytrace(origin, direction, scene, l, eye_pos, 0), i)
     end
