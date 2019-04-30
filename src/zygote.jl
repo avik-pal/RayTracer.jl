@@ -52,17 +52,14 @@ end
 @adjoint PointLight(color::Vec3, intensity::I, pos::Vec3) where {I<:AbstractFloat} =
     PointLight(color, intensity, pos), Δ -> (Δ.color, Δ.intensity, Δ.position)
 
-# NOTE: Can be implemented without conditionals
-@adjoint literal_getproperty(p::PointLight, ::Val{f}) where {f} =
-    getproperty(p, f), Δ -> begin
-        if f == :color
-            return (PointLight(Δ, 0.0f0, zero(p.position)), nothing)
-        elseif f == :intensity
-            return (PointLight(zero(p.color), Δ, zero(p.position)), nothing)
-        else
-            return (PointLight(zero(p.color), 0.0f0, Δ), nothing)
-        end
-    end
+@adjoint literal_getproperty(p::PointLight{I}, ::Val{:color}) where {I} =
+    getproperty(p, :color), Δ -> (PointLight(Δ, zero(I), zero(p.position)), nothing)
+
+@adjoint literal_getproperty(p::PointLight, ::Val{:intensity}) =
+    getproperty(p, :intensity), Δ -> (PointLight(zero(p.color), Δ, zero(p.position)), nothing)
+
+@adjoint literal_getproperty(p::PointLight{I}, ::Val{:position}) where {I} =
+    getproperty(p, :position), Δ -> (PointLight(zero(p.color), zero(I), Δ), nothing)
 
 # TODO: Implement for DistantLight
 
@@ -139,10 +136,13 @@ end
 # - Triangle - #
 # ------------ #
 
-@adjoint Triangle(v1, v2, v3, normal, material::Material) =
-    Triangle(v1, v2, v3, normal, material),
-    Δ -> Triangle(Δ.v1, Δ.v2, Δ.v3, Δ.normal, Δ.material)
+@adjoint Triangle(v1, v2, v3, material::Material) =
+    Triangle(v1, v2, v3, material), Δ -> Triangle(Δ.v1, Δ.v2, Δ.v3, Δ.material)
 
 @adjoint literal_getproperty(t::Triangle, ::Val{f}) where {f} =
     getproperty(t, f), Δ -> (Triangle(Δ, f), nothing)
+
+# ---------------- #
+# Helper Functions #
+# ---------------- #
 

@@ -29,17 +29,6 @@ function Sphere(mat::Material{S, R}) where {S, R}
     return Sphere(Vec3(z), z, mat)
 end
 
-function SimpleSphere(center, radius; color = rgb(0.5f0), reflection = 0.5f0)
-    mat = Material(PlainColor(color), reflection)
-    return Sphere(center, radius, mat)
-end
-
-function CheckeredSphere(center, radius; color1 = rgb(0.1f0), color2 = rgb(0.9f0),
-                         reflection = 0.5f0)
-    mat = Material(CheckeredSurface(color1, color2), reflection)
-    return Sphere(center, radius, mat)
-end
-
 function intersect(s::Sphere, origin, direction)
     b = dot(direction, origin - s.center)  # direction is a vec3 with array
     c = l2norm(s.center) .+ l2norm(origin) .- 2 .* dot(s.center, origin) .- (s.radius ^ 2)
@@ -63,3 +52,19 @@ function intersect(s::Sphere, origin, direction)
 end
 
 get_normal(s::Sphere, pt) = normalize(pt - s.center)
+
+# ---------------------- #
+# -- Helper Functions -- #
+# ---------------------- #
+
+function SimpleSphere(center, radius; color = rgb(0.5f0), reflection = 0.5f0)
+    mat = Material(PlainColor(color), reflection)
+    return Sphere(center, radius, mat)
+end
+
+function CheckeredSphere(center, radius; color1 = rgb(0.1f0), color2 = rgb(0.9f0),
+                         reflection = 0.5f0)
+    mat = Material(CheckeredSurface(color1, color2), reflection)
+    return Sphere(center, radius, mat)
+end
+

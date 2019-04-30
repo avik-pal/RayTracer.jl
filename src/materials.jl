@@ -25,8 +25,8 @@ diffusecolor(c::PlainColor, pt::Vec3) = c.color
 struct CheckeredSurface <: SurfaceColor
     color1::Vec3
     color2::Vec3
-    CheckeredSphere(c1::Vec3{T1}, c2::Vec3{T2}) where {T1, T2} = new(clamp(c1, eltype(T1)(0), eltype(T1)(1)),
-                                                                     clamp(c2, eltype(T2)(0), eltype(T2)(1)))
+    CheckeredSurface(c1::Vec3{T1}, c2::Vec3{T2}) where {T1, T2} = new(clamp(c1, eltype(T1)(0), eltype(T1)(1)),
+                                                                      clamp(c2, eltype(T2)(0), eltype(T2)(1)))
     CheckeredSurface() = new(Vec3(0.0f0), Vec3(0.0f0))
 end
 
