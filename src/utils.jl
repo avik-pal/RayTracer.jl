@@ -1,4 +1,4 @@
-import Base: +, *, -, /, %, intersect
+import Base: +, *, -, /, %, intersect, minimum, maximum
 
 # -------- #
 # Vector 3 #
@@ -18,11 +18,12 @@ Defined Operations for Vec3:
                    mention of broadcasting.
 * `dot`, `l2norm`
 * `cross`
-* `clamp`
+* `clamp`, `clip01`
 * `zero`, `similar`, `one`
 * `place`
+* `maximum`, `minimum`
 """
-struct Vec3{T<:AbstractArray}
+mutable struct Vec3{T<:AbstractArray}
     x::T
     y::T
     z::T
@@ -82,6 +83,12 @@ end
 @inline cross(a::Vec3, b::Vec3) =
     Vec3(a.y .* b.z .- a.z .* b.y, a.z .* b.x .- a.x .* b.z,
          a.x .* b.y .- a.y .* b.x)
+
+@inline maximum(v::Vec3) = max(maximum(v.x), maximum(v.y), maximum(v.z))
+
+@inline minimum(v::Vec3) = min(minimum(v.x), minimum(v.y), minimum(v.z))
+
+@inline clip01(v::Vec3) = (v - minimum(v)) / maximum(v)
 
 """
     place(a::Vec3, cond)

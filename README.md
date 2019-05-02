@@ -116,13 +116,16 @@ color = raytrace(origin, direction, scene, light, eye_pos, 0)
 create_and_save(color, "original")
 ```
 
-Finally define the loss function (L2 loss in our case) and the optimization loop
+Finally define the loss function (L2 loss in our case) and the optimization loop. We can use any of
+the optimizers provided by the Flux Deep Learning Library for optimization.
 
 ```julia
 function diff(lgt)
     c = color - raytrace(origin, direction, scene, lgt, eye_pos, 0)
     mean(abs2.(c.x)) + mean(abs2.(c.y)) + mean(abs2.(c.z))
 end
+
+opt = ADAM(0.0001f0)
 
 l = deepcopy(light_perturbed)
 
@@ -131,7 +134,7 @@ for i in 0:100
     y, back = Zygote._forward(diff, l)
     println("Loss = $y")
     g = back(1.0f0)[2]
-    l = l - 100.0f0 * g
+    update!(opt, l, g)
     if i % 10 == 0
         create_and_save(raytrace(origin, direction, scene, l, eye_pos, 0), i)
     end

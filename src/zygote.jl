@@ -4,6 +4,8 @@ using Zygote: @adjoint
 
 import Zygote.literal_getproperty
 
+# We currently do not optimize the Material of the surface
+
 # ---- #
 # Vec3 #
 # ---- #
@@ -99,12 +101,12 @@ end
 @adjoint Material(col::S, reflection::R) where {S<:SurfaceColor, R<:Real} =
     Material(col, reflection), Δ -> (Δ.color, Δ.reflection)
 
-@adjoint literal_getproperty(m::Material, ::Val{f}) where {f} =
+@adjoint literal_getproperty(m::Material{S, R}, ::Val{f}) where {S, R, f} =
     getproperty(m, f), Δ -> begin
         if f == :color
-            return (Material(Δ, 0.0), nothing)
+            return (Material(Δ, R(0)), nothing)
         else
-            return (Material(typeof(m.color)(), Δ), nothing)
+            return (Material(PlainColor(), Δ), nothing) # PlainColor is the zero for SurfaceColor
         end
     end
 

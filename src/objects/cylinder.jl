@@ -2,7 +2,9 @@
 # - Cylinder - #
 # ------------ #
 
-struct Cylinder{C, R<:Real, L<:Real} <: Object
+# FIXME: Cylinder rendering behaves wierdly. So its better not to use this
+#        currently.
+mutable struct Cylinder{C, R<:Real, L<:Real} <: Object
     center::Vec3{C}
     radius::R
     axis::Vec3{C}
@@ -35,8 +37,10 @@ function Cylinder(v::T, sym::Symbol) where {T<:Real}
 end
 
 # The symbol is not needed but maintains uniformity
+# Set material gradient to be 0
 function Cylinder(mat::Material{S, R}, ::Symbol) where {S, R}
     z = R(0)
+    mat = Material(PlainColor(rgb(z)), z)
     return Cylinder(Vec3(z), z, Vec3(z), z, mat)
 end
 
@@ -103,7 +107,7 @@ function intersect(cy::Cylinder, origin, direction)
     return result
 end
 
-function get_normal(c::Cylinder, pt)
+function get_normal(c::Cylinder, pt, direction)
     # TODO: Handle normal for inner surface
     pt_c = pt - c.center
     return normalize(pt_c - dot(pt_c, c.axis) * c.axis)

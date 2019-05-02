@@ -15,7 +15,7 @@ end
 # - Point Light - #
 # --------------- #
 
-struct PointLight{I<:AbstractFloat} <: Light
+mutable struct PointLight{I<:AbstractFloat} <: Light
     color::Vec3
     intensity::I
     position::Vec3
@@ -33,7 +33,7 @@ get_intensity(p::PointLight, pt::Vec3, dist) =
 # - Distant Light - #
 # ----------------- #
 
-struct DistantLight{I<:AbstractFloat} <: Light
+mutable struct DistantLight{I<:AbstractFloat} <: Light
     color::Vec3
     intensity::I
     position::Vec3 

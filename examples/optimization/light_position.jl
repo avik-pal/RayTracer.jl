@@ -1,4 +1,4 @@
-using RayTracer, Zygote, Statistics, Images
+using RayTracer, Zygote, Statistics, Images, Flux
 
 screen_size = (w = 400, h = 300)
 
@@ -29,6 +29,8 @@ function diff(lgt)
     mean(abs2.(c.x)) + mean(abs2.(c.y)) + mean(abs2.(c.z))
 end
 
+opt = ADAM(0.001f0)
+
 l = deepcopy(light_perturbed)
 
 for i in 0:100
@@ -36,7 +38,7 @@ for i in 0:100
     y, back = Zygote._forward(diff, l)
     println("Loss = $y")
     g = back(1.0f0)[2]
-    l = l - 100.0f0 * g
+    update!(opt, l, g)
     if i % 10 == 0
         create_and_save(raytrace(origin, direction, scene, l, eye_pos, 0), i)
     end
