@@ -2,7 +2,7 @@
 
 A Differentiable Ray Tracer written in Julia.
 
-## Installation
+## INSTALLATION
 
 The package is currently not registered. So open up a Julia 1.\* repl and enter the pkg mode.
 
@@ -16,7 +16,7 @@ For being able to use the differentiable aspects of the package install Zygote.
 ] add Zygote
 ```
 
-## Minimum Usage Examples
+## USAGE EXAMPLES
 
 ### Rendering a Simple Scene
 
@@ -84,6 +84,49 @@ interesting scenes you just need to vary the parameters of the above example.
 
 **Work in Progress**
 
-## API Documentation
+## API DOCUMENTATION
+
+This part lists the currently available functions and types. To get the full documentation either
+look into the source code or use `? <function_name>` in the Julia REPL. (The documentation is still
+under construction so some of the functions might still be undocumented. Feel free to open an issue
+or reach out to us on the Julia Slack if you need to understand how to use one of those functions.)
+
+### Types
+
+* Vec3 
+* Objects :
+    * Sphere 
+    * Triangle
+    * Cylinder
+* Light Sources :
+    * PointLight
+    * DistantLight
+* Surface Color :
+    * PlainColor
+    * CheckeredSurface
+* Material                                                            
+
+### Functions
+
+#### Exported Functions
+
+* get\_primary\_rays
+* raytrace
+* SimpleSphere, CheckeredSphere
+* SimpleCylinder, CheckeredCylinder
+* Triangle
+
+#### Internal Functions
+
+You should not bother about these functions unless you are trying to add a new type to
+RayTracer.
+
+* get\_shading\_info
+* get\_direction, get\_intensity
+* diffuse\_color
+* light
+* get\_normal, intersect
+
+## CURRENT ROADMAP
 
 **Work in Progress**

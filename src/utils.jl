@@ -4,7 +4,24 @@ import Base: +, *, -, /, %, intersect
 # Vector 3 #
 # -------- #
 
-# Making the fields arrays allow us to collect gradients for them
+"""
+    Vec3
+
+This is the central type for RayTracer. All of the other types are defined building
+upon this.                                                      
+
+All the fields of the Vec3 instance contains `Array`s. This ensures that we can collect
+the gradients w.r.t the fields using the `Params` API of Zygote.
+
+Defined Operations for Vec3:
+* `+`, `-`, `*` -- These operations will be broadcasted even though there is no explicit
+                   mention of broadcasting.
+* `dot`, `l2norm`
+* `cross`
+* `clamp`
+* `zero`, `similar`, `one`
+* `place`
+"""
 struct Vec3{T<:AbstractArray}
     x::T
     y::T
@@ -66,6 +83,16 @@ end
     Vec3(a.y .* b.z .- a.z .* b.y, a.z .* b.x .- a.x .* b.z,
          a.x .* b.y .- a.y .* b.x)
 
+"""
+    place(a::Vec3, cond)
+
+Constructs a new `Vec3` with array length equal to that of `cond` filled with zeros.
+Then it fills the positions corresponding to the `true` values of `cond` with the values
+in `a`.
+
+The length of each array in `a` must be equal to the number of `true` values in the 
+`cond` array.
+"""
 function place(a::Vec3, cond)
     r = Vec3(zeros(eltype(a.x), size(cond)...),
              zeros(eltype(a.y), size(cond)...),
@@ -89,24 +116,79 @@ end
 # Color #
 # ----- #
 
+"""
+`rgb` is an alias for `Vec3`. It makes more sense to use this while defining colors. 
+"""
 rgb = Vec3
 
 # ----- #
 # Utils #
 # ----- #
 
+"""
+    extract(cond, x<:Number)
+    extract(cond, x<:AbstractArray)
+    extract(cond, x::Vec3)
+
+Extracts the elements of `x` (in case it is an array) for which the indices corresponding to the `cond`
+are `true`.
+
+Example:
+```julia
+julia> a = rand(4)
+4-element Array{Float64,1}:
+ 0.7201598586590607 
+ 0.5829718552672327 
+ 0.1177531256556108 
+ 0.3083157590071375 
+
+julia> cond = a .> 0.5
+4-element BitArray{1}:
+  true
+  true
+ false
+ false
+
+julia> RayTracer.extract(cond, a)
+4-element Array{Float64,1}:
+ 0.7201598586590607
+ 0.5829718552672327
+```
+"""
 extract(cond, x::T) where {T<:Number} = x
 
 extract(cond, x::T) where {T<:AbstractArray} = x[cond]
 
 extract(cond, a::Vec3) = length(a.x) == 1 ? Vec3(a.x, a.y, a.z) : Vec3(a.x[cond], a.y[cond], a.z[cond])
 
-bigmul(x::T) where {T} = typemax(x)
+"""
+    bigmul(x)
+
+Returns the output same as `typemax`. However, in case gradients are computed, it will return
+the gradient to be `0` instead of `nothing` as in case of typemax.
+"""
+bigmul(x) = typemax(x)
 
 # ----------------- #
 # - Helper Macros - #
 # ----------------- #
 
+"""
+    @diffops MyType::DataType
+
+Generates functions for performing gradient based optimizations on this custom type.
+5 functions are generated.
+
+1. x::MyType + y::MyType -- For Gradient Accumulation
+2. x::MyType - y::MyType -- For Gradient Based Updates
+3. x::MyType * η<:Real   -- For Multiplication of the Learning Rate with Gradient
+4. η<:Real   * x::MyType -- For Multiplication of the Learning Rate with Gradient
+5. x::MyType * y::MyType -- Just for the sake of completeness.
+
+Most of these functions do not make semantic sense. For example, adding 2 `PointLight`
+instances do not make sense but in case both of them are gradients, it makes perfect
+sense to accumulate them in a third `PointLight` instance.
+"""
 macro diffops(a)
     quote
         # Addition for gradient accumulation
