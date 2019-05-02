@@ -67,7 +67,7 @@ save("spheres1.jpg", img)
 
 If all went well then the following image should have been produced
 
-![simple_spheres_scene](https://raw.githubusercontent.com/avik-pal/RayTracer.jl/master/assets/simple_spheres_scene.jpg)
+![simple_spheres_scene](https://raw.githubusercontent.com/avik-pal/RayTracer.jl/master/assets/spheres1.jpg)
 
 Now you know everything there is to know about rendering using RayTracer :P. For rendering more
 interesting scenes you just need to vary the parameters of the above example.
@@ -184,8 +184,8 @@ RayTracer.
 
 These are not listed in any particular order
 
-- [] Add more types of common objects - Disc, Plane, Box.
-- [] Add support for rendering arbitrary mesh.
-- [] GPU Support using CuArrays
-- [] Inverse Rendering Examples
-- [] Application in Machine Learning Models through Flux
+- [ ] Add more types of common objects - Disc, Plane, Box.
+- [ ] Add support for rendering arbitrary mesh.
+- [ ] GPU Support using CuArrays
+- [ ] Inverse Rendering Examples
+- [ ] Application in Machine Learning Models through Flux
