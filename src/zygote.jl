@@ -63,14 +63,22 @@ end
 
 # TODO: Implement for DistantLight
 
-# -------- #
-# Material #
-# -------- #
+# ------------ #
+# SurfaceColor #
+# ------------ #
+
+# -------------- #
+# - PlainColor - #
+# -------------- #
 
 @adjoint PlainColor(color::Vec3) = PlainColor(color), Δ -> (Δ.color,)
     
 @adjoint literal_getproperty(c::PlainColor, ::Val{f}) where {f} =
     getproperty(c, f), Δ -> (PlainColor(Δ), nothing)
+
+# ------------------ #
+# - CheckeredColor - #
+# ------------------ #
 
 @adjoint CheckeredSurface(color1::Vec3, color2::Vec3) =
     CheckeredSurface(color1, color2), Δ -> (Δ.color1, Δ.color2)
@@ -83,6 +91,10 @@ end
             return (CheckeredSurface(zero(c.color1), Δ), nothing)
         end
     end
+
+# -------- #
+# Material #
+# -------- #
 
 @adjoint Material(col::S, reflection::R) where {S<:SurfaceColor, R<:Real} =
     Material(col, reflection), Δ -> (Δ.color, Δ.reflection)
@@ -141,8 +153,3 @@ end
 
 @adjoint literal_getproperty(t::Triangle, ::Val{f}) where {f} =
     getproperty(t, f), Δ -> (Triangle(Δ, f), nothing)
-
-# ---------------- #
-# Helper Functions #
-# ---------------- #
-

@@ -19,29 +19,15 @@ origin, direction = get_primary_rays(Float32, 400, 300, 90, eye_pos);
 
 color = raytrace(origin, direction, scene, light, eye_pos, 0)
 
-proper_shape(a) = clamp.(reshape(a, screen_size.w, screen_size.h), 0.0f0, 1.0f0)
+img = get_image(color, screen_size.w, screen_size.h)
 
-col1 = proper_shape(color.x)
-col2 = proper_shape(color.y)
-col3 = proper_shape(color.z)
-
-im_arr = permutedims(cat(col1, col2, col3, dims = 3), (3, 2, 1))
-
-img = colorview(RGB, im_arr)
-
-save("simple_spheres_scene.jpg", img)
+save("spheres1.jpg", img)
 
 light = PointLight(Vec3(1.0f0), 50.0f0, Vec3(5.0f0, 55.0f0, -10.0f0))
 
 color = raytrace(origin, direction, scene, light, eye_pos, 0)
 
-col1 = proper_shape(color.x)
-col2 = proper_shape(color.y)
-col3 = proper_shape(color.z)
+img = get_image(color, screen_size.w, screen_size.h)
 
-im_arr = permutedims(cat(col1, col2, col3, dims = 3), (3, 2, 1))
-
-img = colorview(RGB, im_arr)
-
-save("simple_spheres_scene_altlight.jpg", img)
+save("spheres2.jpg", img)
 

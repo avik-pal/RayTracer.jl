@@ -1,3 +1,5 @@
+using Distributed
+
 # -------- #
 # RayTrace #
 # -------- #
@@ -23,4 +25,10 @@ function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
     end
 
     return color
+end
+
+function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
+                  lgt::Vector{L}, eye_pos::Vec3, bounce::Int = 0) where {L<:Light}
+    colors = pmap(x -> raytrace(origin, direction, scene, x, eye_pos, 0), lgt)
+    return sum(colors)
 end

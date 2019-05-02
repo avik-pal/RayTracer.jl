@@ -28,9 +28,8 @@ using RayTracer, Images
 # The dimensions of the screen
 screen_size = (w = 400, h = 300)
 
-# The source of light. Currently we support presence of only one light source
-# but this will change shortly in the future where you wll be allowed to have
-# multiple sources of light.
+# The source of light. This can be replaced by a Vector of Light Sources
+# if needed.
 light = PointLight(Vec3(1.0f0), 20.0f0, Vec3(5.0f0, 5.0f0, -10.0f0))
 
 # Eye position is essentially the position of the camera. We infer the direction
@@ -60,17 +59,10 @@ color = raytrace(origin, direction, scene, light, eye_pos, 0)
 
 Finally we save this image
 ```julia
-proper_shape(a) = clamp.(reshape(a, screen_size.w, screen_size.h), 0.0f0, 1.0f0)
+# `get_image` is available only if you have loaded `Images`.
+img = get_image(color, screen_size.w, screen_size.h)
 
-col1 = proper_shape(color.x)
-col2 = proper_shape(color.y)
-col3 = proper_shape(color.z)
-
-im_arr = permutedims(cat(col1, col2, col3, dims = 3), (3, 2, 1))
-
-img = colorview(RGB, im_arr)
-
-save("simple_spheres_scene.jpg", img)
+save("spheres1.jpg", img)
 ```
 
 If all went well then the following image should have been produced
@@ -82,7 +74,74 @@ interesting scenes you just need to vary the parameters of the above example.
 
 ### Gradient Based Optimization of Scene Parameters
 
-**Work in Progress**
+First of all, we start by rendering a scene. (We will demonstrate using only a single object.
+To use more objects you just need to follow the previous demonstration)
+
+You will have to install `Zygote` manually for this example to run.
+
+```julia
+using RayTracer, Zygote, Statistics, Images
+
+screen_size = (w = 400, h = 300)
+
+light = PointLight(Vec3(1.0f0), 50.0f0, Vec3(5.0f0, 5.0f0, -10.0f0))
+
+# Our aim is to change this `light_purturbed` to `light`
+light_perturbed = PointLight(Vec3(1.0f0), 40.0f0, Vec3(3.0f0, 3.0f0, -7.0f0))
+
+eye_pos = Vec3(0.0f0, 0.35f0, -1.0f0)
+
+scene = [
+    SimpleSphere(Vec3(0.75f0, 0.1f0, 1.0f0), 0.6f0, color = rgb(0.0f0, 0.0f0, 1.0f0)),
+    ]
+
+origin, direction = get_primary_rays(Float32, 400, 300, 90, eye_pos)
+```
+
+Let us define a convenience function for saving the images
+
+```julia
+function create_and_save(color, val)
+    img = get_image(color, screen_size.w, screen_size.h)
+
+    save("images/image_$(val).jpg", img)
+end
+```
+
+Now render and save the ground truth image
+
+```julia
+color = raytrace(origin, direction, scene, light, eye_pos, 0)
+
+create_and_save(color, "original")
+```
+
+Finally define the loss function (L2 loss in our case) and the optimization loop
+
+```julia
+function diff(lgt)
+    c = color - raytrace(origin, direction, scene, lgt, eye_pos, 0)
+    mean(abs2.(c.x)) + mean(abs2.(c.y)) + mean(abs2.(c.z))
+end
+
+l = deepcopy(light_perturbed)
+
+for i in 0:100
+    global l
+    y, back = Zygote._forward(diff, l)
+    println("Loss = $y")
+    g = back(1.0f0)[2]
+    l = l - 100.0f0 * g
+    if i % 10 == 0
+        create_and_save(raytrace(origin, direction, scene, l, eye_pos, 0), i)
+    end
+    display(l)
+end
+```
+
+So here was a simple demo of a very simple gradient based inverse rendering problem. We optimized for
+only a single scene parameter but we can do a lot more cool stuff like joint optimization of
+multiple scene parameters.
 
 ## API DOCUMENTATION
 
@@ -94,16 +153,9 @@ or reach out to us on the Julia Slack if you need to understand how to use one o
 ### Types
 
 * Vec3 
-* Objects :
-    * Sphere 
-    * Triangle
-    * Cylinder
-* Light Sources :
-    * PointLight
-    * DistantLight
-* Surface Color :
-    * PlainColor
-    * CheckeredSurface
+* Objects - Sphere, Triangle, Cylinder
+* Light Sources - PointLight, DistantLight
+* Surface Color - PlainColor, CheckeredSurface
 * Material                                                            
 
 ### Functions
@@ -126,7 +178,14 @@ RayTracer.
 * diffuse\_color
 * light
 * get\_normal, intersect
+* get\_image (if `using Images`)
 
 ## CURRENT ROADMAP
 
-**Work in Progress**
+These are not listed in any particular order
+
+- [] Add more types of common objects - Disc, Plane, Box.
+- [] Add support for rendering arbitrary mesh.
+- [] GPU Support using CuArrays
+- [] Inverse Rendering Examples
+- [] Application in Machine Learning Models through Flux
