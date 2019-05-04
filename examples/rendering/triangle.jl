@@ -2,7 +2,7 @@ using RayTracer, Images
 
 screen_size = (w = 256, h = 256)
 
-light = PointLight(Vec3(1.0f0), 20.0f0, Vec3(5.0f0, 5.0f0, -10.0f0))
+light = PointLight(Vec3(1.0f0), 200.0f0, Vec3(5.0f0, 5.0f0, -10.0f0))
 
 eye_pos = Vec3(0.0f0, 0.0f0, -5.0f0)
 

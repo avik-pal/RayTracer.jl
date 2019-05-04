@@ -6,9 +6,9 @@ abstract type Light end
 
 function get_shading_info(l::L, pt) where {L<:Light}
     dir = get_direction(l, pt)
-    dist = l2norm(dir)
+    dist = sqrt.(l2norm(dir))
     intensity = get_intensity(l, pt, dist)
-    return dir, intensity
+    return (dir / dist), intensity
 end
 
 # --------------- #
@@ -24,7 +24,7 @@ end
 
 @diffops PointLight
 
-get_direction(p::PointLight, pt::Vec3) = normalize(p.position - pt)
+get_direction(p::PointLight, pt::Vec3) = p.position - pt
 
 get_intensity(p::PointLight, pt::Vec3, dist) =
     p.intensity * p.color / (4 .* (eltype(p.color.x))(π) .* (dist .^ 2))    
@@ -45,5 +45,10 @@ end
 
 get_direction(d::DistantLight, pt::Vec3) = d.direction
 
-get_intensity(d::DistantLight, pt::Vec3, dist) = d.intensity   
+get_intensity(d::DistantLight, pt::Vec3, dist) = d.intensity
+
+# -------------- #
+# - Area Light - #
+# -------------- #
+
 
