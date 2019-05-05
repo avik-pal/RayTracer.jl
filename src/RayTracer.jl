@@ -15,7 +15,6 @@ include("utils.jl")
 include("light.jl")
 include("materials.jl")
 include("objects.jl")
-include("tracer.jl")
 include("camera.jl")
 include("optimize.jl")
 

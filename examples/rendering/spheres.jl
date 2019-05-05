@@ -2,7 +2,7 @@ using RayTracer, Images
 
 screen_size = (w = 400, h = 300)
 
-light = PointLight(Vec3(1.0f0), 20.0f0, Vec3(5.0f0, 5.0f0, -10.0f0))
+light = PointLight(Vec3(1.0f0), 20000.0f0, Vec3(1.0f0, 5.0f0, -1.0f0))
 
 eye_pos = Vec3(0.0f0, 0.35f0, -1.0f0)
 
@@ -23,7 +23,7 @@ img = get_image(color, screen_size.w, screen_size.h)
 
 save("spheres1.jpg", img)
 
-light = PointLight(Vec3(1.0f0), 50.0f0, Vec3(5.0f0, 55.0f0, -10.0f0))
+light = PointLight(Vec3(1.0f0), 5000000.0f0, Vec3(5.0f0, 55.0f0, -1.0f0))
 
 color = raytrace(origin, direction, scene, light, eye_pos, 0)
 

@@ -36,9 +36,8 @@ get_intensity(p::PointLight, pt::Vec3, dist) =
 mutable struct DistantLight{I<:AbstractFloat} <: Light
     color::Vec3
     intensity::I
-    position::Vec3 
     direction::Vec3  # Must be normalized
-    DistantLight(c, i, p, d) = new{typeof(i)}(c, i, p, normalize(d))
+    DistantLight(c, i, d) = new{typeof(i)}(c, i, normalize(d))
 end
 
 @diffops DistantLight

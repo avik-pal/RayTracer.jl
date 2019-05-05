@@ -106,8 +106,10 @@ uuid = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
 version = "0.5.3"
 
 [[Flux]]
-deps = ["AbstractTrees", "Adapt", "CodecZlib", "Colors", "DelimitedFiles", "Juno", "LinearAlgebra", "MacroTools", "NNlib", "Pkg", "Printf", "Random", "Reexport", "Requires", "SHA", "Statistics", "StatsBase", "Tracker", "ZipFile"]
-git-tree-sha1 = "08212989c2856f95f90709ea5fd824bd27b34514"
+deps = ["AbstractTrees", "Adapt", "CodecZlib", "Colors", "DelimitedFiles", "Juno", "LinearAlgebra", "MacroTools", "NNlib", "Pkg", "Printf", "Random", "Reexport", "Requires", "SHA", "Statistics", "StatsBase", "Test", "Tracker", "ZipFile", "Zygote"]
+git-tree-sha1 = "6d6c351fd7465cf09e2f16a72865d17d5ad89265"
+repo-rev = "sf/zygote_updated"
+repo-url = "https://github.com/FluxML/Flux.jl.git"
 uuid = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 version = "0.8.3"
 
@@ -116,6 +118,12 @@ deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "InteractiveUtils", 
 git-tree-sha1 = "4c4d727f1b7e0092134fabfab6396b8945c1ea5b"
 uuid = "f6369f11-7733-5829-9624-2563aa707210"
 version = "0.10.3"
+
+[[IRTools]]
+deps = ["InteractiveUtils", "MacroTools", "Test"]
+git-tree-sha1 = "c13132944350119d1b94f1698d603566654bf57a"
+uuid = "7869d1d1-7146-5819-86e3-90919afe41df"
+version = "0.2.0"
 
 [[InteractiveUtils]]
 deps = ["Markdown"]
@@ -306,3 +314,9 @@ deps = ["BinaryProvider", "Libdl", "Printf", "Test"]
 git-tree-sha1 = "5f6f663890dfb9bad6af75a86a43f67904e5050e"
 uuid = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
 version = "0.8.1"
+
+[[Zygote]]
+deps = ["DiffRules", "ForwardDiff", "IRTools", "InteractiveUtils", "LinearAlgebra", "MacroTools", "NNlib", "NaNMath", "Random", "Requires", "SpecialFunctions", "Statistics"]
+git-tree-sha1 = "7f31d606965a9c37f6ddf06c9082b17370e0eb7e"
+uuid = "e88e6eb3-aa80-5325-afca-941959d7151f"
+version = "0.3.0"
