@@ -51,6 +51,10 @@ end
 # Light #
 # ----- #
 
+# -------------- #
+# - PointLight - #
+# -------------- #
+
 @adjoint PointLight(color::Vec3, intensity::I, pos::Vec3) where {I<:AbstractFloat} =
     PointLight(color, intensity, pos), Δ -> (Δ.color, Δ.intensity, Δ.position)
 
@@ -63,7 +67,21 @@ end
 @adjoint literal_getproperty(p::PointLight{I}, ::Val{:position}) where {I} =
     getproperty(p, :position), Δ -> (PointLight(zero(p.color), zero(I), Δ), nothing)
 
-# TODO: Implement for DistantLight
+# ---------------- #
+# - DistantLight - #
+# ---------------- #
+
+@adjoint DistantLight(color::Vec3, intensity::I, position::Vec3, direction::Vec3) where {I<:AbstractFloat} =
+    DistantLight(color, intensity, direction), Δ -> (Δ.color, Δ.intensity, Δ.direction)
+
+@adjoint literal_getproperty(d::DistantLight{I}, ::Val{:color}) where {I} =
+    getproperty(d, :color), Δ -> (DistantLight(Δ, zero(I), zero(d.direction)), nothing)
+
+@adjoint literal_getproperty(d::DistantLight, ::Val{:intensity}) =
+    getproperty(d, :intensity), Δ -> (DistantLight(zero(d.color), Δ, zero(d.direction)), nothing)
+
+@adjoint literal_getproperty(d::DistantLight{I}, ::Val{:direction}) where {I} =
+    getproperty(d, :direction), Δ -> (DistantLight(zero(d.color), zero(I), Δ), nothing)
 
 # ------------ #
 # SurfaceColor #
@@ -109,20 +127,6 @@ end
             return (Material(PlainColor(), Δ), nothing) # PlainColor is the zero for SurfaceColor
         end
     end
-
-# ------- #
-# Objects #
-# ------- #
-
-# TODO: Verify correctness
-@adjoint function fseelight(n::Int, light_distances)
-    res = fseelight(n, light_distances)
-    return res, function (Δ)
-        ∇res = [zero(i) for i in light_distances]
-        ∇res[n] .= res .* Δ
-        (nothing, ∇res)
-    end
-end
     
 
 # ---------- #
