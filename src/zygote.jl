@@ -173,3 +173,13 @@ end
 
 @adjoint literal_getproperty(t::Triangle, ::Val{f}) where {f} =
     getproperty(t, f), Δ -> (Triangle(Δ, f), nothing)
+
+# -------- #
+# - Disc - #
+# -------- #
+
+@adjoint Disc(n, r, c, material::Material) =
+    Disc(n, r, c, material), Δ -> Disc(Δ.center, Δ.normal, Δ.radius, Δ.material)
+
+@adjoint literal_getproperty(t::Disc, ::Val{f}) where {f} =
+    getproperty(t, f), Δ -> (Disc(Δ, f), nothing)

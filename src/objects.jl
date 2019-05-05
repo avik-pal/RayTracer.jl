@@ -15,6 +15,7 @@ diffusecolor(obj::O, pt::Vec3) where {O<:Object} =
 include("objects/sphere.jl")
 include("objects/cylinder.jl")
 include("objects/triangle.jl")
+include("objects/disc.jl")
 
 # ----------------------------- #
 # - General Object Properties - #
