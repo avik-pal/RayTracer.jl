@@ -3,7 +3,7 @@
 # -------- #
 
 # TODO: Use barycentric coordinates and Moller-Trumbore Algorithm
-struct Disc{V,T<:Real} <: Object
+mutable struct Disc{V,T<:Real} <: Object
     center::Vec3{V}
     normal::Vec3{V}
     radius::T
