@@ -1,3 +1,5 @@
+import Base.setproperty!
+
 # -------- #
 # - Disc - #
 # -------- #
@@ -9,6 +11,15 @@ mutable struct Disc{V,T<:Real} <: Object
     radius::T
     material::Material
 end 
+
+# Will mess with gradients. Need an alternate solution
+function setproperty!(d::Disc, sym::Symbol, x::Vec3)
+    if sym == :normal
+        setfield!(d, :normal, normalize(x))
+    else
+        setfield!(d, sym, x)
+    end
+end
 
 @diffops Disc
 
