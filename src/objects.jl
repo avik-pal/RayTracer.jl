@@ -33,7 +33,7 @@ function light(s::S, origin, direction, dist, lgt::L, eye_pos,
     
     # Shadow
     light_distances = broadcast(x -> intersect(x, nudged, dir_light), scene)
-    seelight = map((x...) -> min(x...) == x[obj_num], light_distances...)
+    seelight = fseelight(obj_num, light_distances)
     
     # Ambient
     color = rgb(0.05f0)
@@ -86,3 +86,5 @@ function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
     colors = pmap(x -> raytrace(origin, direction, scene, x, eye_pos, 0), lgt)
     return sum(colors)
 end
+
+fseelight(n, light_distances) = map((x...) -> min(x...) == x[n], light_distances...)

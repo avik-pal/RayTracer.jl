@@ -127,6 +127,20 @@ end
             return (Material(PlainColor(), Δ), nothing) # PlainColor is the zero for SurfaceColor
         end
     end
+
+# ------- #
+# Objects #
+# ------- #
+
+# TODO: Verify correctness
+@adjoint function fseelight(n::Int, light_distances)
+    res = fseelight(n, light_distances)
+    return res, function (Δ)
+        ∇res = [zero(i) for i in light_distances]
+        ∇res[n] .= res .* Δ
+        (nothing, ∇res)
+    end
+end
     
 
 # ---------- #
