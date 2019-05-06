@@ -178,8 +178,8 @@ end
 # - Disc - #
 # -------- #
 
-@adjoint Disc(n, r, c, material::Material) =
-    Disc(n, r, c, material), Δ -> Disc(Δ.center, Δ.normal, Δ.radius, Δ.material)
+@adjoint Disc(c, n, r, material::Material) =
+    Disc(c, n, r, material), Δ -> Disc(Δ.center, Δ.normal, Δ.radius, Δ.material)
 
 @adjoint literal_getproperty(t::Disc, ::Val{f}) where {f} =
     getproperty(t, f), Δ -> (Disc(Δ, f), nothing)

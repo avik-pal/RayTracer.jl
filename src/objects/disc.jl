@@ -48,7 +48,7 @@ function Disc(mat::Material{S, R}, ::Symbol) where {S, R}
     return Disc(Vec3(z), Vec3(z), z, mat2)
 end
 
-function Disc(n::Vec3, r::T, c::Vec3; color = rgb(0.5f0), reflection = 0.5f0) where {T<:Real}
+function Disc(c::Vec3, n::Vec3, r::T; color = rgb(0.5f0), reflection = 0.5f0) where {T<:Real}
     mat = Material(PlainColor(color), reflection)
     n = normalize(n)
     return Disc(c, n, r, mat)
