@@ -73,10 +73,8 @@ function intersect(d::Disc, origin, direction)
 end
 
 function get_normal(t::Disc, pt, direction)
-    normal_dir = dot(t.normal, direction)
-    mult_factor = broadcast(x -> x < 0 ? one(typeof(x)) : -one(typeof(x)), normal_dir)
     normal = Vec3(repeat(t.normal.x, inner = size(pt.x)),
                   repeat(t.normal.y, inner = size(pt.y)),
                   repeat(t.normal.z, inner = size(pt.z)))
-    return normal * mult_factor
+    return normal
 end

@@ -25,13 +25,12 @@ gs = gradient(loss_function, θ)
 update!(opt, θ, gs[1])
 ```
 """
+update!(opt, x::T, Δ::T) where {T<:AbstractArray} = x .- apply!(opt, x, Δ)
+
+update!(opt, x::T, Δ::T) where {T<:Real} = x .- (apply!(opt, [x], [Δ]))[1]
+
 function update!(opt, x::T, Δ::T) where {T}
-    if T <: AbstractArray
-        return x .- apply!(opt, x, Δ)
-    elseif T <: Real
-        return x .- (apply!(opt, [x], [Δ]))[1]
-    else
-        map(i -> setproperty!(x, i, update!(opt, getfield(x, i), getfield(Δ, i))), fieldnames(T))
-        return x
-    end
+    map(i -> setproperty!(x, i, update!(opt, getfield(x, i), getfield(Δ, i))), fieldnames(T))
+    return x
 end
+
