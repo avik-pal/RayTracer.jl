@@ -27,10 +27,8 @@ function Triangle(v::Vec3{T}, sym::Symbol) where {T}
 end
 
 # Symbol argument not needed but helps in writing the adjoint code
-# Set material gradient to be 0
 function Triangle(mat::Material{S, R}, ::Symbol) where {S, R}
     z = R(0)
-    mat = Material(PlainColor(rgb(z)), z)
     return Triangle(Vec3(z), Vec3(z), Vec3(z), mat)
 end
 

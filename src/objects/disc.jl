@@ -41,11 +41,9 @@ function Disc(r::T, ::Symbol) where {T<:Real}
     return Disc(Vec3(z), Vec3(z), r, mat)
 end
 
-# Don't take gradients for material
 function Disc(mat::Material{S, R}, ::Symbol) where {S, R}
     z = R(0)
-    mat2 = Material(PlainColor(rgb(z)), z)
-    return Disc(Vec3(z), Vec3(z), z, mat2)
+    return Disc(Vec3(z), Vec3(z), z, mat)
 end
 
 function Disc(c::Vec3, n::Vec3, r::T; color = rgb(0.5f0), reflection = 0.5f0) where {T<:Real}

@@ -34,6 +34,11 @@ update!(opt, x::T, Δ::T) where {T<:AbstractArray} = x .- apply!(opt, x, Δ)
 
 update!(opt, x::T, Δ::T) where {T<:Real} = x .- (apply!(opt, [x], [Δ]))[1]
 
+# This makes sure we donot end up optimizing the value of the material.
+# We cannot do this update in a stable manner for now. So it is wise
+# to just avoid it for now.
+update!(opt, x::Material, Δ::Material) = x
+
 function update!(opt, x::T, Δ::T) where {T}
     map(i -> setproperty!(x, i, update!(opt, getfield(x, i), getfield(Δ, i))), fieldnames(T))
     return x
