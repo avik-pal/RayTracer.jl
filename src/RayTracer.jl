@@ -5,7 +5,7 @@ using Requires
 export raytrace
 export Vec3, rgb
 export SimpleSphere, CheckeredSphere, SimpleCylinder, CheckeredCylinder,
-       Triangle, Disc
+       Sphere, Cylinder, Triangle, Disc
 export clip01
 export get_primary_rays
 export DistantLight, PointLight

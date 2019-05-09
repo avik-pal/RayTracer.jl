@@ -27,7 +27,7 @@ include("objects/disc.jl")
 function light(s::S, origin, direction, dist, lgt::L, eye_pos,
                scene, obj_num, bounce) where {S<:Object, L<:Light}
     pt = origin + direction * dist
-    normal = get_normal(s, pt, direction)
+    normal = get_normal(s, pt)
     dir_light, intensity = get_shading_info(lgt, pt)
     dir_origin = normalize(eye_pos - pt)
     nudged = pt + normal * 0.0001f0 # Nudged to miss itself

@@ -107,8 +107,7 @@ function intersect(cy::Cylinder, origin, direction)
     return result
 end
 
-function get_normal(c::Cylinder, pt, direction)
-    # TODO: Handle normal for inner surface
+function get_normal(c::Cylinder, pt)
     pt_c = pt - c.center
     return normalize(pt_c - dot(pt_c, c.axis) * c.axis)
 end

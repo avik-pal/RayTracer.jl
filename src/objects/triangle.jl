@@ -56,7 +56,7 @@ function intersect(t::Triangle, origin, direction)
     return result
 end
 
-function get_normal(t::Triangle, pt, direction)
+function get_normal(t::Triangle, pt)
     # normal not expanded
     normal_nexp = normalize(cross(t.v2 - t.v1, t.v3 - t.v1))
     normal = Vec3(repeat(normal_nexp.x, inner = size(pt.x)),

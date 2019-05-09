@@ -4,22 +4,12 @@ import Base.setproperty!
 # - Disc - #
 # -------- #
 
-# TODO: Use barycentric coordinates and Moller-Trumbore Algorithm
 mutable struct Disc{V,T<:Real} <: Object
     center::Vec3{V}
-    normal::Vec3{V}
+    normal::Vec3{V} # This needs to be normalized everytime before usage
     radius::T
     material::Material
 end 
-
-# Will mess with gradients. Need an alternate solution
-function setproperty!(d::Disc, sym::Symbol, x::Vec3)
-    if sym == :normal
-        setfield!(d, :normal, normalize(x))
-    else
-        setfield!(d, sym, x)
-    end
-end
 
 @diffops Disc
 
@@ -53,9 +43,10 @@ function Disc(c::Vec3, n::Vec3, r::T; color = rgb(0.5f0), reflection = 0.5f0) wh
 end
 
 function intersect(d::Disc, origin, direction)
-    dot_dn = dot(direction, d.normal)
+    normal = normalize(d.normal)
+    dot_dn = dot(direction, normal)
     p_org = d.center - origin
-    t = dot(p_org, d.normal) ./ dot_dn
+    t = dot(p_org, normal) ./ dot_dn
     pt = origin + direction * t
     dist = l2norm(pt - d.center)
     r2 = d.radius ^ 2
@@ -70,9 +61,9 @@ function intersect(d::Disc, origin, direction)
     return result
 end
 
-function get_normal(t::Disc, pt, direction)
-    normal = Vec3(repeat(t.normal.x, inner = size(pt.x)),
-                  repeat(t.normal.y, inner = size(pt.y)),
-                  repeat(t.normal.z, inner = size(pt.z)))
-    return normal
+function get_normal(d::Disc, pt)
+    normal = normalize(d.normal)
+    return Vec3(repeat(normal.x, inner = size(pt.x)),
+                repeat(normal.y, inner = size(pt.y)),
+                repeat(normal.z, inner = size(pt.z)))
 end

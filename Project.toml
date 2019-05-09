@@ -4,6 +4,13 @@ authors = ["Avik Pal <avikpal@iitk.ac.in>"]
 version = "0.1.0"
 
 [deps]
-Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
+
+[extras]
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
+
+[targets]
+test = ["Test", "Zygote"]
