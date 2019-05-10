@@ -1,3 +1,5 @@
+export Sphere, SimpleSphere, CheckeredSphere
+
 # ---------- #
 # - Sphere - #
 # ---------- #

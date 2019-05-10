@@ -1,3 +1,5 @@
+export Cylinder, SimpleCylinder, CheckeredCylinder
+
 # ------------ #
 # - Cylinder - #
 # ------------ #
@@ -44,29 +46,6 @@ function Cylinder(mat::Material{S, R}, ::Symbol) where {S, R}
     return Cylinder(Vec3(z), z, Vec3(z), z, mat)
 end
 
-function SimpleCylinder(center, radius, axis; color = rgb(0.5f0), reflection = 0.5f0)
-    mat = Material(PlainColor(color), reflection)
-    return Cylinder(center, radius, normalize(axis), l2norm(axis)[1], mat)
-end
-
-function SimpleCylinder(center, radius, axis, length; color = rgb(0.5f0),
-                        reflection = 0.5f0)
-    mat = Material(PlainColor(color), reflection)
-    return Cylinder(center, radius, normalize(axis), length, mat)
-end
-
-function CheckeredCylinder(center, radius, axis; color1 = rgb(0.1f0), color2 = rgb(0.9f0),
-                           reflection = 0.5f0)
-    mat = Material(CheckeredSurface(color1, color2), reflection)
-    return Cylinder(center, radius, normalize(axis), l2norm(axis)[1], mat)
-end
-
-function CheckeredCylinder(center, radius, axis, length; color1 = rgb(0.1f0),
-                          color2 = rgb(0.9f0), reflection = 0.5f0)
-    mat = Material(CheckeredSurface(color1, color2), reflection)
-    return Cylinder(center, radius, normalize(axis), length, mat)
-end
-
 # TODO: Currently Cylinder means Hollow Cylinder. Generalize for Solid Cylinder
 #       The easiest way to do this would be to treat Solid Cylinder as 3 different
 #       objects - Hollow Cylinder + 2 Solid Discs
@@ -111,3 +90,31 @@ function get_normal(c::Cylinder, pt)
     pt_c = pt - c.center
     return normalize(pt_c - dot(pt_c, c.axis) * c.axis)
 end
+
+# --------------------- #
+# -- Helper Function -- #
+# --------------------- #
+
+function SimpleCylinder(center, radius, axis; color = rgb(0.5f0), reflection = 0.5f0)
+    mat = Material(PlainColor(color), reflection)
+    return Cylinder(center, radius, normalize(axis), l2norm(axis)[1], mat)
+end
+
+function SimpleCylinder(center, radius, axis, length; color = rgb(0.5f0),
+                        reflection = 0.5f0)
+    mat = Material(PlainColor(color), reflection)
+    return Cylinder(center, radius, normalize(axis), length, mat)
+end
+
+function CheckeredCylinder(center, radius, axis; color1 = rgb(0.1f0), color2 = rgb(0.9f0),
+                           reflection = 0.5f0)
+    mat = Material(CheckeredSurface(color1, color2), reflection)
+    return Cylinder(center, radius, normalize(axis), l2norm(axis)[1], mat)
+end
+
+function CheckeredCylinder(center, radius, axis, length; color1 = rgb(0.1f0),
+                          color2 = rgb(0.9f0), reflection = 0.5f0)
+    mat = Material(CheckeredSurface(color1, color2), reflection)
+    return Cylinder(center, radius, normalize(axis), length, mat)
+end
+

@@ -1,3 +1,5 @@
+export Triangle
+
 # ------------ #
 # - Triangle - #
 # ------------ #

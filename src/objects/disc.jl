@@ -1,5 +1,7 @@
 import Base.setproperty!
 
+export Disc
+
 # -------- #
 # - Disc - #
 # -------- #

@@ -1,3 +1,5 @@
+export PointLight, DistantLight
+
 # ----- #
 # Light #
 # ----- #
