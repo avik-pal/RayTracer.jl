@@ -136,9 +136,10 @@ end
 @adjoint function fseelight(n::Int, light_distances)
     res = fseelight(n, light_distances)
     return res, function (Δ)
-        ∇res = [zero(i) for i in light_distances]
-        ∇res[n] .= res .* Δ
-        (nothing, ∇res)
+        # ∇res = [zero(i) for i in light_distances]
+        # ∇res[n] .= res .* Δ
+        # (nothing, ∇res)
+        (nothing, zero.(light_distances))
     end
 end
     

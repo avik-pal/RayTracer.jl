@@ -1,5 +1,7 @@
 import Base: +, *, -, /, %, intersect, minimum, maximum
 
+export Vec3, rgb, clip01
+
 # -------- #
 # Vector 3 #
 # -------- #

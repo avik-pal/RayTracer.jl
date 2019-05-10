@@ -1,5 +1,7 @@
 import Flux.Optimise.apply!
 
+export update!
+
 # ---------- #
 # Optimisers #
 # ---------- #
@@ -37,6 +39,8 @@ update!(opt, x::T, Δ::T) where {T<:Real} = (update!(opt, [x], [Δ]))[1]
 # We cannot do this update in a stable manner for now. So it is wise
 # to just avoid it for now.
 update!(opt, x::Material, Δ::Material) = x
+
+update!(opt, x::SurfaceColor, Δ::SurfaceColor) = x
 
 update!(opt, x, Δ::Nothing) = x
 
