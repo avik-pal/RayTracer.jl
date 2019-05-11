@@ -1,4 +1,5 @@
 using Zygote
+using RayTracer: get_params, set_params!
 
 function loss_fn(θ, color)
     rendered_color = raytrace(origin, direction, θ, light, eye_pos, 0)

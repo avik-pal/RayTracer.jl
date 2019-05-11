@@ -10,21 +10,6 @@ import Zygote.literal_getproperty
 # Vec3 #
 # ---- #
 
-@adjoint function dot(a::Vec3, b::Vec3)
-    dot(a, b), Δ -> begin
-        Δ = map(x -> isnothing(x) ? zero(eltype(a.x)) : x, Δ)
-        t1 = Δ * b
-        t2 = Δ * a
-        if length(a.x) != length(t1.x)
-            t1 = Vec3(sum(t1.x), sum(t1.y), sum(t1.z))
-        end
-        if length(b.x) != length(t2.x)
-            t2 = Vec3(sum(t2.x), sum(t2.y), sum(t2.z))
-        end
-        return (t1, t2)
-    end
-end
-
 # Hack to avoid nothing in the gradient due to typemax
 @adjoint bigmul(x::T) where {T} = bigmul(x), Δ -> (zero(T),)
 

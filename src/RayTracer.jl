@@ -1,5 +1,7 @@
 module RayTracer
 
+using Zygote, Flux, Images
+
 # Rendering
 include("utils.jl")
 include("light.jl")
