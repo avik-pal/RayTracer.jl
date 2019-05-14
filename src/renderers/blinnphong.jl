@@ -8,7 +8,7 @@ export raytrace
 #       `get_normal` and `intersect` functions for that object.
 #       Additionally it must have the `mirror` field.
 function light(s::S, origin, direction, dist, lgt::L, eye_pos,
-               scene, obj_num, bounce, hit) where {S<:Object, L<:Light}
+               scene, obj_num, bounce) where {S<:Object, L<:Light}
     pt = origin + direction * dist
     normal = get_normal(s, pt)
     dir_light, intensity = get_shading_info(lgt, pt)
@@ -24,18 +24,18 @@ function light(s::S, origin, direction, dist, lgt::L, eye_pos,
 
     # Lambert Shading (diffuse)
     visibility = max.(dot(normal, dir_light), 0.0f0)
-    color += ((diffusecolor(s, pt) * intensity) * visibility) * seelight * hit
+    color += ((diffusecolor(s, pt) * intensity) * visibility) * seelight
     
     # Reflection
     if bounce < 2
         rayD = normalize(direction - normal * 2.0f0 * dot(direction, normal))
         color += raytrace(nudged, rayD, scene, lgt, eye_pos, bounce + 1) *
-                 s.material.reflection * hit
+                 s.material.reflection
     end
 
     # Blinn-Phong shading (specular)
     phong = dot(normal, normalize(dir_light + dir_origin))
-    color += (rgb(1.0f0) * (clamp.(phong, 0.0f0, 1.0f0) .^ 50)) * seelight * hit
+    color += (rgb(1.0f0) * (clamp.(phong, 0.0f0, 1.0f0) .^ 50)) * seelight
 
     return color
 end
@@ -51,14 +51,13 @@ function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
 
     for (i, (s, d)) in enumerate(zip(scene, distances))
         hit = hashit.(h, d, nearest)
-        #=if sum(hit) != 0
+        if sum(hit) != 0
             dc = extract(hit, d)
             originc = extract(hit, origin)
             dirc = extract(hit, direction)
             cc = light(s, originc, dirc, dc, lgt, eye_pos, scene, i, bounce)
             color += place(cc, hit)
-        end=#
-        color += light(s, origin, direction, d, lgt, eye_pos, scene, i, bounce, hit)
+        end
     end
 
     return color
