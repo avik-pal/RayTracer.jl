@@ -11,6 +11,3 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 [extras]
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test"]

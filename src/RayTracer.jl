@@ -2,13 +2,16 @@ module RayTracer
 
 using Zygote, Flux, Images
 
-# Rendering
+# Rendering Utilities
 include("utils.jl")
 include("light.jl")
 include("materials.jl")
 include("objects.jl")
 include("camera.jl")
 include("optimize.jl")
+
+# Renderers
+include("renderers/blinnphong.jl")
 
 # Differentiable Rendering
 include("gradients/zygote.jl")

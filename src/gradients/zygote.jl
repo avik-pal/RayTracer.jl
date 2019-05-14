@@ -32,6 +32,34 @@ end
 
 @adjoint place(a::Vec3, cond) = place(a, cond), Δ -> (Vec3(Δ.x[cond], Δ.y[cond], Δ.z[cond]), nothing)
 
+#=@adjoint function isnotbigmul(val)
+    res = isnotbigmul(val)
+    return res, Δ -> begin
+        if res
+            @show "In BigMul"
+            @show Δ
+        end
+        res ? Δ : zero(val)
+    end
+end
+
+#=@adjoint function hashit(h, d, n)
+    res = hashit(h, d, n)
+    return res, Δ -> begin
+        @show Δ
+        res ? (Δ, Δ, Δ) : zero.((h, d, n))
+    end
+end=#
+
+@adjoint extract(cond, x::T) where {T<:Number} = extract(cond, x), Δ -> (zero(x), one(x))
+
+@adjoint extract(cond, x::T) where {T<:AbstractArray} =
+    extract(cond, x), Δ -> begin
+        ∇x = zero.(x)
+        ∇x[cond] .= Δ
+        return (∇x, ∇x)
+    end=#
+
 # ----- #
 # Light #
 # ----- #
@@ -121,10 +149,9 @@ end
 @adjoint function fseelight(n::Int, light_distances)
     res = fseelight(n, light_distances)
     return res, function (Δ)
-        # ∇res = [zero(i) for i in light_distances]
-        # ∇res[n] .= res .* Δ
-        # (nothing, ∇res)
-        (nothing, zero.(light_distances))
+        ∇res = [zero(i) for i in light_distances]
+        ∇res[n] .= res .* Δ
+        (nothing, ∇res)
     end
 end
     
