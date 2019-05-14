@@ -1,6 +1,6 @@
 import Base.getproperty
 
-using Zygote: @adjoint
+using Zygote: @adjoint, @nograd
 
 import Zygote.literal_getproperty
 
@@ -32,16 +32,12 @@ end
 
 @adjoint place(a::Vec3, cond) = place(a, cond), Δ -> (Vec3(Δ.x[cond], Δ.y[cond], Δ.z[cond]), nothing)
 
+
+@nograd isnotbigmul
 #=@adjoint function isnotbigmul(val)
     res = isnotbigmul(val)
-    return res, Δ -> begin
-        if res
-            @show "In BigMul"
-            @show Δ
-        end
-        res ? Δ : zero(val)
-    end
-end
+    return res, Δ -> res ? (Δ, ) : (zero(val), )
+end=#
 
 #=@adjoint function hashit(h, d, n)
     res = hashit(h, d, n)
@@ -51,7 +47,7 @@ end
     end
 end=#
 
-@adjoint extract(cond, x::T) where {T<:Number} = extract(cond, x), Δ -> (zero(x), one(x))
+#=@adjoint extract(cond, x::T) where {T<:Number} = extract(cond, x), Δ -> (zero(x), one(x))
 
 @adjoint extract(cond, x::T) where {T<:AbstractArray} =
     extract(cond, x), Δ -> begin
