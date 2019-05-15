@@ -19,7 +19,7 @@ function ngradient(f, xs::AbstractArray...)
     grads = zero.(xs)
     for (x, Δ) in zip(xs, grads), i in 1:length(x)
         # This gives reasonable results
-        δ = 5.0e-5
+        δ = 1.0e-12
         tmp = x[i]
         x[i] = tmp - δ/2
         y1 = f(xs...)
