@@ -15,4 +15,3 @@ include("objects/sphere.jl")
 include("objects/cylinder.jl")
 include("objects/triangle.jl")
 include("objects/disc.jl")
-
