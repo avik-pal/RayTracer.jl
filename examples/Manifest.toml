@@ -1,4 +1,4 @@
-# This file is machine-generated - editing it directly is not advised
+                                            # This file is machine-generated - editing it directly is not advised
 
 [[AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -224,9 +224,9 @@ version = "0.6.0"
 
 [[ImageCore]]
 deps = ["ColorTypes", "Colors", "FFTW", "FixedPointNumbers", "Graphics", "MappedArrays", "OffsetArrays", "PaddedViews", "Reexport"]
-git-tree-sha1 = "38d9e5c3d0ab79b6062de40ad6cfbf47574c25b6"
+git-tree-sha1 = "653a098434f6d76fd42796e48c42f2c2c4bd451b"
 uuid = "a09fc81d-aa75-5fe9-8630-4744c3626534"
-version = "0.8.2"
+version = "0.8.3"
 
 [[ImageDistances]]
 deps = ["ColorVectorSpace", "Colors", "Distances", "FixedPointNumbers", "ImageCore"]
@@ -416,6 +416,14 @@ git-tree-sha1 = "cdbbe0f350581296f3a2e3e7a91b214121934407"
 uuid = "c84ed2f1-dad5-54f0-aa8e-dbefe2724439"
 version = "0.3.1"
 
+[[RayTracer]]
+deps = ["Flux", "Images", "Zygote"]
+git-tree-sha1 = "1480a7b7ead9a2e75a2219040d7b114112a66e1c"
+repo-rev = "ap/differentiable"
+repo-url = "https://github.com/avik-pal/RayTracer.jl"
+uuid = "60dacb86-48ff-11e9-0f01-03ab8794bbc9"
+version = "0.1.0"
+
 [[Reexport]]
 deps = ["Pkg"]
 git-tree-sha1 = "7b1d07f411bc8ddb7977ec7f377b97b158514fe0"
@@ -557,3 +565,4 @@ repo-rev = "a2efc32d155037390b35160c786a779ac4bd42e7"
 repo-url = "https://github.com/FluxML/Zygote.jl.git"
 uuid = "e88e6eb3-aa80-5325-afca-941959d7151f"
 version = "0.3.1"
+

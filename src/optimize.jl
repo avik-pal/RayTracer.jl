@@ -32,7 +32,6 @@ function update!(opt, x::AbstractArray, Δ::AbstractArray)
     return x
 end
 
-# NOTE: This might make Adaptive Optimisers behave wierdly
 update!(opt, x::T, Δ::T) where {T<:Real} = (update!(opt, [x], [Δ]))[1]
 
 # This makes sure we donot end up optimizing the value of the material.

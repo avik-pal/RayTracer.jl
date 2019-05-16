@@ -151,7 +151,7 @@ or reach out to us on the Julia Slack if you need to understand how to use one o
 ### Types
 
 * Vec3 
-* Objects - Sphere, Triangle, Cylinder
+* Objects - Sphere, Triangle, Cylinder, Disc
 * Light Sources - PointLight, DistantLight
 * Surface Color - PlainColor, CheckeredSurface
 * Material                                                            
@@ -165,6 +165,7 @@ or reach out to us on the Julia Slack if you need to understand how to use one o
 * SimpleSphere, CheckeredSphere
 * SimpleCylinder, CheckeredCylinder
 * Triangle
+* Disc
 * numderiv
 
 #### Internal Functions
