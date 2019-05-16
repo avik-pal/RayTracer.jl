@@ -1,5 +1,3 @@
-using Images
-
 export get_image
 
 # ---------- #

@@ -1,3 +1,5 @@
+export get_primary_rays
+
 # ------ #
 # Camera #
 # ------ #

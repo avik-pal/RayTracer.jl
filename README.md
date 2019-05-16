@@ -1,19 +1,14 @@
 # RayTracer.jl
 
-A Differentiable Ray Tracer written in Julia.
+A Ray Tracer written completely in Julia. This allows us to leverage the AD capablities provided
+by Zygote to differentiate through the Ray Tracer.
 
 ## INSTALLATION
 
-The package is currently not registered. So open up a Julia 1.\* repl and enter the pkg mode.
+The package is currently not registered. So open up a Julia 1.1+ repl and enter the pkg mode.
 
 ```julia
 ] add https://github.com/avik-pal/RayTracer.jl
-```
-
-For being able to use the differentiable aspects of the package install Zygote.
-
-```julia
-] add Zygote
 ```
 
 ## USAGE EXAMPLES
@@ -156,7 +151,7 @@ or reach out to us on the Julia Slack if you need to understand how to use one o
 ### Types
 
 * Vec3 
-* Objects - Sphere, Triangle, Cylinder
+* Objects - Sphere, Triangle, Cylinder, Disc
 * Light Sources - PointLight, DistantLight
 * Surface Color - PlainColor, CheckeredSurface
 * Material                                                            
@@ -170,6 +165,8 @@ or reach out to us on the Julia Slack if you need to understand how to use one o
 * SimpleSphere, CheckeredSphere
 * SimpleCylinder, CheckeredCylinder
 * Triangle
+* Disc
+* numderiv
 
 #### Internal Functions
 
@@ -181,7 +178,8 @@ RayTracer.
 * diffuse\_color
 * light
 * get\_normal, intersect
-* get\_image (if `using Images`)
+* get\_image
+* ngradient, get\_params, set\_params!
 
 ## CURRENT ROADMAP
 

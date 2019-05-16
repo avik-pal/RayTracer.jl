@@ -1,5 +1,7 @@
 import Base: +, *, -, /, %, intersect, minimum, maximum
 
+export Vec3, rgb, clip01
+
 # -------- #
 # Vector 3 #
 # -------- #
@@ -74,7 +76,11 @@ end
 
 @inline -(a::Vec3) = Vec3(-a.x, -a.y, -a.z)
 
-@inline dot(a::Vec3, b::Vec3) = a.x .* b.x .+ a.y .* b.y .+ a.z .* b.z
+@inline function dot(a::Vec3, b::Vec3)
+    result = a.x .* b.x .+ a.y .* b.y .+ a.z .* b.z
+    # Change the nothing's to 0's
+    return Zygote.hook(t -> isnothing(t) ? zero(a.x) : map(i -> isnothing(i) ? zero(eltype(a.x)) : i, t), result)
+end
 
 @inline l2norm(a::Vec3) = dot(a, a)
 
@@ -157,16 +163,18 @@ julia> cond = a .> 0.5
  false
 
 julia> RayTracer.extract(cond, a)
-4-element Array{Float64,1}:
+2-element Array{Float64,1}:
  0.7201598586590607
  0.5829718552672327
 ```
 """
-extract(cond, x::T) where {T<:Number} = x
+@inline extract(cond, x::T) where {T<:Number} = x
 
-extract(cond, x::T) where {T<:AbstractArray} = x[cond]
+@inline extract(cond, x::T) where {T<:AbstractArray} = x[cond]
 
-extract(cond, a::Vec3) = length(a.x) == 1 ? Vec3(a.x, a.y, a.z) : Vec3(a.x[cond], a.y[cond], a.z[cond])
+extract(cond, a::Vec3) = length(a.x) == 1 ? Vec3(a.x, a.y, a.z) : Vec3(extract(cond, a.x),
+                                                                       extract(cond, a.y),
+                                                                       extract(cond, a.z))
 
 """
     bigmul(x)
@@ -174,7 +182,11 @@ extract(cond, a::Vec3) = length(a.x) == 1 ? Vec3(a.x, a.y, a.z) : Vec3(a.x[cond]
 Returns the output same as `typemax`. However, in case gradients are computed, it will return
 the gradient to be `0` instead of `nothing` as in case of typemax.
 """
-bigmul(x) = typemax(x)
+@inline bigmul(x) = typemax(x)
+
+@inline isnotbigmul(x) = bigmul(x) != x
+
+@inline hashit(h, d, n) = h * (d == n)
 
 # ----------------- #
 # - Helper Macros - #

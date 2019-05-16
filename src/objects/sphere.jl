@@ -1,3 +1,5 @@
+export Sphere, SimpleSphere, CheckeredSphere
+
 # ---------- #
 # - Sphere - #
 # ---------- #
@@ -24,10 +26,8 @@ function Sphere(radius::T) where {T<:Real}
     return Sphere(Vec3(z), radius, mat)
 end
 
-# Set material gradient to be 0
 function Sphere(mat::Material{S, R}) where {S, R}
     z = R(0)
-    mat = Material(PlainColor(rgb(z)), z)
     return Sphere(Vec3(z), z, mat)
 end
 
@@ -53,7 +53,7 @@ function intersect(s::Sphere, origin, direction)
     return result
 end
 
-get_normal(s::Sphere, pt, direction) = normalize(pt - s.center)
+get_normal(s::Sphere, pt) = normalize(pt - s.center)
 
 # ---------------------- #
 # -- Helper Functions -- #

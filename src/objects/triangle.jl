@@ -1,3 +1,5 @@
+export Triangle
+
 # ------------ #
 # - Triangle - #
 # ------------ #
@@ -27,10 +29,8 @@ function Triangle(v::Vec3{T}, sym::Symbol) where {T}
 end
 
 # Symbol argument not needed but helps in writing the adjoint code
-# Set material gradient to be 0
 function Triangle(mat::Material{S, R}, ::Symbol) where {S, R}
     z = R(0)
-    mat = Material(PlainColor(rgb(z)), z)
     return Triangle(Vec3(z), Vec3(z), Vec3(z), mat)
 end
 
@@ -58,13 +58,11 @@ function intersect(t::Triangle, origin, direction)
     return result
 end
 
-function get_normal(t::Triangle, pt, direction)
+function get_normal(t::Triangle, pt)
     # normal not expanded
     normal_nexp = normalize(cross(t.v2 - t.v1, t.v3 - t.v1))
-    normal_dir = dot(normal_nexp, direction)
-    mult_factor = broadcast(x -> x < 0 ? one(typeof(x)) : -one(typeof(x)), normal_dir)
     normal = Vec3(repeat(normal_nexp.x, inner = size(pt.x)),
                   repeat(normal_nexp.y, inner = size(pt.y)),
                   repeat(normal_nexp.z, inner = size(pt.z)))
-    return normal * mult_factor
+    return normal
 end
