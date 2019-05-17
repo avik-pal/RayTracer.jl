@@ -154,7 +154,8 @@ or reach out to us on the Julia Slack if you need to understand how to use one o
 * Objects - Sphere, Triangle, Cylinder, Disc
 * Light Sources - PointLight, DistantLight
 * Surface Color - PlainColor, CheckeredSurface
-* Material                                                            
+* Material
+* FixedParams - FixedCameraParams
 
 ### Functions
 
@@ -166,6 +167,7 @@ or reach out to us on the Julia Slack if you need to understand how to use one o
 * SimpleCylinder, CheckeredCylinder
 * Triangle
 * Disc
+* Camera
 * numderiv
 
 #### Internal Functions

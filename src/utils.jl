@@ -230,3 +230,9 @@ macro diffops(a)
         end
     end
 end
+
+# ---------------- #
+# Fixed Parameters #
+# ---------------- #
+
+abstract type FixedParams; end
