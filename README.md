@@ -3,6 +3,8 @@
 A Ray Tracer written completely in Julia. This allows us to leverage the AD capablities provided
 by Zygote to differentiate through the Ray Tracer.
 
+**WARNING** : Current examples are broken due to change in the Camera API.
+
 ## INSTALLATION
 
 The package is currently not registered. So open up a Julia 1.1+ repl and enter the pkg mode.
@@ -154,7 +156,8 @@ or reach out to us on the Julia Slack if you need to understand how to use one o
 * Objects - Sphere, Triangle, Cylinder, Disc
 * Light Sources - PointLight, DistantLight
 * Surface Color - PlainColor, CheckeredSurface
-* Material                                                            
+* Material
+* FixedParams - FixedCameraParams
 
 ### Functions
 
@@ -166,6 +169,7 @@ or reach out to us on the Julia Slack if you need to understand how to use one o
 * SimpleCylinder, CheckeredCylinder
 * Triangle
 * Disc
+* Camera
 * numderiv
 
 #### Internal Functions

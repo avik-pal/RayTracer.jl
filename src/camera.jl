@@ -1,39 +1,61 @@
-export get_primary_rays
+export Camera, get_primary_rays
 
 # ------ #
 # Camera #
 # ------ #
 
-# NOTE: Need to add a feature to control the orientation of the camera.
-#       Currently the camera points to the -z direction.
+struct FixedCameraParams{T} <: FixedParams
+    vup::Vec3{T}
+    width
+    height
+end
+
+# Incorporate `aperture` later
+mutable struct Camera{T, R}
+    lookfrom::Vec3{T}
+    lookat::Vec3{T}
+    vfov::R
+    focus::R
+    fixedparams::FixedCameraParams{T}
+end
+                                       
+@diffops Camera
+
+function Camera(lookfrom, lookat, vup, vfov, focus, width, height)
+    fixedparams = FixedCameraParams(vup, width, height)
+    return Camera(lookfrom, lookat, vfov, focus, fixedparams)
+end
+
 """
-    get_primary_rays(T, width, height, fov, cam_pos)
+    get_primary_rays(c::Camera)
 
-Takes the configuration of the screen and the camera position and returns
-the origin and the direction of the primary rays. The camera points along
-the negative z-axis.
-
-The origin is taken to be the `cam_pos` (camera position). Next we generate
-rays going from the `origin` to every single point on the screen.
-
-Example:
-
-`get_primary_rays(Float32, 1024, 512, 60, Vec3(0.0f0, 0.0f0, -0.5f0))`
+Takes the configuration of the camera and returns
+the origin and the direction of the primary rays.
 """
-function get_primary_rays(T, width, height, fov, cam_pos::Vec3)
-    aspect_ratio = T(width / height)
-    scale = tan(deg2rad(fov / 2))
-    origin = cam_pos
-    
-    x_part = T.((2 .* (collect(0:(width - 1)) .+ 0.5) ./ width .- 1) .*
-                aspect_ratio .* scale)
-    y_part = T.((1 .- 2 .* (collect(0:(height - 1)) .+ 0.5) ./ height) .* scale)
-    
-    x = repeat(x_part, outer = height)
-    y = repeat(y_part, inner = width)
-    
-    Q = Vec3(x, y, repeat(origin.z .+ 1, inner = length(x)))
-    direction = normalize(Q - origin)
+# We assume that the camera is at a unit distance from the screen
+function get_primary_rays(c::Camera)
+    width = c.fixedparams.width
+    height = c.fixedparams.height
+    vup = c.fixedparams.vup
 
-    return origin, direction
+    aspect_ratio = width / height
+    half_height = tan(deg2rad(c.vfov / 2))
+    half_width = aspect_ratio * half_height
+
+    origin = c.lookfrom
+    w = normalize(c.lookfrom - c.lookat)
+    u = normalize(cross(w, vup))
+    v = normalize(cross(w, u))
+
+    # Lower Left Corner
+    llc = origin - half_width * c.focus * u - half_height * c.focus * v - w
+    hori = 2 * half_width * c.focus * u
+    vert = 2 * half_height * c.focus * v
+
+    s = repeat((collect(0:(width - 1)) .+ 0.5f0) ./ width, outer= height)
+    t = repeat((collect(0:(height - 1)) .+ 0.5f0) ./ height, inner = width)
+    
+    direction = normalize(llc + s * hori + t * vert - origin)
+
+    return (origin, direction)
 end

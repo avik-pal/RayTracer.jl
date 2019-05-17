@@ -41,6 +41,8 @@ update!(opt, x::Material, Δ::Material) = x
 
 update!(opt, x::SurfaceColor, Δ::SurfaceColor) = x
 
+update!(opt, x::FixedParams, Δ::FixedParams) = x 
+
 update!(opt, x, Δ::Nothing) = x
 
 function update!(opt, x::T, Δ::T) where {T}
