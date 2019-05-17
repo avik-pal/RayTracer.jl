@@ -37,9 +37,11 @@ function get_primary_rays(c::Camera)
     width = c.fixedparams.width
     height = c.fixedparams.height
     vup = c.fixedparams.vup
+    vfov = c.vfov[]
+    focus = c.focus[]
 
     aspect_ratio = width / height
-    half_height = tan(deg2rad(c.vfov / 2))
+    half_height = tan(deg2rad(vfov / 2))
     half_width = aspect_ratio * half_height
 
     origin = c.lookfrom
@@ -48,9 +50,9 @@ function get_primary_rays(c::Camera)
     v = normalize(cross(w, u))
 
     # Lower Left Corner
-    llc = origin - half_width * c.focus * u - half_height * c.focus * v - w
-    hori = 2 * half_width * c.focus * u
-    vert = 2 * half_height * c.focus * v
+    llc = origin - half_width * focus * u - half_height * focus * v - w
+    hori = 2 * half_width * focus * u
+    vert = 2 * half_height * focus * v
 
     s = repeat((collect(0:(width - 1)) .+ 0.5f0) ./ width, outer= height)
     t = repeat((collect(0:(height - 1)) .+ 0.5f0) ./ height, inner = width)
