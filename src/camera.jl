@@ -52,8 +52,8 @@ function get_primary_rays(c::Camera)
     hori = 2 * half_width * c.focus * u
     vert = 2 * half_height * c.focus * v
 
-    s = repeat((collect(0:(width - 1)) .+ 1 // 2) ./ width, outer= height)
-    t = repeat((collect(0:(height - 1)) .+ 1 // 2) ./ height, inner = width)
+    s = repeat((collect(0:(width - 1)) .+ 0.5f0) ./ width, outer= height)
+    t = repeat((collect(0:(height - 1)) .+ 0.5f0) ./ height, inner = width)
     
     direction = normalize(llc + s * hori + t * vert - origin)
 

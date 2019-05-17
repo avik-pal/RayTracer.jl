@@ -45,8 +45,6 @@ get_params(x::T) where {T<:AbstractArray} = x
 
 get_params(x::T) where {T<:Real} = [x]
 
-get_params(x::FixedParams) = []
-
 get_params(x::T) where {T} = foldl((a, b) -> [a; b],
                                    [map(i -> get_params(getfield(x, i)), fieldnames(T))...])
                      
@@ -91,8 +89,6 @@ end
 # FIXME: This update strategy fails for real parameters. Will need to deal with
 #        this later. But currently I am not much concered about these parameters.
 set_params!(x::T, y::AbstractArray) where {T<:Real} = set_params!([x], y)
-
-set_params!(x::FixedParams, y::AbstractArray) = 0
 
 function set_params!(x, y::AbstractArray)
     start = 1
