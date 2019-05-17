@@ -11,11 +11,11 @@ struct FixedCameraParams{T} <: FixedParams
 end
 
 # Incorporate `aperture` later
-mutable struct Camera{T, R}
+mutable struct Camera{T}
     lookfrom::Vec3{T}
     lookat::Vec3{T}
-    vfov::R
-    focus::R
+    vfov::T
+    focus::T
     fixedparams::FixedCameraParams{T}
 end
                                        
@@ -23,7 +23,7 @@ end
 
 function Camera(lookfrom, lookat, vup, vfov, focus, width, height)
     fixedparams = FixedCameraParams(vup, width, height)
-    return Camera(lookfrom, lookat, vfov, focus, fixedparams)
+	return Camera(lookfrom, lookat, [vfov], [focus], fixedparams)
 end
 
 """
