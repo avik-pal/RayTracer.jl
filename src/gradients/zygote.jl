@@ -168,3 +168,15 @@ end
 
 @adjoint literal_getproperty(t::Disc, ::Val{f}) where {f} =
     getproperty(t, f), Δ -> (Disc(Δ, f), nothing)
+
+# ------ #
+# Camera #
+# ------ #
+
+# TODO: Add the adjoints for literal_getproperty
+@adjoint Camera(lf, la, vfov, focus, fp) =
+    Camera(lf, la, vfov, focus, fp), Δ -> Camera(Δ.lookfrom, Δ.lookat,
+                                                 Δ.vfov, Δ.focus,
+                                                 Δ.fixedparams)
+
+

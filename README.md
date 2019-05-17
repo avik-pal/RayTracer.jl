@@ -3,6 +3,8 @@
 A Ray Tracer written completely in Julia. This allows us to leverage the AD capablities provided
 by Zygote to differentiate through the Ray Tracer.
 
+**WARNING** : Current examples are broken due to change in the Camera API.
+
 ## INSTALLATION
 
 The package is currently not registered. So open up a Julia 1.1+ repl and enter the pkg mode.
