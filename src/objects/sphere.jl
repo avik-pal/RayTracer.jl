@@ -4,7 +4,7 @@ export Sphere, SimpleSphere, CheckeredSphere
 # - Sphere - #
 # ---------- #
 
-mutable struct Sphere{C, R} <: Object
+mutable struct Sphere{C, R<:Real} <: Object
     center::Vec3{C}
     radius::R
     material::Material
@@ -20,8 +20,8 @@ function Sphere(center::Vec3{T}) where {T}
     return Sphere(center, z, mat)
 end
 
-function Sphere(radius::T) where {T<:AbstractArray}
-    z = eltype(T)(0)
+function Sphere(radius::T) where {T<:Real}
+    z = T(0)
     mat = Material(PlainColor(rgb(z)), z)
     return Sphere(Vec3(z), radius, mat)
 end
@@ -33,7 +33,7 @@ end
 
 function intersect(s::Sphere, origin, direction)
     b = dot(direction, origin - s.center)  # direction is a vec3 with array
-    c = l2norm(s.center) .+ l2norm(origin) .- 2 .* dot(s.center, origin) .- (s.radius[] ^ 2)
+    c = l2norm(s.center) .+ l2norm(origin) .- 2 .* dot(s.center, origin) .- (s.radius ^ 2)
     disc = (b .^ 2) .- c
     function get_intersections(x, y)
         t = bigmul(x + y) # Hack to split the 0.0 gradient to both. Otherwise one gets nothing
@@ -61,12 +61,12 @@ get_normal(s::Sphere, pt) = normalize(pt - s.center)
 
 function SimpleSphere(center, radius; color = rgb(0.5f0), reflection = 0.5f0)
     mat = Material(PlainColor(color), reflection)
-    return Sphere(center, [radius], mat)
+    return Sphere(center, radius, mat)
 end
 
 function CheckeredSphere(center, radius; color1 = rgb(0.1f0), color2 = rgb(0.9f0),
                          reflection = 0.5f0)
     mat = Material(CheckeredSurface(color1, color2), reflection)
-    return Sphere(center, [radius], mat)
+    return Sphere(center, radius, mat)
 end
 
