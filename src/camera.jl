@@ -42,7 +42,7 @@ function get_primary_rays(c::Camera)
 
     aspect_ratio = width / height
     half_height = tan(deg2rad(vfov / 2))
-    half_width = aspect_ratio * half_height
+    half_width = typeof(half_height)(aspect_ratio * half_height)
 
     origin = c.lookfrom
     w = normalize(c.lookfrom - c.lookat)
