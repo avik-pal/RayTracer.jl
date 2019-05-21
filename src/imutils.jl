@@ -1,4 +1,6 @@
-export get_image
+export get_image, zeroonenorm
+
+using Zygote: @adjoint
 
 # ---------- #
 # Processing #
@@ -33,4 +35,21 @@ function get_image(im::Vec3{T}, width, height) where {T}
 	im_arr = clamp.(permutedims(cat(color_r, color_g, color_b, dims = 3), (3, 2, 1)), low, high)
 
 	return colorview(RGB, im_arr)
+end
+
+zeroonenorm(x) = (x .- minimum(x)) ./ maximum(x)
+
+@adjoint function zeroonenorm(x)
+    mini, indmin = findmin(x)
+    maxi, indmax = findmax(x)
+    res = (x .- mini) ./ maxi
+    function ∇zeroonenorm(Δ)
+        ∇x = similar(x)
+        fill!(∇x, 1 / maxi)
+        ∇x[indmin] *= -(length(x) - 1)
+        res2 = - res ./ maxi
+        ∇x[indmax] = sum(res2) - minimum(res2) + mini / (maxi ^ 2)
+        return (∇x .* Δ, )
+    end
+    return res, ∇zeroonenorm
 end
