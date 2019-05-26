@@ -17,7 +17,9 @@ light = PointLight(Vec3(1.0), 1000.0, Vec3(0.15, 0.5, -110.5))
 
 eye_pos = Vec3(0.0, 0.0, -5.0)
 
-origin, direction = get_primary_rays(Float64, screen_size.w, screen_size.h, 60, eye_pos);
+cam = Camera(eye_pos, Vec3(0.0), Vec3(0.0, 1.0, 0.0), 45.0, 1.0, screen_size...)
+
+origin, direction = get_primary_rays(cam);
 
 @testset "Triangle" begin
 
