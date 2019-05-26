@@ -13,11 +13,11 @@ include("optimize.jl")
 # Renderers
 include("renderers/blinnphong.jl")
 
+# Image Utilities
+include("imutils.jl")
+
 # Differentiable Rendering
 include("gradients/zygote.jl")
 include("gradients/numerical.jl")
-
-# Image Utilities
-include("imutils.jl")
 
 end

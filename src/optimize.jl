@@ -17,7 +17,7 @@ types inside the Package can be used with it.
 The type of `Δ` must be same as that of `x`. This prevent silent
 type conversion of `x` which can significantly slow doen the raytracer.
 
-Example:
+### Example:
 
 ```julia
 opt = ADAM()

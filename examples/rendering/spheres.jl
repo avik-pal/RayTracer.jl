@@ -31,4 +31,3 @@ color = raytrace(origin, direction, scene, light, origin, 0)
 img = get_image(color, screen_size.w, screen_size.h)
 
 save("spheres2.jpg", img)
-

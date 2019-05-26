@@ -179,4 +179,21 @@ end
                                                  Δ.vfov, Δ.focus,
                                                  Δ.fixedparams)
 
+# ------- #
+# ImUtils #
+# ------- #
 
+@adjoint function zeroonenorm(x)
+    mini, indmin = findmin(x)
+    maxi, indmax = findmax(x)
+    res = (x .- mini) ./ maxi
+    function ∇zeroonenorm(Δ)
+        ∇x = similar(x)
+        fill!(∇x, 1 / maxi)
+        ∇x[indmin] *= -(length(x) - 1)
+        res2 = - res ./ maxi
+        ∇x[indmax] = sum(res2) - minimum(res2) + mini / (maxi ^ 2)
+        return (∇x .* Δ, )
+    end
+    return res, ∇zeroonenorm
+end

@@ -64,8 +64,6 @@ save("spheres1.jpg", img)
 
 If all went well then the following image should have been produced
 
-![simple_spheres_scene](https://raw.githubusercontent.com/avik-pal/RayTracer.jl/master/assets/spheres1.jpg)
-
 Now you know everything there is to know about rendering using RayTracer :P. For rendering more
 interesting scenes you just need to vary the parameters of the above example.
 

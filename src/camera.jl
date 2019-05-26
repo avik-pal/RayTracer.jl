@@ -29,8 +29,8 @@ end
 """
     get_primary_rays(c::Camera)
 
-Takes the configuration of the camera and returns
-the origin and the direction of the primary rays.
+Takes the configuration of the camera and returns the origin and the direction
+of the primary rays.
 """
 # We assume that the camera is at a unit distance from the screen
 function get_primary_rays(c::Camera)

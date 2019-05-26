@@ -7,15 +7,14 @@ export Vec3, rgb, clip01
 # -------- #
 
 """
-    Vec3
-
 This is the central type for RayTracer. All of the other types are defined building
 upon this.                                                      
 
 All the fields of the Vec3 instance contains `Array`s. This ensures that we can collect
 the gradients w.r.t the fields using the `Params` API of Zygote.
 
-Defined Operations for Vec3:
+### Defined Operations for Vec3:
+
 * `+`, `-`, `*` -- These operations will be broadcasted even though there is no explicit
                    mention of broadcasting.
 * `dot`, `l2norm`
@@ -146,7 +145,11 @@ rgb = Vec3
 Extracts the elements of `x` (in case it is an array) for which the indices corresponding to the `cond`
 are `true`.
 
-Example:
+!!! note
+    `extract` has a performance penalty when used on GPUs.
+
+### Example:
+
 ```julia
 julia> a = rand(4)
 4-element Array{Float64,1}:
@@ -198,11 +201,11 @@ the gradient to be `0` instead of `nothing` as in case of typemax.
 Generates functions for performing gradient based optimizations on this custom type.
 5 functions are generated.
 
-1. x::MyType + y::MyType -- For Gradient Accumulation
-2. x::MyType - y::MyType -- For Gradient Based Updates
-3. x::MyType * η<:Real   -- For Multiplication of the Learning Rate with Gradient
-4. η<:Real   * x::MyType -- For Multiplication of the Learning Rate with Gradient
-5. x::MyType * y::MyType -- Just for the sake of completeness.
+1. `x::MyType + y::MyType` -- For Gradient Accumulation
+2. `x::MyType - y::MyType` -- For Gradient Based Updates
+3. `x::MyType * η<:Real  ` -- For Multiplication of the Learning Rate with Gradient
+4. `η<:Real   * x::MyType` -- For Multiplication of the Learning Rate with Gradient
+5. `x::MyType * y::MyType` -- Just for the sake of completeness.
 
 Most of these functions do not make semantic sense. For example, adding 2 `PointLight`
 instances do not make sense but in case both of them are gradients, it makes perfect
@@ -235,4 +238,11 @@ end
 # Fixed Parameters #
 # ---------------- #
 
+"""
+    FixedParams
+
+Any subtype of FixedParams is not optimized using the `update!` API. For example,
+we don't want the screen size to be altered while inverse rendering, this is
+ensured by wrapping those parameters in a subtype of FixedParams.
+"""
 abstract type FixedParams; end
