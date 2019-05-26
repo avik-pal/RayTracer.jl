@@ -19,7 +19,7 @@ function ngradient(f, xs::AbstractArray...)
     grads = zero.(xs)
     for (x, Δ) in zip(xs, grads), i in 1:length(x)
         # This gives reasonable results
-        δ = 1.0e-12
+        δ = 1.0e-13
         tmp = x[i]
         x[i] = tmp - δ/2
         y1 = f(xs...)
@@ -55,8 +55,9 @@ Sets the tunable parameters of the struct `x`. The index of the last element
 set into the struct is returned as output. This may be used to confirm that
 the size of the input array was as expected.
 
-Example:
+### Example
 
+```julia
 julia> scene = Triangle(Vec3(-1.9, 1.3, 0.1), Vec3(1.2, 1.1, 0.3), Vec3(0.8, -1.2, -0.15),
                     color = rgb(1.0, 1.0, 1.0), reflection = 0.5)
 Triangle{Array{Float64,1}}(Vec3{Array{Float64,1}}([-1.9], [1.3], [0.1]), Vec3{Array{Float64,1}}([1.2], [1.1], [0.3]), Vec3{Array{Float64,1}}([0.8], [-1.2], [-0.15]), RayTracer.Material{RayTracer.PlainColor,Float64}(RayTracer.PlainColor(Vec3{Array{Float64,1}}([1.0], [1.0], [1.0])), 0.5))
@@ -65,20 +66,15 @@ julia> x = rand(13)
 13-element Array{Float64,1}:
  0.39019817669623835
  0.940810689314205
- 0.888595852803119
- 0.2948651033482823
- 0.7788437820004621
- 0.7924917980641135
- 0.49150608463469836
- 0.8909800137728863
- 0.9142977225546831
- 0.4678287661044713
- 0.5346780375855906
+ .
+ .
+ .
  0.5590307650917048
  0.7551647340674075
 
 julia> RayTracer.set_params!(scene, x)
 13
+```
 """
 function set_params!(x::AbstractArray, y::AbstractArray)
     l = length(x)
@@ -101,15 +97,21 @@ end
 # ------------------------- #
 # Numerical Differentiation #
 # ------------------------- #
+"""
+    numderiv(f, θ)
+    numderiv(f, θ::AbstractArray)
+    numderiv(f, θ::Real)
 
-# NOTE: This is not a generalized method for getting the gradients.
-#       For that please use Zygote. However, this can be used to
-#       debug you model, incase you feel the gradients obtained by
-#       other methods is sketchy.
-numderiv(f, θ::AbstractArray) = ngradient(f, θ)
+Compute the numerical derivates wrt one of the scene parameters.
+The parameter passed cannot be enclosed in an Array, thus making
+this not a general method for differentiation.
 
-numderiv(f, θ::Real) = ngradient(f, [θ])
-
+!!! note
+    This is not a generalized method for getting the gradients.
+    For that please use Zygote. However, this can be used to
+    debug you model, incase you feel the gradients obtained by
+    other methods is sketchy.
+"""
 function numderiv(f, θ)
     arr = get_params(θ)
     function modified_f(x::AbstractArray)
@@ -122,4 +124,8 @@ function numderiv(f, θ)
     set_params!(grad_θ, grads)
     return grad_θ
 end
+
+numderiv(f, θ::AbstractArray) = ngradient(f, θ)
+
+numderiv(f, θ::Real) = ngradient(f, [θ])
 
