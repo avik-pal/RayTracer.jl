@@ -63,9 +63,11 @@ function intersect(d::Disc, origin, direction)
     return result
 end
 
-function get_normal(d::Disc, pt)
+function get_normal(d::Disc, pt, dir)
     normal = normalize(d.normal)
-    return Vec3(repeat(normal.x, inner = size(pt.x)),
-                repeat(normal.y, inner = size(pt.y)),
-                repeat(normal.z, inner = size(pt.z)))
+    direction = -sign.(dot(normal, dir))
+    normal_uni = Vec3(repeat(normal.x, inner = size(pt.x)),
+                      repeat(normal.y, inner = size(pt.y)),
+                      repeat(normal.z, inner = size(pt.z)))
+    return normal_uni * direction
 end

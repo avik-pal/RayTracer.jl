@@ -53,7 +53,7 @@ function intersect(s::Sphere, origin, direction)
     return result
 end
 
-get_normal(s::Sphere, pt) = normalize(pt - s.center)
+get_normal(s::Sphere, pt, dir) = normalize(pt - s.center)
 
 # ---------------------- #
 # -- Helper Functions -- #
