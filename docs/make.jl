@@ -4,8 +4,7 @@ makedocs(modules=[RayTracer],
          doctest = false,
          sitename = "RayTracer",
          authors = "Avik Pal",
-         # Uncomment below for local build
-         format = Documenter.HTML(prettyurls = false,
+         format = Documenter.HTML(prettyurls = true,
                                   assets = ["assets/documenter.css"]),
          pages = ["Home" => "index.md",
                   "Getting Started" => [

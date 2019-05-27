@@ -14,7 +14,7 @@ configuration.
 """
 function improcess(x, width, height)
     y = reshape(x, width, height)
-    return zeroonenorm(y)
+    return clamp.(y, eltype(y)(0), eltype(y)(1))
 end
 
 """

@@ -83,7 +83,11 @@ end
 
 @inline l2norm(a::Vec3) = dot(a, a)
 
-@inline normalize(a::Vec3) = a / sqrt.(l2norm(a))
+@inline function normalize(a::Vec3)
+    l2 = l2norm(a)
+    l2 = map(x -> x == 0 ? typeof(x)(1) : x, l2)
+    return (a / sqrt.(l2))
+end
 
 @inline cross(a::Vec3, b::Vec3) =
     Vec3(a.y .* b.z .- a.z .* b.y, a.z .* b.x .- a.x .* b.z,
