@@ -198,7 +198,19 @@ end
 
 @adjoint literal_getproperty(c::Camera, ::Val{:fixedparams}) =
     getproperty(c, :fixedparams), Δ -> (Camera(Δ, Vec3(0.0f0), [0.0f0], [0.0f0], Δ), nothing)
+
+@adjoint FixedCameraParams(vup, w, h) =
+    FixedCameraParams(vup, w, h), Δ -> FixedCameraParams(Δ.vup, Δ.w, Δ.h)
+
+@adjoint literal_getproperty(f::FixedCameraParams, ::Val{:vup}) =
+    getproperty(f, :vup), Δ -> (FixedCameraParams(Δ, 0, 0), nothing)
     
+@adjoint literal_getproperty(f::FixedCameraParams, ::Val{:w}) =
+    getproperty(f, :w), Δ -> (FixedCameraParams(Vec3(0.0f0), Δ, 0), nothing)
+
+@adjoint literal_getproperty(f::FixedCameraParams, ::Val{:h}) =
+    getproperty(f, :h), Δ -> (FixedCameraParams(Vec3(0.0f0), 0, Δ), nothing)
+
 # ------- #
 # ImUtils #
 # ------- #
