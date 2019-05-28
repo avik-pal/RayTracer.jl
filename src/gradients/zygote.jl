@@ -173,12 +173,32 @@ end
 # Camera #
 # ------ #
 
-# TODO: Add the adjoints for literal_getproperty
+# TODO: Correct the adjoints for literal_getproperty. It is special cased
+#       for Float32
 @adjoint Camera(lf, la, vfov, focus, fp) =
     Camera(lf, la, vfov, focus, fp), Δ -> Camera(Δ.lookfrom, Δ.lookat,
                                                  Δ.vfov, Δ.focus,
                                                  Δ.fixedparams)
 
+@adjoint literal_getproperty(c::Camera, ::Val{:lookfrom})
+    getproperty(c, :lookfrom), Δ -> (Camera(Δ, Vec3(0.0f0), [0.0f0], [0.0f0],
+                                            FixedCameraParams(Vec3(0.0f0, 0, 0))))
+
+@adjoint literal_getproperty(c::Camera, ::Val{:lookat})
+    getproperty(c, :lookat), Δ -> (Camera(Vec3(0.0f0), Δ, [0.0f0], [0.0f0],
+                                          FixedCameraParams(Vec3(0.0f0, 0, 0))))
+
+@adjoint literal_getproperty(c::Camera, ::Val{:vfov})
+    getproperty(c, :vfov), Δ -> (Camera(Vec3(0.0f0), Vec3(0.0f0), Δ, [0.0f0],
+                                        FixedCameraParams(Vec3(0.0f0, 0, 0))))
+
+@adjoint literal_getproperty(c::Camera, ::Val{:focus})
+    getproperty(c, :focus), Δ -> (Camera(Vec3(0.0f0), Vec3(0.0f0), [0.0f0], Δ,
+                                         FixedCameraParams(Vec3(0.0f0, 0, 0))))
+
+@adjoint literal_getproperty(c::Camera, ::Val{:fixedparams})
+    getproperty(c, :fixedparams), Δ -> (Camera(Δ, Vec3(0.0f0), [0.0f0], [0.0f0],Δ))
+    
 # ------- #
 # ImUtils #
 # ------- #

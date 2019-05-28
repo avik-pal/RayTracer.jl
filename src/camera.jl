@@ -23,7 +23,7 @@ end
 
 function Camera(lookfrom, lookat, vup, vfov, focus, width, height)
     fixedparams = FixedCameraParams(vup, width, height)
-	return Camera(lookfrom, lookat, [vfov], [focus], fixedparams)
+    return Camera(lookfrom, lookat, [vfov], [focus], fixedparams)
 end
 
 """
