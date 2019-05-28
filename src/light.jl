@@ -48,8 +48,3 @@ get_direction(d::DistantLight, pt::Vec3) = d.direction
 
 get_intensity(d::DistantLight, pt::Vec3, dist) = d.intensity
 
-# -------------- #
-# - Area Light - #
-# -------------- #
-
-
