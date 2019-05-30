@@ -288,9 +288,9 @@ uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
 [[Interpolations]]
 deps = ["AxisAlgorithms", "LinearAlgebra", "OffsetArrays", "Random", "Ratios", "SharedArrays", "SparseArrays", "StaticArrays", "WoodburyMatrices"]
-git-tree-sha1 = "63665619f2b1a791d3c223acd8bc9155464f3dd3"
+git-tree-sha1 = "f38e6a95b7dc441cb6fc8559c64a1cb3bb7ec6ca"
 uuid = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
-version = "0.12.0"
+version = "0.12.1"
 
 [[IntervalSets]]
 deps = ["Compat"]
@@ -429,9 +429,9 @@ uuid = "c84ed2f1-dad5-54f0-aa8e-dbefe2724439"
 version = "0.3.1"
 
 [[RayTracer]]
-deps = ["FileIO", "Flux", "IRTools", "Images", "MeshIO", "Zygote"]
-git-tree-sha1 = "5f3ad6dac68c967adb3fc63b32b38da9302be169"
-repo-rev = "ap/examples"
+deps = ["Distributed", "FileIO", "Flux", "IRTools", "Images", "MeshIO", "Zygote"]
+git-tree-sha1 = "4557ba6ba89833b1202ecd4b1dd479a769cf7b0a"
+repo-rev = "ap/invrender"
 repo-url = "https://github.com/avik-pal/RayTracer.jl"
 uuid = "60dacb86-48ff-11e9-0f01-03ab8794bbc9"
 version = "0.1.0"

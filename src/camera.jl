@@ -10,6 +10,8 @@ struct FixedCameraParams{T} <: FixedParams
     height
 end
 
+@diffops FixedCameraParams
+
 # Incorporate `aperture` later
 mutable struct Camera{T}
     lookfrom::Vec3{T}

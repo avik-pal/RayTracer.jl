@@ -154,7 +154,7 @@ end
 # ------------ #
 
 @adjoint Triangle(v1, v2, v3, material::Material) =
-    Triangle(v1, v2, v3, material), Δ -> Triangle(Δ.v1, Δ.v2, Δ.v3, Δ.material)
+    Triangle(v1, v2, v3, material), Δ -> (Δ.v1, Δ.v2, Δ.v3, Δ.material)
 
 @adjoint literal_getproperty(t::Triangle, ::Val{f}) where {f} =
     getproperty(t, f), Δ -> (Triangle(Δ, f), nothing)
@@ -164,7 +164,7 @@ end
 # -------- #
 
 @adjoint Disc(c, n, r, material::Material) =
-    Disc(c, n, r, material), Δ -> Disc(Δ.center, Δ.normal, Δ.radius, Δ.material)
+    Disc(c, n, r, material), Δ -> (Δ.center, Δ.normal, Δ.radius, Δ.material)
 
 @adjoint literal_getproperty(t::Disc, ::Val{f}) where {f} =
     getproperty(t, f), Δ -> (Disc(Δ, f), nothing)
@@ -176,9 +176,7 @@ end
 # TODO: Correct the adjoints for literal_getproperty. It is special cased
 #       for Float32
 @adjoint Camera(lf, la, vfov, focus, fp) =
-    Camera(lf, la, vfov, focus, fp), Δ -> Camera(Δ.lookfrom, Δ.lookat,
-                                                 Δ.vfov, Δ.focus,
-                                                 Δ.fixedparams)
+    Camera(lf, la, vfov, focus, fp), Δ -> (Δ.lookfrom, Δ.lookat, Δ.vfov, Δ.focus, Δ.fixedparams)
 
 @adjoint literal_getproperty(c::Camera, ::Val{:lookfrom}) =
     getproperty(c, :lookfrom), Δ -> (Camera(Δ, Vec3(0.0f0), [0.0f0], [0.0f0],
@@ -200,17 +198,11 @@ end
     getproperty(c, :fixedparams), Δ -> (Camera(Vec3(0.0f0), Vec3(0.0f0), [0.0f0], [0.0f0], Δ), nothing)
 
 @adjoint FixedCameraParams(vup, w, h) =
-    FixedCameraParams(vup, w, h), Δ -> FixedCameraParams(Δ.vup, Δ.w, Δ.h)
+    FixedCameraParams(vup, w, h), Δ -> (Δ.vup, Δ.width, Δ.height)
 
-@adjoint literal_getproperty(f::FixedCameraParams, ::Val{:vup}) =
-    getproperty(f, :vup), Δ -> (FixedCameraParams(Δ, 0, 0), nothing)
+@adjoint literal_getproperty(fcp::FixedCameraParams, ::Val{f}) where {f} =
+    getproperty(fcp, f), Δ -> (FixedCameraParams(Vec3(0.0f0), 0, 0), nothing)
     
-@adjoint literal_getproperty(f::FixedCameraParams, ::Val{:w}) =
-    getproperty(f, :w), Δ -> (FixedCameraParams(Vec3(0.0f0), Δ, 0), nothing)
-
-@adjoint literal_getproperty(f::FixedCameraParams, ::Val{:h}) =
-    getproperty(f, :h), Δ -> (FixedCameraParams(Vec3(0.0f0), 0, Δ), nothing)
-
 # ------- #
 # ImUtils #
 # ------- #

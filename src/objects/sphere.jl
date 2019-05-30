@@ -33,7 +33,7 @@ end
 
 function intersect(s::Sphere, origin, direction)
     b = dot(direction, origin - s.center)  # direction is a vec3 with array
-    c = l2norm(s.center) .+ l2norm(origin) .- 2 .* dot(s.center, origin) .- (s.radius[] ^ 2)
+    c = l2norm(s.center) .+ l2norm(origin) .- 2 .* dot(s.center, origin) .- (s.radius .^ 2)
     disc = (b .^ 2) .- c
     function get_intersections(x, y)
         t = bigmul(x + y) # Hack to split the 0.0 gradient to both. Otherwise one gets nothing
