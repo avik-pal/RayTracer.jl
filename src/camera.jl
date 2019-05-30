@@ -48,7 +48,7 @@ function get_primary_rays(c::Camera)
 
     origin = c.lookfrom
     w = normalize(c.lookfrom - c.lookat)
-    u = normalize(cross(w, vup))
+    u = normalize(cross(vup, w))
     v = normalize(cross(w, u))
 
     # Lower Left Corner
