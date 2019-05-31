@@ -78,7 +78,7 @@ end
 @inline function dot(a::Vec3, b::Vec3)
     result = a.x .* b.x .+ a.y .* b.y .+ a.z .* b.z
     # Change the nothing's to 0's
-    return Zygote.hook(t -> isnothing(t) ? zero(a.x) : map(i -> isnothing(i) ? zero(eltype(a.x)) : i, t), result)
+    return Zygote.hook(t -> isnothing(t) ? zero(result) : map(i -> isnothing(i) ? zero(eltype(a.x)) : i, t), result)
 end
 
 @inline l2norm(a::Vec3) = dot(a, a)
