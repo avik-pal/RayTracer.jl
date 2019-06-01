@@ -21,9 +21,9 @@ function light(s::S, origin, direction, dist, lgt::L, eye_pos,
     nudged = pt + normal * 0.0001f0 # Nudged to miss itself
     
     # Shadow
-    light_distances = broadcast(x -> intersect(x, nudged, dir_light), scene)
+    light_distances = map(x -> intersect(x, nudged, dir_light), scene)
     seelight = fseelight(obj_num, light_distances)
-    
+
     # Ambient
     color = rgb(0.05f0)
 
@@ -68,9 +68,12 @@ much faster if global illumination is off but at the same time is much less phot
 """
 function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
                   lgt::L, eye_pos::Vec3, bounce::Int = 0) where {L<:Light}
-    distances = broadcast(x -> intersect(x, origin, direction), scene)
+    distances = map(x -> intersect(x, origin, direction), scene)
 
-    nearest = map(min, distances...)
+    # Zygote might cause troubles
+    dist_reshaped = hcat(distances...)
+    nearest = [minimum(dist_reshaped[idx, :]) for idx in 1:size(dist_reshaped, 1)]
+
     h = isnotbigmul.(nearest)
 
     color = rgb(0.0f0)
@@ -97,4 +100,10 @@ function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
     return sum(colors)
 end
 
-fseelight(n, light_distances) = map((x...) -> min(x...) == x[n], light_distances...)
+function fseelight(n, light_distances)
+    ldist = hcat(light_distances...)
+    seelight = [minimum(ldist[idx, :]) == ldist[idx,n] for idx in 1:size(ldist, 1)]
+    return seelight
+end
+
+# fseelight(n, light_distances) = map((x...) -> min(x...) == x[n], light_distances...)

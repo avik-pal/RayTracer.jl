@@ -30,6 +30,21 @@ import Zygote.literal_getproperty
     end
 end
 
+@adjoint function dot(a::Vec3, b::Vec3)	
+    dot(a, b), Δ -> begin	
+        Δ = map(x -> isnothing(x) ? zero(eltype(a.x)) : x, Δ)	
+        t1 = Δ * b	
+        t2 = Δ * a	
+        if length(a.x) != length(t1.x)	
+            t1 = Vec3(sum(t1.x), sum(t1.y), sum(t1.z))	
+        end	
+        if length(b.x) != length(t2.x)	
+            t2 = Vec3(sum(t2.x), sum(t2.y), sum(t2.z))	
+        end	
+        return (t1, t2)	
+    end	
+end
+
 @adjoint place(a::Vec3, cond) = place(a, cond), Δ -> (Vec3(Δ.x[cond], Δ.y[cond], Δ.z[cond]), nothing)
 
 # ----- #

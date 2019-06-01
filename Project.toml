@@ -5,11 +5,9 @@ version = "0.1.0"
 
 [deps]
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
-FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 IRTools = "7869d1d1-7146-5819-86e3-90919afe41df"
 Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
-MeshIO = "7269a6da-0436-5bbc-96c2-40638cbb6118"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [extras]

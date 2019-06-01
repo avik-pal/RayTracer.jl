@@ -1,4 +1,4 @@
-import Base: +, *, -, /, %, intersect, minimum, maximum
+import Base: +, *, -, /, %, intersect, minimum, maximum, size
 
 export Vec3, rgb, clip01
 
@@ -23,6 +23,7 @@ the gradients w.r.t the fields using the `Params` API of Zygote.
 * `zero`, `similar`, `one`
 * `place`
 * `maximum`, `minimum`
+* `size`
 """
 mutable struct Vec3{T<:AbstractArray}
     x::T
@@ -75,11 +76,7 @@ end
 
 @inline -(a::Vec3) = Vec3(-a.x, -a.y, -a.z)
 
-@inline function dot(a::Vec3, b::Vec3)
-    result = a.x .* b.x .+ a.y .* b.y .+ a.z .* b.z
-    # Change the nothing's to 0's
-    return Zygote.hook(t -> isnothing(t) ? zero(result) : map(i -> isnothing(i) ? zero(eltype(a.x)) : i, t), result)
-end
+@inline dot(a::Vec3, b::Vec3) = a.x .* b.x .+ a.y .* b.y .+ a.z .* b.z
 
 @inline l2norm(a::Vec3) = dot(a, a)
 
@@ -98,6 +95,8 @@ end
 @inline minimum(v::Vec3) = min(minimum(v.x), minimum(v.y), minimum(v.z))
 
 @inline clip01(v::Vec3) = (v - minimum(v)) / maximum(v)
+
+@inline size(v::Vec3) = size(v.x)
 
 """
     place(a::Vec3, cond)
