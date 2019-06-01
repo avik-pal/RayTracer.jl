@@ -72,7 +72,7 @@ function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
 
     # Zygote might cause troubles
     dist_reshaped = hcat(distances...)
-    nearest = [minimum(dist_reshaped[idx, :]) for idx in 1:size(dist_reshaped, 1)]
+    nearest = map(idx -> minimum(dist_reshaped[idx, :]), 1:size(dist_reshaped, 1))
 
     h = isnotbigmul.(nearest)
 
