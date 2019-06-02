@@ -1,4 +1,4 @@
-import Base: +, *, -, /, %, intersect, minimum, maximum, size
+import Base: +, *, -, /, %, intersect, minimum, maximum, size, getindex
 
 export Vec3, rgb, clip01
 
@@ -97,6 +97,8 @@ end
 @inline clip01(v::Vec3) = (v - minimum(v)) / maximum(v)
 
 @inline size(v::Vec3) = size(v.x)
+
+@inline getindex(v::Vec3, idx) = (x = v.x[idx], y = v.y[idx], z = v.z[idx])
 
 """
     place(a::Vec3, cond)

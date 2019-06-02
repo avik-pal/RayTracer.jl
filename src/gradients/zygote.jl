@@ -184,6 +184,12 @@ end
 @adjoint literal_getproperty(t::Disc, ::Val{f}) where {f} =
     getproperty(t, f), Δ -> (Disc(Δ, f), nothing)
 
+# ---------------- #
+# - TriangleMesh - #
+# ---------------- #
+
+
+
 # ------ #
 # Camera #
 # ------ #
