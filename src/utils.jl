@@ -251,3 +251,10 @@ we don't want the screen size to be altered while inverse rendering, this is
 ensured by wrapping those parameters in a subtype of FixedParams.
 """
 abstract type FixedParams; end
+
+for op in (:+, :*, :-, :/, :%)
+    @eval begin
+        @inline $(op)(a::FixedParams, b::FixedParams) = a
+    end
+end
+

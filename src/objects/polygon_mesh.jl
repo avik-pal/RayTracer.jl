@@ -40,8 +40,8 @@ function load_obj(file, outtype = Float32)
 end
 
 function construct_outer_normals(t::Vector{Triangle})
-    centroid = sum(map(x -> (x.v1 + x.v2 + x.v3) / 3, t))
-    return map(x -> get_normal(x, Vec3(0.0f0), centroid - x.v1), t)
+    centroid = sum(map(x -> (x.v1 + x.v2 + x.v3) / 3, t)) / length(t)
+    return map(x -> get_normal(x, Vec3(0.0f0), x.v1 - centroid), t)
 end
 
 # ----------------- #
