@@ -48,7 +48,7 @@ function get_primary_rays(c::Camera)
 
     origin = c.lookfrom
     w = normalize(c.lookfrom - c.lookat)
-    u = normalize(cross(w, vup))
+    u = normalize(cross(vup, w))
     v = normalize(cross(w, u))
 
     # Lower Left Corner
@@ -56,8 +56,8 @@ function get_primary_rays(c::Camera)
     hori = 2 * half_width * focus * u
     vert = 2 * half_height * focus * v
 
-    s = repeat((collect(0:(width - 1)) .+ 0.5f0) ./ width, outer= height)
-    t = repeat((collect(0:(height - 1)) .+ 0.5f0) ./ height, inner = width)
+    s = repeat((collect(0:(width - 1)) .+ 0.5f0) ./ width, outer = height)
+    t = repeat((collect((height - 1):-1:0) .+ 0.5f0) ./ height, inner = width)
     
     direction = normalize(llc + s * hori + t * vert - origin)
 
