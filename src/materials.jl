@@ -1,5 +1,3 @@
-import Base.setfield!
-
 # ------ #
 # Colors #
 # ------ #
@@ -24,6 +22,7 @@ diffusecolor(c::PlainColor, pt::Vec3) = c.color
 # - CheckeredSurface - #
 # -------------------- #
 
+# FIXME: CheckeredSurface is not differentiable currently
 mutable struct CheckeredSurface <: SurfaceColor
     color1::Vec3
     color2::Vec3

@@ -54,26 +54,30 @@ end
 # intersect call recompute everything, so we prefer to avoid this extra computation
 # for now.
 # The `intersections` store point to index of triangle mapping for getting the normals
-mutable struct TriangleMesh <: Object
-    triangulated_mesh::Vector{Triangle}
+mutable struct FixedTriangleMeshParams <: FixedParams
     intersections::IdDict
     normals::Vector{Vec3}
+end
+
+mutable struct TriangleMesh <: Object
+    triangulated_mesh::Vector{Triangle}
     material::Material
+    ftmp::FixedTriangleMeshParams
 end
 
 @diffops TriangleMesh
             
 TriangleMesh(scene::Vector{Triangle}, color = rgb(0.5f0), reflection = 0.5f0) =
-    TriangleMesh(scene, IdDict(), construct_outer_normals(scene),
-                 Material(PlainColor(color), reflection))
+    TriangleMesh(scene, Material(PlainColor(color), reflection),
+                 FixedTriangleMeshParams(IdDict(), construct_outer_normals(scene)))
 
 function intersect(t::TriangleMesh, origin, direction)
     distances = map(s -> intersect(s, origin, direction), t.triangulated_mesh)
     
     dist_reshaped = hcat(distances...)
     nearest = map(idx -> begin
-                             val, index = findmin(dist_reshaped[idx, :])
-                             t.intersections[direction[idx]] = index
+                             val, index = findmin(dist_reshaped[idx, :], dims = 1)
+                             t.ftmp.intersections[direction[idx]] = index
                              return val
                          end,
                   1:(size(dist_reshaped, 1)))
@@ -84,7 +88,7 @@ end
 function get_normal(t::TriangleMesh, pt, dir)
     normal = zero(pt)
     for idx in 1:size(dir)[1]
-        n = t.normals[t.intersections[dir[idx]]]
+        n = t.ftmp.normals[t.ftmp.intersections[dir[idx]]]
         normal.x[idx] = n.x[1]
         normal.y[idx] = n.y[1]
         normal.z[idx] = n.z[1]

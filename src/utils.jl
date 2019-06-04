@@ -255,6 +255,10 @@ abstract type FixedParams; end
 for op in (:+, :*, :-, :/, :%)
     @eval begin
         @inline $(op)(a::FixedParams, b::FixedParams) = a
+
+        @inline $(op)(a::FixedParams, b) = a
+
+        @inline $(op)(a, b::FixedParams) = b
     end
 end
 

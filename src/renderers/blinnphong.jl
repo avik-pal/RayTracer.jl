@@ -70,7 +70,6 @@ function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
                   lgt::L, eye_pos::Vec3, bounce::Int = 0) where {L<:Light}
     distances = map(x -> intersect(x, origin, direction), scene)
 
-    # Zygote might cause troubles
     dist_reshaped = hcat(distances...)
     nearest = map(idx -> minimum(dist_reshaped[idx, :]), 1:size(dist_reshaped, 1))
 
