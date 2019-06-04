@@ -11,7 +11,11 @@ mutable struct Disc{V,T<:Real} <: Object
     normal::Vec3{V} # This needs to be normalized everytime before usage
     radius::T
     material::Material
-end 
+end
+
+show(io::IO, d::Disc) =
+    print(io, "Disc Object:\n    Center - ", d.center, "\n    Normal - ", d.normal,
+          "\n    Radius - ", d.radius[], "\n    ", d.material)
 
 @diffops Disc
 

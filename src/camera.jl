@@ -10,7 +10,9 @@ struct FixedCameraParams{T} <: FixedParams
     height
 end
 
-@diffops FixedCameraParams
+Base.show(io::IO, fcp::FixedCameraParams) =
+    print(io, "    Fixed Parameters:\n        World UP - ", fcp.vup,
+          "\n        Screen Dimensions - ", fcp.height, " × ", fcp.width)
 
 # Incorporate `aperture` later
 mutable struct Camera{T}
@@ -20,6 +22,11 @@ mutable struct Camera{T}
     focus::T
     fixedparams::FixedCameraParams{T}
 end
+
+Base.show(io::IO, cam::Camera) =
+    print(io, "CAMERA Configuration:\n    Lookfrom - ", cam.lookfrom,
+          "\n    Lookat - ", cam.lookat, "\n    Field of View - ", cam.vfov[],
+          "\n    Focus - ", cam.focus[], "\n", cam.fixedparams)
                                        
 @diffops Camera
 

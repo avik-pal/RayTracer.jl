@@ -48,6 +48,19 @@ Vec3(a::T) where {T<:AbstractArray} = Vec3(copy(a), copy(a), copy(a))
 
 Vec3(a::T, b::T, c::T) where {T<:Real} = Vec3([a], [b], [c])
 
+function show(io::IO, v::Vec3)
+    l = size(v)[1]
+    if l == 1
+        print(io, "x = ", v.x[], ", y = ", v.y[], ", z = ", v.z[])
+    elseif l <= 5
+        print(io, "Vec3 Object\n    Length = ", l, "\n    x = ", v.x,
+              "\n    y = ", v.y, "\n    z = ", v.z)
+    else
+        print(io, "Vec3 Object\n    Length = ", l, "\n    x = ", v.x[1:5],
+              "...\n    y = ", v.y[1:5], "...\n    z = ", v.z[1:5], "...")
+    end
+end
+
 for op in (:+, :*, :-)
     @eval begin
         @inline function $(op)(a::Vec3, b::Vec3)

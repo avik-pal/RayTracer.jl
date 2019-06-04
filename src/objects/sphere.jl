@@ -10,6 +10,10 @@ mutable struct Sphere{C} <: Object
     material::Material
 end
 
+show(io::IO, s::Sphere) =
+    print(io, "Sphere Object:\n    Center - ", s.center, "\n    Radius - ", s.radius[],
+          "\n    ", s.material)
+
 @diffops Sphere
 
 # The next 3 functions are just convenience functions for handling

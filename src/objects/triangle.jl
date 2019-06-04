@@ -9,7 +9,11 @@ mutable struct Triangle{V} <: Object
     v2::Vec3{V}
     v3::Vec3{V}
     material::Material
-end 
+end
+
+show(io::IO, t::Triangle) =
+    print(io, "Triangle Object:\n    Vertex 1 - ", t.v1, "\n    Vertex 2 - ", t.v2,
+          "\n    Vertex 3 - ", t.v3, "\n    ", t.material)
 
 @diffops Triangle
 

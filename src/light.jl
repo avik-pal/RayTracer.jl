@@ -24,6 +24,10 @@ mutable struct PointLight{I<:AbstractFloat} <: Light
     PointLight(c, i, p) = new{typeof(i)}(clamp(c, 0.0f0, 1.0f0), i, p)
 end
 
+show(io::IO, pl::PointLight) =
+    print(io, "Point Light\n    Color - ", pl.color, "\n    Intensity - ",
+          pl.intensity, "\n    Position - ", pl.position)
+
 @diffops PointLight
 
 get_direction(p::PointLight, pt::Vec3) = p.position - pt
@@ -41,6 +45,10 @@ mutable struct DistantLight{I<:AbstractFloat} <: Light
     direction::Vec3  # Must be normalized
     DistantLight(c, i, d) = new{typeof(i)}(c, i, normalize(d))
 end
+
+show(io::IO, dl::DistantLight) =
+    print(io, "Distant Light\n    Color - ", dl.color, "\n    Intensity - ",
+          dl.intensity, "\n    Direction - ", dl.direction)
 
 @diffops DistantLight
 
