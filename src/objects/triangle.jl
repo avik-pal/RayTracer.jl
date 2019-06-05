@@ -44,7 +44,7 @@ end
 
 function intersect(t::Triangle, origin, direction)
     normal = normalize(cross(t.v2 - t.v1, t.v3 - t.v1))
-    h = - (dot(normal, origin) .+ dot(normal, t.v1)) ./ dot(normal, direction)
+    h = (-dot(normal, origin) .+ dot(normal, t.v1)) ./ dot(normal, direction)
     pt = origin + direction * h
     edge1 = t.v2 - t.v1
     edge2 = t.v3 - t.v2
