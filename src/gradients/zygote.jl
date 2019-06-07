@@ -1,4 +1,6 @@
 import Base.getproperty
+import Base.findmin
+import Base.findmax
 
 using Zygote: @adjoint, @nograd
 
@@ -28,6 +30,21 @@ import Zygote.literal_getproperty
             error("Undefined Field Name")
         end
     end
+end
+
+@adjoint function dot(a::Vec3, b::Vec3)	
+    dot(a, b), Δ -> begin	
+        Δ = map(x -> isnothing(x) ? zero(eltype(a.x)) : x, Δ)	
+        t1 = Δ * b	
+        t2 = Δ * a	
+        if length(a.x) != length(t1.x)	
+            t1 = Vec3(sum(t1.x), sum(t1.y), sum(t1.z))	
+        end	
+        if length(b.x) != length(t2.x)	
+            t2 = Vec3(sum(t2.x), sum(t2.y), sum(t2.z))	
+        end	
+        return (t1, t2)	
+    end	
 end
 
 @adjoint place(a::Vec3, cond) = place(a, cond), Δ -> (Vec3(Δ.x[cond], Δ.y[cond], Δ.z[cond]), nothing)
@@ -154,7 +171,7 @@ end
 # ------------ #
 
 @adjoint Triangle(v1, v2, v3, material::Material) =
-    Triangle(v1, v2, v3, material), Δ -> Triangle(Δ.v1, Δ.v2, Δ.v3, Δ.material)
+    Triangle(v1, v2, v3, material), Δ -> (Δ.v1, Δ.v2, Δ.v3, Δ.material)
 
 @adjoint literal_getproperty(t::Triangle, ::Val{f}) where {f} =
     getproperty(t, f), Δ -> (Triangle(Δ, f), nothing)
@@ -164,21 +181,89 @@ end
 # -------- #
 
 @adjoint Disc(c, n, r, material::Material) =
-    Disc(c, n, r, material), Δ -> Disc(Δ.center, Δ.normal, Δ.radius, Δ.material)
+    Disc(c, n, r, material), Δ -> (Δ.center, Δ.normal, Δ.radius, Δ.material)
 
 @adjoint literal_getproperty(t::Disc, ::Val{f}) where {f} =
     getproperty(t, f), Δ -> (Disc(Δ, f), nothing)
+
+# ---------------- #
+# - TriangleMesh - #
+# ---------------- #
+
+@adjoint TriangleMesh(tm, mat, ftmp) =
+    TriangleMesh(tm, mat, ftmp), Δ -> (Δ.triangulated_mesh, Δ.material, Δ.ftmp)
+
+@adjoint function literal_getproperty(t::TriangleMesh, ::Val{:triangulated_mesh})
+    tm = getproperty(t, :triangulated_mesh)
+    z = eltype(tm[1].v1.x)
+    mat = Material(PlainColor(rgb(z)), z)
+    return tm, Δ -> (TriangleMesh(Δ, mat, FixedTriangleMeshParams(IdDict(), [Vec3(z)])), nothing)
+end
+
+@adjoint function literal_getproperty(t::TriangleMesh, ::Val{:material})
+    mat = getproperty(t, :material)
+    z = eltype(t.triangulated_mesh[1].v1.x)
+    tm = [Triangle([Vec3(z)]...) for _ in 1:length(t.triangulated_mesh)]
+    return mat, Δ -> (TriangleMesh(tm, Δ, FixedTriangleMeshParams(IdDict(), [Vec3(z)])), nothing)
+end
+
+@adjoint function literal_getproperty(t::TriangleMesh, ::Val{:ftmp})
+    z = eltype(t.triangulated_mesh[1].v1.x)
+    mat = Material(PlainColor(rgb(z)), z)
+    tm = [Triangle([Vec3(z)]...) for _ in 1:length(t.triangulated_mesh)]
+    return getproperty(t, :ftmp), Δ -> (TriangleMesh(tm, mat, Δ), nothing)
+end
+
+@adjoint FixedTriangleMeshParams(isect, n) =
+    FixedTriangleMeshParams(isect, n), Δ -> (Δ.isect, Δ.n)
+
+# The gradients for this params are never used so fill them with anything as long
+# as they are consistent with the types
+@adjoint literal_getproperty(ftmp::FixedTriangleMeshParams, ::Val{f}) where {f} =
+    getproperty(ftmp, f), Δ -> (FixedTriangleMeshParams(IdDict(), ftmp.normals[1:1]))
 
 # ------ #
 # Camera #
 # ------ #
 
-# TODO: Add the adjoints for literal_getproperty
 @adjoint Camera(lf, la, vfov, focus, fp) =
-    Camera(lf, la, vfov, focus, fp), Δ -> Camera(Δ.lookfrom, Δ.lookat,
-                                                 Δ.vfov, Δ.focus,
-                                                 Δ.fixedparams)
+    Camera(lf, la, vfov, focus, fp), Δ -> (Δ.lookfrom, Δ.lookat, Δ.vfov, Δ.focus, Δ.fixedparams)
 
+@adjoint function literal_getproperty(c::Camera{T}, ::Val{:lookfrom}) where {T}
+    z = zero(eltype(T))
+    getproperty(c, :lookfrom), Δ -> (Camera(Δ, Vec3(z), [z], [z],
+                                            FixedCameraParams(Vec3(z), 0, 0)), nothing)
+end
+
+@adjoint function literal_getproperty(c::Camera{T}, ::Val{:lookat}) where {T}
+    z = zero(eltype(T))
+    getproperty(c, :lookat), Δ -> (Camera(Vec3(z), Δ, [z], [z],
+                                          FixedCameraParams(Vec3(z), 0, 0)), nothing)
+end
+
+@adjoint function literal_getproperty(c::Camera{T}, ::Val{:vfov}) where {T}
+    z = zero(eltype(T))
+    getproperty(c, :vfov), Δ -> (Camera(Vec3(z), Vec3(z), Δ, [z],
+                                        FixedCameraParams(Vec3(z), 0, 0)), nothing)
+end
+
+@adjoint function literal_getproperty(c::Camera{T}, ::Val{:focus}) where {T}
+    z = zero(eltype(T))
+    getproperty(c, :focus), Δ -> (Camera(Vec3(z), Vec3(z), [z], Δ,
+                                         FixedCameraParams(Vec3(z), 0, 0)), nothing)
+end
+
+@adjoint function literal_getproperty(c::Camera{T}, ::Val{:fixedparams}) where {T}
+    z = zero(eltype(T))
+    getproperty(c, :fixedparams), Δ -> (Camera(Vec3(z), Vec3(z), [z], [z], Δ), nothing)
+end
+
+@adjoint FixedCameraParams(vup, w, h) =
+    FixedCameraParams(vup, w, h), Δ -> (Δ.vup, Δ.width, Δ.height)
+
+@adjoint literal_getproperty(fcp::FixedCameraParams{T}, ::Val{f}) where {T, f} =
+    getproperty(fcp, f), Δ -> (FixedCameraParams(Vec3(zero(eltype(T))), 0, 0), nothing)
+    
 # ------- #
 # ImUtils #
 # ------- #
@@ -196,4 +281,22 @@ end
         return (∇x .* Δ, )
     end
     return res, ∇zeroonenorm
+end
+
+# ----------------- #
+# General Functions #
+# ----------------- #
+
+for func in (:findmin, :findmax)
+    @eval begin
+        @adjoint function $(func)(xs::AbstractArray; dims = :)
+            y = $(func)(xs, dims = dims)
+            function dfunc(Δ)
+                res = zero(xs)
+                res[y[2]] .= Δ[1]
+                return (res, nothing)
+            end
+            return y, dfunc
+        end
+    end
 end

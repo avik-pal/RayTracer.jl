@@ -10,6 +10,10 @@ struct FixedCameraParams{T} <: FixedParams
     height
 end
 
+Base.show(io::IO, fcp::FixedCameraParams) =
+    print(io, "    Fixed Parameters:\n        World UP - ", fcp.vup,
+          "\n        Screen Dimensions - ", fcp.height, " × ", fcp.width)
+
 # Incorporate `aperture` later
 mutable struct Camera{T}
     lookfrom::Vec3{T}
@@ -18,12 +22,17 @@ mutable struct Camera{T}
     focus::T
     fixedparams::FixedCameraParams{T}
 end
+
+Base.show(io::IO, cam::Camera) =
+    print(io, "CAMERA Configuration:\n    Lookfrom - ", cam.lookfrom,
+          "\n    Lookat - ", cam.lookat, "\n    Field of View - ", cam.vfov[],
+          "\n    Focus - ", cam.focus[], "\n", cam.fixedparams)
                                        
 @diffops Camera
 
 function Camera(lookfrom, lookat, vup, vfov, focus, width, height)
     fixedparams = FixedCameraParams(vup, width, height)
-	return Camera(lookfrom, lookat, [vfov], [focus], fixedparams)
+    return Camera(lookfrom, lookat, [vfov], [focus], fixedparams)
 end
 
 """
@@ -46,7 +55,7 @@ function get_primary_rays(c::Camera)
 
     origin = c.lookfrom
     w = normalize(c.lookfrom - c.lookat)
-    u = normalize(cross(w, vup))
+    u = normalize(cross(vup, w))
     v = normalize(cross(w, u))
 
     # Lower Left Corner
@@ -54,8 +63,8 @@ function get_primary_rays(c::Camera)
     hori = 2 * half_width * focus * u
     vert = 2 * half_height * focus * v
 
-    s = repeat((collect(0:(width - 1)) .+ 0.5f0) ./ width, outer= height)
-    t = repeat((collect(0:(height - 1)) .+ 0.5f0) ./ height, inner = width)
+    s = repeat((collect(0:(width - 1)) .+ 0.5f0) ./ width, outer = height)
+    t = repeat((collect((height - 1):-1:0) .+ 0.5f0) ./ height, inner = width)
     
     direction = normalize(llc + s * hori + t * vert - origin)
 

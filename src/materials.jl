@@ -1,5 +1,3 @@
-import Base.setfield!
-
 # ------ #
 # Colors #
 # ------ #
@@ -16,6 +14,8 @@ mutable struct PlainColor <: SurfaceColor
     PlainColor() = new(Vec3(0.0f0))
 end
 
+show(io::IO, pc::PlainColor) = print(io, "Plain Color - (", pc.color, ")")
+
 @diffops PlainColor
 
 diffusecolor(c::PlainColor, pt::Vec3) = c.color
@@ -24,13 +24,16 @@ diffusecolor(c::PlainColor, pt::Vec3) = c.color
 # - CheckeredSurface - #
 # -------------------- #
 
+# FIXME: CheckeredSurface is not differentiable currently
 mutable struct CheckeredSurface <: SurfaceColor
     color1::Vec3
     color2::Vec3
     CheckeredSurface(c1::Vec3{T1}, c2::Vec3{T2}) where {T1, T2} = new(clamp(c1, eltype(T1)(0), eltype(T1)(1)),
                                                                       clamp(c2, eltype(T2)(0), eltype(T2)(1)))
     CheckeredSurface() = new(Vec3(0.0f0), Vec3(0.0f0))
-end
+end                                                                
+
+show(io::IO, cs::CheckeredSurface) = print(io, "Checkered Surface - (", cs.color1, ") + (", cs.color2, ")")
 
 @diffops CheckeredSurface
 
@@ -56,6 +59,9 @@ mutable struct Material{S<:SurfaceColor, R<:Real}
     color::S
     reflection::R
 end
+
+show(io::IO, mat::Material) =
+    print(io, "Material: ", mat.color, ", Reflection - ", mat.reflection)
 
 @diffops Material
 

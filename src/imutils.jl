@@ -14,7 +14,7 @@ configuration.
 """
 function improcess(x, width, height)
     y = reshape(x, width, height)
-    return zeroonenorm(y)
+    return y
 end
 
 """
@@ -30,7 +30,7 @@ function get_image(im::Vec3{T}, width, height) where {T}
     color_g = improcess(im.y, width, height)
     color_b = improcess(im.z, width, height)
 
-    im_arr = clamp.(permutedims(cat(color_r, color_g, color_b, dims = 3), (3, 2, 1)), low, high)
+    im_arr = zeroonenorm(permutedims(cat(color_r, color_g, color_b, dims = 3), (3, 2, 1)))
 
     return colorview(RGB, im_arr)
 end

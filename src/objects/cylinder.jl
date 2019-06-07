@@ -14,6 +14,10 @@ mutable struct Cylinder{C, R<:Real, L<:Real} <: Object
     material::Material
 end
 
+show(io::IO, c::Cylinder) =
+    print(io, "Cylinder Object:\n    Center - ", c.center, "\n    Radius - ", c.radius[],
+          "\n    Axis - ", c.axis, "\n    Length - ", c.length, "\n    ", c.material)
+
 @diffops Cylinder
 
 # The next 3 functions are just convenience functions for handling
@@ -86,7 +90,7 @@ function intersect(cy::Cylinder, origin, direction)
     return result
 end
 
-function get_normal(c::Cylinder, pt)
+function get_normal(c::Cylinder, pt, dir)
     pt_c = pt - c.center
     return normalize(pt_c - dot(pt_c, c.axis) * c.axis)
 end

@@ -11,7 +11,11 @@ mutable struct Disc{V,T<:Real} <: Object
     normal::Vec3{V} # This needs to be normalized everytime before usage
     radius::T
     material::Material
-end 
+end
+
+show(io::IO, d::Disc) =
+    print(io, "Disc Object:\n    Center - ", d.center, "\n    Normal - ", d.normal,
+          "\n    Radius - ", d.radius[], "\n    ", d.material)
 
 @diffops Disc
 
@@ -63,9 +67,11 @@ function intersect(d::Disc, origin, direction)
     return result
 end
 
-function get_normal(d::Disc, pt)
+function get_normal(d::Disc, pt, dir)
     normal = normalize(d.normal)
-    return Vec3(repeat(normal.x, inner = size(pt.x)),
-                repeat(normal.y, inner = size(pt.y)),
-                repeat(normal.z, inner = size(pt.z)))
+    direction = -sign.(dot(normal, dir))
+    normal_uni = Vec3(repeat(normal.x, inner = size(pt.x)),
+                      repeat(normal.y, inner = size(pt.y)),
+                      repeat(normal.z, inner = size(pt.z)))
+    return normal_uni * direction
 end

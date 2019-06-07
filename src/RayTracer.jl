@@ -1,6 +1,7 @@
 module RayTracer
 
-using Zygote, Flux, Images, FileIO, MeshIO
+using Zygote, Flux, Images
+import Base.show
 
 # Rendering Utilities
 include("utils.jl")

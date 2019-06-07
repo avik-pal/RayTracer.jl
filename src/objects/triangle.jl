@@ -4,13 +4,16 @@ export Triangle
 # - Triangle - #
 # ------------ #
 
-# TODO: Use barycentric coordinates and Moller-Trumbore Algorithm
 mutable struct Triangle{V} <: Object
     v1::Vec3{V}
     v2::Vec3{V}
     v3::Vec3{V}
     material::Material
-end 
+end
+
+show(io::IO, t::Triangle) =
+    print(io, "Triangle Object:\n    Vertex 1 - ", t.v1, "\n    Vertex 2 - ", t.v2,
+          "\n    Vertex 3 - ", t.v3, "\n    ", t.material)
 
 @diffops Triangle
 
@@ -41,7 +44,7 @@ end
 
 function intersect(t::Triangle, origin, direction)
     normal = normalize(cross(t.v2 - t.v1, t.v3 - t.v1))
-    h = - (dot(normal, origin) .+ dot(normal, t.v1)) ./ dot(normal, direction)
+    h = (-dot(normal, origin) .+ dot(normal, t.v1)) ./ dot(normal, direction)
     pt = origin + direction * h
     edge1 = t.v2 - t.v1
     edge2 = t.v3 - t.v2
@@ -56,13 +59,34 @@ function intersect(t::Triangle, origin, direction)
         (a > 0 && b > 0 && c > 0 && d > 0) ? a : bigmul(a + b + c + d)
     result = broadcast(get_intersections, h, val1, val2, val3)
     return result
+    # NOTE: Moller Trumbore as implemented here is slower than the
+    #       above implementation
+    #=
+    v12 = t.v2 - t.v1
+    v13 = t.v3 - t.v1
+    pvec = cross(direction, v13)
+    det = dot(v12, pvec)
+    invdet = 1 / det
+
+    tvec = origin - t.v1
+    u = dot(tvec, pvec) .* invdet
+    qvec = cross(tvec, v12)
+    v = dot(direction, qvec) .* invdet
+    t = dot(v12, qvec) .* invdet
+
+    get_intersections(a, b, c) = (a < 0 || b < 0 || a > 1 || (a + b) > 1) ? bigmul(a + b + c) : c
+
+    result = broadcast(get_intersections, u, v, t)
+    return result
+    =#
 end
 
-function get_normal(t::Triangle, pt)
+function get_normal(t::Triangle, pt, dir)
     # normal not expanded
     normal_nexp = normalize(cross(t.v2 - t.v1, t.v3 - t.v1))
+    direction = -sign.(dot(normal_nexp, dir))
     normal = Vec3(repeat(normal_nexp.x, inner = size(pt.x)),
                   repeat(normal_nexp.y, inner = size(pt.y)),
                   repeat(normal_nexp.z, inner = size(pt.z)))
-    return normal
+    return normal * direction
 end
