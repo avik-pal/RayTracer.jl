@@ -77,15 +77,18 @@ function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
 
     color = rgb(0.0f0)
 
-    for (i, (s, d)) in enumerate(zip(scene, distances))
+    c = 1
+    for s in scene
+        d = distances[c]
         hit = hashit.(h, d, nearest)
         if sum(hit) != 0
             dc = extract(hit, d)
             originc = extract(hit, origin)
             dirc = extract(hit, direction)
-            cc = light(s, originc, dirc, dc, lgt, eye_pos, scene, i, bounce)
+            cc = light(s, originc, dirc, dc, lgt, eye_pos, scene, c, bounce)
             color += place(cc, hit)
         end
+        c += 1
     end
 
     return color
