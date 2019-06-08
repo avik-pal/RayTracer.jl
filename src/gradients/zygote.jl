@@ -73,7 +73,7 @@ end
 # - DistantLight - #
 # ---------------- #
 
-@adjoint DistantLight(color::Vec3, intensity::I, position::Vec3, direction::Vec3) where {I<:AbstractFloat} =
+@adjoint DistantLight(color::Vec3, intensity::I, direction::Vec3) where {I<:AbstractFloat} =
     DistantLight(color, intensity, direction), Δ -> (Δ.color, Δ.intensity, Δ.direction)
 
 @adjoint literal_getproperty(d::DistantLight{I}, ::Val{:color}) where {I} =
