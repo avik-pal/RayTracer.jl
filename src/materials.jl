@@ -8,10 +8,10 @@ abstract type SurfaceColor end
 # - PlainColor - #
 # -------------- #
 
-mutable struct PlainColor <: SurfaceColor
-    color::Vec3
-    PlainColor(c::Vec3{T}) where {T} = new(clamp(c, eltype(T)(0), eltype(T)(1)))
-    PlainColor() = new(Vec3(0.0f0))
+mutable struct PlainColor{T} <: SurfaceColor
+    color::Vec3{T}
+    PlainColor(c::Vec3{T}) where {T} = new{T}(clamp(c, eltype(T)(0), eltype(T)(1)))
+    PlainColor() = new{Vector{Float32}}(Vec3(0.0f0))
 end
 
 show(io::IO, pc::PlainColor) = print(io, "Plain Color - (", pc.color, ")")
@@ -25,15 +25,17 @@ diffusecolor(c::PlainColor, pt::Vec3) = c.color
 # -------------------- #
 
 # FIXME: CheckeredSurface is not differentiable currently
-mutable struct CheckeredSurface <: SurfaceColor
-    color1::Vec3
-    color2::Vec3
-    CheckeredSurface(c1::Vec3{T1}, c2::Vec3{T2}) where {T1, T2} = new(clamp(c1, eltype(T1)(0), eltype(T1)(1)),
-                                                                      clamp(c2, eltype(T2)(0), eltype(T2)(1)))
-    CheckeredSurface() = new(Vec3(0.0f0), Vec3(0.0f0))
+mutable struct CheckeredSurface{T} <: SurfaceColor
+    color1::Vec3{T}
+    color2::Vec3{T}
+    CheckeredSurface(c1::Vec3{T}, c2::Vec3{T}) where {T} =
+        new{T}(clamp(c1, eltype(T)(0), eltype(T)(1)),
+               clamp(c2, eltype(T)(0), eltype(T)(1)))
+    CheckeredSurface() = new{Vector{Float32}}(Vec3(0.0f0), Vec3(0.0f0))
 end                                                                
 
-show(io::IO, cs::CheckeredSurface) = print(io, "Checkered Surface - (", cs.color1, ") + (", cs.color2, ")")
+show(io::IO, cs::CheckeredSurface) = print(io, "Checkered Surface - (",
+                                           cs.color1, ") + (", cs.color2, ")")
 
 @diffops CheckeredSurface
 

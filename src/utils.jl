@@ -205,10 +205,6 @@ the gradient to be `0` instead of `nothing` as in case of typemax.
 """
 @inline bigmul(x) = typemax(x)
 
-@inline isnotbigmul(x) = !isinf(x)
-
-@inline hashit(h, d, n) = h * (d == n)
-
 # ----------------- #
 # - Helper Macros - #
 # ----------------- #

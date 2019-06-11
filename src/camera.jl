@@ -6,8 +6,8 @@ export Camera, get_primary_rays
 
 struct FixedCameraParams{T} <: FixedParams
     vup::Vec3{T}
-    width
-    height
+    width::Int
+    height::Int
 end
 
 Base.show(io::IO, fcp::FixedCameraParams) =
@@ -30,7 +30,8 @@ Base.show(io::IO, cam::Camera) =
                                        
 @diffops Camera
 
-function Camera(lookfrom, lookat, vup, vfov, focus, width, height)
+function Camera(lookfrom::Vec3{T}, lookat::Vec3{T}, vup::Vec3{T}, vfov::R,
+                focus::R, width::Int, height::Int) where {T<:AbstractArray, R<:Real}
     fixedparams = FixedCameraParams(vup, width, height)
     return Camera(lookfrom, lookat, [vfov], [focus], fixedparams)
 end

@@ -57,33 +57,33 @@ end
 # - PointLight - #
 # -------------- #
 
-@adjoint PointLight(color::Vec3, intensity::I, pos::Vec3) where {I<:AbstractFloat} =
+@adjoint PointLight(color::Vec3, intensity, pos::Vec3) =
     PointLight(color, intensity, pos), Δ -> (Δ.color, Δ.intensity, Δ.position)
 
 @adjoint literal_getproperty(p::PointLight{I}, ::Val{:color}) where {I} =
-    getproperty(p, :color), Δ -> (PointLight(Δ, zero(I), zero(p.position)), nothing)
+    getproperty(p, :color), Δ -> (PointLight(Δ, [zero(eltype(I))], zero(p.position)), nothing)
 
 @adjoint literal_getproperty(p::PointLight, ::Val{:intensity}) =
     getproperty(p, :intensity), Δ -> (PointLight(zero(p.color), Δ, zero(p.position)), nothing)
 
 @adjoint literal_getproperty(p::PointLight{I}, ::Val{:position}) where {I} =
-    getproperty(p, :position), Δ -> (PointLight(zero(p.color), zero(I), Δ), nothing)
+    getproperty(p, :position), Δ -> (PointLight(zero(p.color), [zero(eltype(I))], Δ), nothing)
 
 # ---------------- #
 # - DistantLight - #
 # ---------------- #
 
-@adjoint DistantLight(color::Vec3, intensity::I, direction::Vec3) where {I<:AbstractFloat} =
+@adjoint DistantLight(color::Vec3, intensity, direction::Vec3) =
     DistantLight(color, intensity, direction), Δ -> (Δ.color, Δ.intensity, Δ.direction)
 
 @adjoint literal_getproperty(d::DistantLight{I}, ::Val{:color}) where {I} =
-    getproperty(d, :color), Δ -> (DistantLight(Δ, zero(I), zero(d.direction)), nothing)
+    getproperty(d, :color), Δ -> (DistantLight(Δ, [zero(eltype(I))], zero(d.direction)), nothing)
 
 @adjoint literal_getproperty(d::DistantLight, ::Val{:intensity}) =
     getproperty(d, :intensity), Δ -> (DistantLight(zero(d.color), Δ, zero(d.direction)), nothing)
 
 @adjoint literal_getproperty(d::DistantLight{I}, ::Val{:direction}) where {I} =
-    getproperty(d, :direction), Δ -> (DistantLight(zero(d.color), zero(I), Δ), nothing)
+    getproperty(d, :direction), Δ -> (DistantLight(zero(d.color), [zero(eltype(I))], Δ), nothing)
 
 # ------------ #
 # SurfaceColor #

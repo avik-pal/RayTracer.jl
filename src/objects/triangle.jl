@@ -4,11 +4,11 @@ export Triangle
 # - Triangle - #
 # ------------ #
 
-mutable struct Triangle{V} <: Object
+mutable struct Triangle{V, S, R} <: Object
     v1::Vec3{V}
     v2::Vec3{V}
     v3::Vec3{V}
-    material::Material
+    material::Material{S, R}
 end
 
 show(io::IO, t::Triangle) =
@@ -21,7 +21,7 @@ show(io::IO, t::Triangle) =
 # gradients properly for getproperty function
 function Triangle(v::Vec3{T}, sym::Symbol) where {T}
     z = eltype(T)(0)
-    mat = Material(PlainColor(rgb(z)), z)
+    mat = Material(PlainColor(Vec3(z)), z)
     if sym == :v1
         return Triangle(v, Vec3(z), Vec3(z), mat)
     elseif sym == :v2
@@ -37,7 +37,7 @@ function Triangle(mat::Material{S, R}, ::Symbol) where {S, R}
     return Triangle(Vec3(z), Vec3(z), Vec3(z), mat)
 end
 
-function Triangle(v1::Vec3, v2::Vec3, v3::Vec3; color = rgb(0.5f0), reflection = 0.5f0)
+function Triangle(v1::Vec3, v2::Vec3, v3::Vec3; color = Vec3(0.5f0), reflection = 0.5f0)
     mat = Material(PlainColor(color), reflection)
     return Triangle(v1, v2, v3, mat)
 end

@@ -177,12 +177,6 @@ git-tree-sha1 = "da32159d4a2e526338506685e280e39ed2f18961"
 uuid = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 version = "1.0.6"
 
-[[FillArrays]]
-deps = ["LinearAlgebra", "Random", "SparseArrays", "Test"]
-git-tree-sha1 = "9ab8f76758cbabba8d7f103c51dce7f73fcf8e92"
-uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
-version = "0.6.3"
-
 [[FixedPointNumbers]]
 git-tree-sha1 = "d14a6fa5890ea3a7e5dcab6811114f132fec2b4b"
 uuid = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
@@ -210,8 +204,8 @@ version = "0.4.0"
 
 [[IRTools]]
 deps = ["InteractiveUtils", "MacroTools", "Test"]
-git-tree-sha1 = "4d0c6647aa89b3678d03967ca11c8a5cdc83d2b5"
-repo-rev = "master"
+git-tree-sha1 = "ed5530d6cd0fb9f5223da36f70cf856c04fcbb62"
+repo-rev = "5c0d45a33318b472c479f1af5fabc369a4179a45"
 repo-url = "https://github.com/MikeInnes/IRTools.jl.git"
 uuid = "7869d1d1-7146-5819-86e3-90919afe41df"
 version = "0.2.1"
@@ -557,9 +551,9 @@ uuid = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
 version = "0.8.3"
 
 [[Zygote]]
-deps = ["DiffRules", "FillArrays", "ForwardDiff", "IRTools", "InteractiveUtils", "LinearAlgebra", "MacroTools", "NNlib", "NaNMath", "Random", "Requires", "SpecialFunctions", "Statistics"]
-git-tree-sha1 = "961ce4a291d53bfaee6c25f02ec75bd59d126f61"
-repo-rev = "master"
+deps = ["DiffRules", "ForwardDiff", "IRTools", "InteractiveUtils", "LinearAlgebra", "MacroTools", "NNlib", "NaNMath", "Random", "Requires", "SpecialFunctions", "Statistics"]
+git-tree-sha1 = "90b1b474945674ec371f4fd8cb43de6297c6280c"
+repo-rev = "a2efc32d155037390b35160c786a779ac4bd42e7"
 repo-url = "https://github.com/FluxML/Zygote.jl.git"
 uuid = "e88e6eb3-aa80-5325-afca-941959d7151f"
 version = "0.3.1"

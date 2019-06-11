@@ -54,20 +54,20 @@ end
 # intersect call recompute everything, so we prefer to avoid this extra computation
 # for now.
 # The `intersections` store point to index of triangle mapping for getting the normals
-mutable struct FixedTriangleMeshParams <: FixedParams
+mutable struct FixedTriangleMeshParams{V} <: FixedParams
     intersections::IdDict
-    normals::Vector{Vec3}
+    normals::Vector{Vec3{V}}
 end
 
-mutable struct TriangleMesh <: Object
-    triangulated_mesh::Vector{Triangle}
-    material::Material
-    ftmp::FixedTriangleMeshParams
+mutable struct TriangleMesh{V, S, R} <: Object
+    triangulated_mesh::Vector{Triangle{V, S, R}}
+    material::Material{S, R}
+    ftmp::FixedTriangleMeshParams{V}
 end
 
 @diffops TriangleMesh
             
-TriangleMesh(scene::Vector{Triangle}, color = rgb(0.5f0), reflection = 0.5f0) =
+TriangleMesh(scene::Vector{Triangle}, color = Vec3(0.5f0), reflection = 0.5f0) =
     TriangleMesh(scene, Material(PlainColor(color), reflection),
                  FixedTriangleMeshParams(IdDict(), construct_outer_normals(scene)))
 
