@@ -104,7 +104,7 @@ end
 
 function fseelight(n, light_distances)
     ldist = hcat(light_distances...)
-    seelight = [minimum(ldist[idx, :]) == ldist[idx,n] for idx in 1:size(ldist, 1)]
+    seelight = map(idx -> minimum(ldist[idx, :]) == ldist[idx,n], 1:size(ldist, 1))
     return seelight
 end
 
