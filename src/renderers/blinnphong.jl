@@ -70,7 +70,7 @@ function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
                   lgt::L, eye_pos::Vec3, bounce::Int = 0) where {L<:Light}
     distances = map(x -> intersect(x, origin, direction), scene)
 
-    dist_reshaped = reduce(hcat, distances)
+    dist_reshaped = reducehcat(distances)
     nearest = map(idx -> minimum(dist_reshaped[idx, :]), 1:size(dist_reshaped, 1))
 
     h = .!isinf.(nearest)
@@ -99,10 +99,18 @@ function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
     return sum(colors)
 end
 
+# ------------------------ #
+# General Helper Functions #
+# ------------------------ #
+
 function fseelight(n, light_distances)
-    ldist = reduce(hcat, light_distances)
+    ldist = reducehcat(light_distances)
     seelight = map(idx -> minimum(ldist[idx, :]) == ldist[idx,n], 1:size(ldist, 1))
     return seelight
 end
 
 # fseelight(n, light_distances) = map((x...) -> min(x...) == x[n], light_distances...)
+
+# The version of Zygote we are currently using can't differentiate through this
+# function. So we define a custom adjoint for this
+reducehcat(x) = reduce(hcat, x)

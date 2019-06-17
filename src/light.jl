@@ -21,9 +21,10 @@ mutable struct PointLight{T<:AbstractArray} <: Light
     color::Vec3{T}
     intensity::T
     position::Vec3{T}
-    PointLight(c, i::I, p) where {I<:AbstractFloat} =
-        new{Vector{I}}(clamp(c, 0.0f0, 1.0f0), [i], p)
 end
+    
+PointLight(c, i::I, p) where {I<:AbstractFloat} =
+    PointLight(clamp(c, 0.0f0, 1.0f0), [i], p)
 
 show(io::IO, pl::PointLight) =
     print(io, "Point Light\n    Color - ", pl.color, "\n    Intensity - ",
@@ -44,13 +45,14 @@ mutable struct DistantLight{T<:AbstractArray} <: Light
     color::Vec3{T}
     intensity::T
     direction::Vec3{T}  # Must be normalized
-    DistantLight(c, i::I, d) where {I<:AbstractFloat} =
-        new{Vector{I}}(clamp(c, 0.0f0, 1.0f0), [i], normalize(d))
 end
+    
+DistantLight(c, i::I, d) where {I<:AbstractFloat} =
+    DistantLight(clamp(c, 0.0f0, 1.0f0), [i], normalize(d))
 
 show(io::IO, dl::DistantLight) =
     print(io, "Distant Light\n    Color - ", dl.color, "\n    Intensity - ",
-          dl.intensity, "\n    Direction - ", dl.direction)
+          dl.intensity[], "\n    Direction - ", dl.direction)
 
 @diffops DistantLight
 

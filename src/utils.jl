@@ -99,7 +99,7 @@ end
     return (a / sqrt.(l2))
 end
 
-@inline cross(a::Vec3, b::Vec3) =
+@inline cross(a::Vec3{T}, b::Vec3{T}) where {T} =
     Vec3(a.y .* b.z .- a.z .* b.y, a.z .* b.x .- a.x .* b.z,
          a.x .* b.y .- a.y .* b.x)
 
