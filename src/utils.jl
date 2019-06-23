@@ -99,7 +99,7 @@ end
     return (a / sqrt.(l2))
 end
 
-@inline cross(a::Vec3, b::Vec3) =
+@inline cross(a::Vec3{T}, b::Vec3{T}) where {T} =
     Vec3(a.y .* b.z .- a.z .* b.y, a.z .* b.x .- a.x .* b.z,
          a.x .* b.y .- a.y .* b.x)
 
@@ -204,10 +204,6 @@ Returns the output same as `typemax`. However, in case gradients are computed, i
 the gradient to be `0` instead of `nothing` as in case of typemax.
 """
 @inline bigmul(x) = typemax(x)
-
-@inline isnotbigmul(x) = !isinf(x)
-
-@inline hashit(h, d, n) = h * (d == n)
 
 # ----------------- #
 # - Helper Macros - #

@@ -6,11 +6,11 @@ export Disc
 # - Disc - #
 # -------- #
 
-mutable struct Disc{V,T<:Real} <: Object
+mutable struct Disc{V, T<:Real, S, R} <: Object
     center::Vec3{V}
     normal::Vec3{V} # This needs to be normalized everytime before usage
     radius::T
-    material::Material
+    material::Material{S, R}
 end
 
 show(io::IO, d::Disc) =
@@ -23,7 +23,7 @@ show(io::IO, d::Disc) =
 # gradients properly for getproperty function
 function Disc(v::Vec3{T}, sym::Symbol) where {T}
     z = eltype(T)(0)
-    mat = Material(PlainColor(rgb(z)), z)
+    mat = Material(PlainColor(Vec3(z)), z)
     if sym == :center
         return Disc(v, Vec3(z), z, mat)
     else
@@ -33,7 +33,7 @@ end
 
 function Disc(r::T, ::Symbol) where {T<:Real}
     z = T(0)
-    mat = Material(PlainColor(rgb(z)), z)
+    mat = Material(PlainColor(Vec3(z)), z)
     return Disc(Vec3(z), Vec3(z), r, mat)
 end
 
@@ -42,7 +42,7 @@ function Disc(mat::Material{S, R}, ::Symbol) where {S, R}
     return Disc(Vec3(z), Vec3(z), z, mat)
 end
 
-function Disc(c::Vec3, n::Vec3, r::T; color = rgb(0.5f0), reflection = 0.5f0) where {T<:Real}
+function Disc(c::Vec3, n::Vec3, r::T; color = Vec3(0.5f0), reflection = 0.5f0) where {T<:Real}
     mat = Material(PlainColor(color), reflection)
     n = normalize(n)
     return Disc(c, n, r, mat)

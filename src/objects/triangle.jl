@@ -4,11 +4,11 @@ export Triangle
 # - Triangle - #
 # ------------ #
 
-mutable struct Triangle{V} <: Object
+mutable struct Triangle{V, S, R} <: Object
     v1::Vec3{V}
     v2::Vec3{V}
     v3::Vec3{V}
-    material::Material
+    material::Material{S, R}
 end
 
 show(io::IO, t::Triangle) =
@@ -21,7 +21,7 @@ show(io::IO, t::Triangle) =
 # gradients properly for getproperty function
 function Triangle(v::Vec3{T}, sym::Symbol) where {T}
     z = eltype(T)(0)
-    mat = Material(PlainColor(rgb(z)), z)
+    mat = Material(PlainColor(Vec3(z)), z)
     if sym == :v1
         return Triangle(v, Vec3(z), Vec3(z), mat)
     elseif sym == :v2
@@ -37,7 +37,7 @@ function Triangle(mat::Material{S, R}, ::Symbol) where {S, R}
     return Triangle(Vec3(z), Vec3(z), Vec3(z), mat)
 end
 
-function Triangle(v1::Vec3, v2::Vec3, v3::Vec3; color = rgb(0.5f0), reflection = 0.5f0)
+function Triangle(v1::Vec3, v2::Vec3, v3::Vec3; color = Vec3(0.5f0), reflection = 0.5f0)
     mat = Material(PlainColor(color), reflection)
     return Triangle(v1, v2, v3, mat)
 end
@@ -59,26 +59,6 @@ function intersect(t::Triangle, origin, direction)
         (a > 0 && b > 0 && c > 0 && d > 0) ? a : bigmul(a + b + c + d)
     result = broadcast(get_intersections, h, val1, val2, val3)
     return result
-    # NOTE: Moller Trumbore as implemented here is slower than the
-    #       above implementation
-    #=
-    v12 = t.v2 - t.v1
-    v13 = t.v3 - t.v1
-    pvec = cross(direction, v13)
-    det = dot(v12, pvec)
-    invdet = 1 / det
-
-    tvec = origin - t.v1
-    u = dot(tvec, pvec) .* invdet
-    qvec = cross(tvec, v12)
-    v = dot(direction, qvec) .* invdet
-    t = dot(v12, qvec) .* invdet
-
-    get_intersections(a, b, c) = (a < 0 || b < 0 || a > 1 || (a + b) > 1) ? bigmul(a + b + c) : c
-
-    result = broadcast(get_intersections, u, v, t)
-    return result
-    =#
 end
 
 function get_normal(t::Triangle, pt, dir)

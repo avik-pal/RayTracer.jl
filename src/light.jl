@@ -17,42 +17,46 @@ end
 # - Point Light - #
 # --------------- #
 
-mutable struct PointLight{I<:AbstractFloat} <: Light
-    color::Vec3
-    intensity::I
-    position::Vec3
-    PointLight(c, i, p) = new{typeof(i)}(clamp(c, 0.0f0, 1.0f0), i, p)
+mutable struct PointLight{T<:AbstractArray} <: Light
+    color::Vec3{T}
+    intensity::T
+    position::Vec3{T}
 end
+    
+PointLight(c, i::I, p) where {I<:AbstractFloat} =
+    PointLight(clamp(c, 0.0f0, 1.0f0), [i], p)
 
 show(io::IO, pl::PointLight) =
     print(io, "Point Light\n    Color - ", pl.color, "\n    Intensity - ",
-          pl.intensity, "\n    Position - ", pl.position)
+          pl.intensity[], "\n    Position - ", pl.position)
 
 @diffops PointLight
 
 get_direction(p::PointLight, pt::Vec3) = p.position - pt
 
 get_intensity(p::PointLight, pt::Vec3, dist) =
-    p.intensity * p.color / (4 .* (eltype(p.color.x))(π) .* (dist .^ 2))    
+    p.intensity[] * p.color / (4 .* (eltype(p.color.x))(π) .* (dist .^ 2))    
 
 # ----------------- #
 # - Distant Light - #
 # ----------------- #
 
-mutable struct DistantLight{I<:AbstractFloat} <: Light
-    color::Vec3
-    intensity::I
-    direction::Vec3  # Must be normalized
-    DistantLight(c, i, d) = new{typeof(i)}(c, i, normalize(d))
+mutable struct DistantLight{T<:AbstractArray} <: Light
+    color::Vec3{T}
+    intensity::T
+    direction::Vec3{T}  # Must be normalized
 end
+    
+DistantLight(c, i::I, d) where {I<:AbstractFloat} =
+    DistantLight(clamp(c, 0.0f0, 1.0f0), [i], normalize(d))
 
 show(io::IO, dl::DistantLight) =
     print(io, "Distant Light\n    Color - ", dl.color, "\n    Intensity - ",
-          dl.intensity, "\n    Direction - ", dl.direction)
+          dl.intensity[], "\n    Direction - ", dl.direction)
 
 @diffops DistantLight
 
 get_direction(d::DistantLight, pt::Vec3) = d.direction
 
-get_intensity(d::DistantLight, pt::Vec3, dist) = d.intensity
+get_intensity(d::DistantLight, pt::Vec3, dist) = d.intensity[]
 

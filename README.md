@@ -28,7 +28,11 @@ These are not listed in any particular order
 
 - [X] Add more types of common objects - Disc, Plane, Box
 - [ ] Add support for rendering arbitrary mesh (a proof of concept version is present in `master`
-  but is very slow)
+  but is slow)
 - [ ] GPU Support using CuArrays (partially supported in `ap/gpu` branch)
 - [ ] Inverse Rendering Examples
 - [ ] Application in Machine Learning Models through Flux
+- [ ] Texture Rendering
+- [ ] Make everything differentiable:
+  - [ ] Checkered Surface
+  - [ ] Triangle Mesh

@@ -4,10 +4,10 @@ export Sphere, SimpleSphere, CheckeredSphere
 # - Sphere - #
 # ---------- #
 
-mutable struct Sphere{C} <: Object
+mutable struct Sphere{C, S, R} <: Object
     center::Vec3{C}
     radius::C
-    material::Material
+    material::Material{S, R}
 end
 
 show(io::IO, s::Sphere) =
@@ -20,13 +20,13 @@ show(io::IO, s::Sphere) =
 # gradients properly for getproperty function
 function Sphere(center::Vec3{T}) where {T}
     z = eltype(T)(0)
-    mat = Material(PlainColor(rgb(z)), z)
+    mat = Material(PlainColor(Vec3(z)), z)
     return Sphere(center, [z], mat)
 end
 
 function Sphere(radius::T) where {T<:AbstractArray}
     z = eltype(T)(0)
-    mat = Material(PlainColor(rgb(z)), z)
+    mat = Material(PlainColor(Vec3(z)), z)
     return Sphere(Vec3(z), radius, mat)
 end
 
@@ -63,12 +63,12 @@ get_normal(s::Sphere, pt, dir) = normalize(pt - s.center)
 # -- Helper Functions -- #
 # ---------------------- #
 
-function SimpleSphere(center, radius; color = rgb(0.5f0), reflection = 0.5f0)
+function SimpleSphere(center, radius; color = Vec3(0.5f0), reflection = 0.5f0)
     mat = Material(PlainColor(color), reflection)
     return Sphere(center, [radius], mat)
 end
 
-function CheckeredSphere(center, radius; color1 = rgb(0.1f0), color2 = rgb(0.9f0),
+function CheckeredSphere(center, radius; color1 = Vec3(0.1f0), color2 = Vec3(0.9f0),
                          reflection = 0.5f0)
     mat = Material(CheckeredSurface(color1, color2), reflection)
     return Sphere(center, [radius], mat)

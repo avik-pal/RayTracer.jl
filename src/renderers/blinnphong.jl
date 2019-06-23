@@ -25,7 +25,7 @@ function light(s::S, origin, direction, dist, lgt::L, eye_pos,
     seelight = fseelight(obj_num, light_distances)
 
     # Ambient
-    color = rgb(0.05f0)
+    color = Vec3(0.05f0)
 
     # Lambert Shading (diffuse)
     visibility = max.(dot(normal, dir_light), 0.0f0)
@@ -40,7 +40,7 @@ function light(s::S, origin, direction, dist, lgt::L, eye_pos,
 
     # Blinn-Phong shading (specular)
     phong = dot(normal, normalize(dir_light + dir_origin))
-    color += (rgb(1.0f0) * (clamp.(phong, 0.0f0, 1.0f0) .^ 50)) * seelight
+    color += (Vec3(1.0f0) * (clamp.(phong, 0.0f0, 1.0f0) .^ 50)) * seelight
 
     return color
 end
@@ -70,25 +70,22 @@ function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
                   lgt::L, eye_pos::Vec3, bounce::Int = 0) where {L<:Light}
     distances = map(x -> intersect(x, origin, direction), scene)
 
-    dist_reshaped = hcat(distances...)
+    dist_reshaped = reducehcat(distances)
     nearest = map(idx -> minimum(dist_reshaped[idx, :]), 1:size(dist_reshaped, 1))
 
-    h = isnotbigmul.(nearest)
+    h = .!isinf.(nearest)
 
-    color = rgb(0.0f0)
+    color = Vec3(0.0f0)
 
-    c = 1
-    for s in scene
-        d = distances[c]
-        hit = hashit.(h, d, nearest)
-        if sum(hit) != 0
+    for (c, (s, d)) in enumerate(zip(scene, distances))
+        hit = map((x, y, z) -> ifelse(y == z, x, zero(x)), h, d, nearest)
+        if any(hit)
             dc = extract(hit, d)
             originc = extract(hit, origin)
             dirc = extract(hit, direction)
             cc = light(s, originc, dirc, dc, lgt, eye_pos, scene, c, bounce)
             color += place(cc, hit)
         end
-        c += 1
     end
 
     return color
@@ -102,10 +99,18 @@ function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
     return sum(colors)
 end
 
+# ------------------------ #
+# General Helper Functions #
+# ------------------------ #
+
 function fseelight(n, light_distances)
-    ldist = hcat(light_distances...)
+    ldist = reducehcat(light_distances)
     seelight = map(idx -> minimum(ldist[idx, :]) == ldist[idx,n], 1:size(ldist, 1))
     return seelight
 end
 
 # fseelight(n, light_distances) = map((x...) -> min(x...) == x[n], light_distances...)
+
+# The version of Zygote we are currently using can't differentiate through this
+# function. So we define a custom adjoint for this
+reducehcat(x) = reduce(hcat, x)

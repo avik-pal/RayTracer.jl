@@ -46,6 +46,40 @@ end
         return (t1, t2)	
     end	
 end
+    
+# The purpose of this adjoint is to ensure type inference works
+# in the backward pass
+@adjoint function cross(a::Vec3{T}, b::Vec3{T}) where {T}
+    cross(a, b), Δ -> begin
+        ∇a = zero(a)
+        ∇b = zero(b)
+        x = (Δ.z .* b.y) .- (Δ.y .* b.z)
+        y = (Δ.x .* b.z) .- (Δ.z .* b.x)
+        z = (Δ.y .* b.x) .- (Δ.x .* b.y)
+        if length(a.x) == 1
+            ∇a.x .= sum(x)
+            ∇a.y .= sum(y)
+            ∇a.z .= sum(z)
+        else
+            ∇a.x .= x
+            ∇a.y .= y
+            ∇a.z .= z
+        end
+        x = (Δ.y .* a.z) .- (Δ.z .* a.y)
+        y = (Δ.z .* a.x) .- (Δ.x .* a.z)
+        z = (Δ.x .* a.y) .- (Δ.y .* a.x)
+        if length(b.x) == 1
+            ∇b.x .= sum(x)
+            ∇b.y .= sum(y)
+            ∇b.z .= sum(z)
+        else
+            ∇b.x .= x
+            ∇b.y .= y
+            ∇b.z .= z
+        end
+        return (∇a, ∇b)
+    end
+end
 
 @adjoint place(a::Vec3, cond) = place(a, cond), Δ -> (Vec3(Δ.x[cond], Δ.y[cond], Δ.z[cond]), nothing)
 
@@ -57,33 +91,33 @@ end
 # - PointLight - #
 # -------------- #
 
-@adjoint PointLight(color::Vec3, intensity::I, pos::Vec3) where {I<:AbstractFloat} =
+@adjoint PointLight(color::Vec3, intensity, pos::Vec3) =
     PointLight(color, intensity, pos), Δ -> (Δ.color, Δ.intensity, Δ.position)
 
 @adjoint literal_getproperty(p::PointLight{I}, ::Val{:color}) where {I} =
-    getproperty(p, :color), Δ -> (PointLight(Δ, zero(I), zero(p.position)), nothing)
+    getproperty(p, :color), Δ -> (PointLight(Δ, [zero(eltype(I))], zero(p.position)), nothing)
 
 @adjoint literal_getproperty(p::PointLight, ::Val{:intensity}) =
     getproperty(p, :intensity), Δ -> (PointLight(zero(p.color), Δ, zero(p.position)), nothing)
 
 @adjoint literal_getproperty(p::PointLight{I}, ::Val{:position}) where {I} =
-    getproperty(p, :position), Δ -> (PointLight(zero(p.color), zero(I), Δ), nothing)
+    getproperty(p, :position), Δ -> (PointLight(zero(p.color), [zero(eltype(I))], Δ), nothing)
 
 # ---------------- #
 # - DistantLight - #
 # ---------------- #
 
-@adjoint DistantLight(color::Vec3, intensity::I, direction::Vec3) where {I<:AbstractFloat} =
+@adjoint DistantLight(color::Vec3, intensity, direction::Vec3) =
     DistantLight(color, intensity, direction), Δ -> (Δ.color, Δ.intensity, Δ.direction)
 
 @adjoint literal_getproperty(d::DistantLight{I}, ::Val{:color}) where {I} =
-    getproperty(d, :color), Δ -> (DistantLight(Δ, zero(I), zero(d.direction)), nothing)
+    getproperty(d, :color), Δ -> (DistantLight(Δ, [zero(eltype(I))], zero(d.direction)), nothing)
 
 @adjoint literal_getproperty(d::DistantLight, ::Val{:intensity}) =
     getproperty(d, :intensity), Δ -> (DistantLight(zero(d.color), Δ, zero(d.direction)), nothing)
 
 @adjoint literal_getproperty(d::DistantLight{I}, ::Val{:direction}) where {I} =
-    getproperty(d, :direction), Δ -> (DistantLight(zero(d.color), zero(I), Δ), nothing)
+    getproperty(d, :direction), Δ -> (DistantLight(zero(d.color), [zero(eltype(I))], Δ), nothing)
 
 # ------------ #
 # SurfaceColor #
@@ -252,7 +286,27 @@ end
 
 @adjoint literal_getproperty(fcp::FixedCameraParams{T}, ::Val{f}) where {T, f} =
     getproperty(fcp, f), Δ -> (FixedCameraParams(Vec3(zero(eltype(T))), 0, 0), nothing)
-    
+  
+# ------- #	
+# ImUtils #	
+# ------- #	
+
+@adjoint function zeroonenorm(x)	
+    mini, indmin = findmin(x)	
+    maxi, indmax = findmax(x)	
+    res = (x .- mini) ./ (maxi - mini)	
+    function ∇zeroonenorm(Δ)	
+        ∇x = similar(x)	
+        fill!(∇x, 1 / (maxi - mini))
+        res1 = (x .- maxi) ./ (maxi - mini)^2
+        ∇x[indmin] = sum(res1) - minimum(res1) 
+        res2 = - res ./ (maxi - mini)  
+        ∇x[indmax] = sum(res2) - minimum(res2)
+        return (∇x .* Δ, )	
+    end	
+    return res, ∇zeroonenorm	
+end
+
 # ----------------- #
 # General Functions #
 # ----------------- #
@@ -270,3 +324,6 @@ for func in (:findmin, :findmax)
         end
     end
 end
+
+@adjoint reducehcat(x) =
+    reduce(hcat, x), Δ -> ([Δ[:, i] for i in 1:length(x)], )
