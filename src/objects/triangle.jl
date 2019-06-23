@@ -4,7 +4,7 @@ export Triangle
 # - Triangle - #
 # ------------ #
 
-mutable struct Triangle{V, S, R} <: Object
+struct Triangle{V, S, R} <: Object
     v1::Vec3{V}
     v2::Vec3{V}
     v3::Vec3{V}

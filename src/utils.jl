@@ -25,7 +25,7 @@ the gradients w.r.t the fields using the `Params` API of Zygote.
 * `maximum`, `minimum`
 * `size`
 """
-mutable struct Vec3{T<:AbstractArray}
+struct Vec3{T<:AbstractArray}
     x::T
     y::T
     z::T

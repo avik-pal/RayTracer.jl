@@ -54,7 +54,7 @@ end
 # intersect call recompute everything, so we prefer to avoid this extra computation
 # for now.
 # The `intersections` store point to index of triangle mapping for getting the normals
-mutable struct FixedTriangleMeshParams{V} <: FixedParams
+struct FixedTriangleMeshParams{V} <: FixedParams
     intersections::IdDict
     normals::Vector{Vec3{V}}
 end

@@ -4,7 +4,7 @@ export Sphere, SimpleSphere, CheckeredSphere
 # - Sphere - #
 # ---------- #
 
-mutable struct Sphere{C, S, R} <: Object
+struct Sphere{C, S, R} <: Object
     center::Vec3{C}
     radius::C
     material::Material{S, R}

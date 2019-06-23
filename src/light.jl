@@ -17,7 +17,7 @@ end
 # - Point Light - #
 # --------------- #
 
-mutable struct PointLight{T<:AbstractArray} <: Light
+struct PointLight{T<:AbstractArray} <: Light
     color::Vec3{T}
     intensity::T
     position::Vec3{T}
@@ -41,7 +41,7 @@ get_intensity(p::PointLight, pt::Vec3, dist) =
 # - Distant Light - #
 # ----------------- #
 
-mutable struct DistantLight{T<:AbstractArray} <: Light
+struct DistantLight{T<:AbstractArray} <: Light
     color::Vec3{T}
     intensity::T
     direction::Vec3{T}  # Must be normalized

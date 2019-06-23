@@ -5,7 +5,7 @@
 # NOTE: All objects **MUST** have the material field
 abstract type Object end
 
-diffusecolor(obj::O, pt::Vec3) where {O<:Object} = diffusecolor(obj.material, pt)
+diffusecolor(obj::O, pt::Vec3) where {O<:Object} = diffusecolor(obj.material, pt, obj)
 
 # ----------- #
 # - Imports - #

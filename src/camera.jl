@@ -14,8 +14,7 @@ Base.show(io::IO, fcp::FixedCameraParams) =
     print(io, "    Fixed Parameters:\n        World UP - ", fcp.vup,
           "\n        Screen Dimensions - ", fcp.height, " × ", fcp.width)
 
-# Incorporate `aperture` later
-mutable struct Camera{T}
+struct Camera{T}
     lookfrom::Vec3{T}
     lookat::Vec3{T}
     vfov::T

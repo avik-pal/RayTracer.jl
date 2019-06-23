@@ -6,7 +6,7 @@ export Disc
 # - Disc - #
 # -------- #
 
-mutable struct Disc{V, T<:Real, S, R} <: Object
+struct Disc{V, T<:Real, S, R} <: Object
     center::Vec3{V}
     normal::Vec3{V} # This needs to be normalized everytime before usage
     radius::T

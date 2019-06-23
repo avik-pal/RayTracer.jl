@@ -6,7 +6,7 @@ export Cylinder, SimpleCylinder, CheckeredCylinder
 
 # FIXME: Cylinder rendering behaves wierdly. So its better not to use this
 #        currently.
-mutable struct Cylinder{C, R<:Real, L<:Real, S, Re} <: Object
+struct Cylinder{C, R<:Real, L<:Real, S, Re} <: Object
     center::Vec3{C}
     radius::R
     axis::Vec3{C}
