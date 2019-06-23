@@ -13,7 +13,19 @@ function triangulate_faces(vertices::Vector, faces::Vector)
                                   deepcopy(vertices[face[i + 1]])))
         end
     end
-    return scene
+    try
+        scene_stable = Vector{typeof(scene[1])}()
+        for s in scene
+            push!(scene_stable, s)
+        end
+        return scene_stable
+    catch e
+        # If all the triangles are not of the same type return the non-infered
+        # version of the scene. In this case type inference for `raytrace` will
+        # also fail
+        @warn e
+        return scene
+    end
 end
 
 function load_obj(file, outtype = Float32)
@@ -59,7 +71,7 @@ struct FixedTriangleMeshParams{V} <: FixedParams
     normals::Vector{Vec3{V}}
 end
 
-mutable struct TriangleMesh{V, S, R} <: Object
+struct TriangleMesh{V, S, R} <: Object
     triangulated_mesh::Vector{Triangle{V, S, R}}
     material::Material{S, R}
     ftmp::FixedTriangleMeshParams{V}
@@ -67,8 +79,8 @@ end
 
 @diffops TriangleMesh
             
-TriangleMesh(scene::Vector{Triangle}, color = Vec3(0.5f0), reflection = 0.5f0) =
-    TriangleMesh(scene, Material(PlainColor(color), reflection),
+TriangleMesh(scene::Vector{Triangle}, mat::Material) =
+    TriangleMesh(scene, mat,
                  FixedTriangleMeshParams(IdDict(), construct_outer_normals(scene)))
 
 function intersect(t::TriangleMesh, origin, direction)

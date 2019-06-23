@@ -16,8 +16,8 @@ reflection(obj::Object) = reflection(obj.material)
 # - Imports - #
 # ----------- #
 
-# include("objects/sphere.jl")
-# include("objects/cylinder.jl")
+include("objects/sphere.jl")
+include("objects/cylinder.jl")
 include("objects/triangle.jl")
-# include("objects/disc.jl")
-# include("objects/polygon_mesh.jl")
+include("objects/disc.jl")
+include("objects/polygon_mesh.jl")

@@ -1,4 +1,4 @@
-export Cylinder, SimpleCylinder, CheckeredCylinder
+export Cylinder
 
 # ------------ #
 # - Cylinder - #
@@ -6,49 +6,19 @@ export Cylinder, SimpleCylinder, CheckeredCylinder
 
 # FIXME: Cylinder rendering behaves wierdly. So its better not to use this
 #        currently.
-struct Cylinder{C, R<:Real, L<:Real, S, Re} <: Object
+struct Cylinder{C, S, R} <: Object
     center::Vec3{C}
-    radius::R
+    radius::C
     axis::Vec3{C}
-    length::L
-    material::Material{S, Re}
+    length::C
+    material::Material{S, R}
 end
 
 show(io::IO, c::Cylinder) =
     print(io, "Cylinder Object:\n    Center - ", c.center, "\n    Radius - ", c.radius[],
-          "\n    Axis - ", c.axis, "\n    Length - ", c.length, "\n    ", c.material)
+          "\n    Axis - ", c.axis, "\n    Length - ", c.length[], "\n    ", c.material)
 
 @diffops Cylinder
-
-# The next 3 functions are just convenience functions for handling
-# gradients properly for getproperty function
-function Cylinder(v::Vec3{T}, sym::Symbol) where {T}
-    z = eltype(T)(0)
-    mat = Material(PlainColor(Vec3(z)), z)
-    if sym == :center
-        return Cylinder(v, z, Vec3(z), z, mat)
-    else # :axis
-        return Cylinder(Vec3(z), z, v, z, mat)
-    end
-end
-
-function Cylinder(v::T, sym::Symbol) where {T<:Real}
-    z = T(0)
-    mat = Material(PlainColor(Vec3(z)), z)
-    if sym == :radius
-        return Cylinder(Vec3(z), v, Vec3(z), z, mat)
-    else # :length
-        return Cylinder(Vec3(z), z, Vec3(z), v, mat)
-    end
-end
-
-# The symbol is not needed but maintains uniformity
-# Set material gradient to be 0
-function Cylinder(mat::Material{S, R}, ::Symbol) where {S, R}
-    z = R(0)
-    mat = Material(PlainColor(Vec3(z)), z)
-    return Cylinder(Vec3(z), z, Vec3(z), z, mat)
-end
 
 # TODO: Currently Cylinder means Hollow Cylinder. Generalize for Solid Cylinder
 #       The easiest way to do this would be to treat Solid Cylinder as 3 different
@@ -59,7 +29,7 @@ function intersect(cy::Cylinder, origin, direction)
     c_vec = diff - dot(diff, cy.axis) * cy.axis 
     a = 2 .* l2norm(a_vec) # No point in doing 2 .* a everywhere so doing it here itself
     b = 2 .* dot(a_vec, c_vec)
-    c = l2norm(c_vec) .- (cy.radius ^ 2)
+    c = l2norm(c_vec) .- (cy.radius[] ^ 2)
     disc = (b .^ 2) .- 2 .* a .* c
     
     sq = sqrt.(max.(disc, 0.0f0))
@@ -67,8 +37,8 @@ function intersect(cy::Cylinder, origin, direction)
     h₁ = (-b .+ sq) ./ a
     zt1 = dot(origin + direction * h₀, cy.axis)
     center_comp = dot(cy.center, cy.axis)[1] # Will return an array
-    zmax = center_comp + cy.length / 2
-    zmin = center_comp - cy.length / 2
+    zmax = center_comp + cy.length[] / 2
+    zmin = center_comp - cy.length[] / 2
     zt2 = dot(origin + direction * h₁, cy.axis)
     
     function get_intersections(d, z1, z2, zt1, zt2)
@@ -93,32 +63,5 @@ end
 function get_normal(c::Cylinder, pt, dir)
     pt_c = pt - c.center
     return normalize(pt_c - dot(pt_c, c.axis) * c.axis)
-end
-
-# ---------------------- #
-# -- Helper Functions -- #
-# ---------------------- #
-
-function SimpleCylinder(center, radius, axis; color = Vec3(0.5f0), reflection = 0.5f0)
-    mat = Material(PlainColor(color), reflection)
-    return Cylinder(center, radius, normalize(axis), l2norm(axis)[1], mat)
-end
-
-function SimpleCylinder(center, radius, axis, length; color = Vec3(0.5f0),
-                        reflection = 0.5f0)
-    mat = Material(PlainColor(color), reflection)
-    return Cylinder(center, radius, normalize(axis), length, mat)
-end
-
-function CheckeredCylinder(center, radius, axis; color1 = Vec3(0.1f0), color2 = Vec3(0.9f0),
-                           reflection = 0.5f0)
-    mat = Material(CheckeredSurface(color1, color2), reflection)
-    return Cylinder(center, radius, normalize(axis), l2norm(axis)[1], mat)
-end
-
-function CheckeredCylinder(center, radius, axis, length; color1 = Vec3(0.1f0),
-                          color2 = Vec3(0.9f0), reflection = 0.5f0)
-    mat = Material(CheckeredSurface(color1, color2), reflection)
-    return Cylinder(center, radius, normalize(axis), length, mat)
 end
 
