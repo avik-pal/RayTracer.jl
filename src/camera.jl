@@ -14,6 +14,9 @@ Base.show(io::IO, fcp::FixedCameraParams) =
     print(io, "    Fixed Parameters:\n        World UP - ", fcp.vup,
           "\n        Screen Dimensions - ", fcp.height, " × ", fcp.width)
 
+Base.zero(fcp::FixedCameraParams) = FixedCameraParams(zero(fcp.vup), zero(fcp.width),
+                                                      zero(fcp.height))
+
 struct Camera{T}
     lookfrom::Vec3{T}
     lookat::Vec3{T}

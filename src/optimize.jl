@@ -39,8 +39,6 @@ update!(opt, x::T, Δ::T) where {T<:Real} = (update!(opt, [x], [Δ]))[]
 # to just avoid it for now.
 update!(opt, x::Material, Δ::Material) = x
 
-update!(opt, x::SurfaceColor, Δ::SurfaceColor) = x
-
 update!(opt, x::FixedParams, Δ::FixedParams) = x 
 
 update!(opt, x, Δ::Nothing) = x

@@ -270,4 +270,3 @@ for op in (:+, :*, :-, :/, :%)
         @inline $(op)(a, b::FixedParams) = b
     end
 end
-
