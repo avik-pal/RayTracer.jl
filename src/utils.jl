@@ -111,7 +111,7 @@ end
 
 @inline size(v::Vec3) = size(v.x)
 
-@inline getindex(v::Vec3, idx) = (x = v.x[idx], y = v.y[idx], z = v.z[idx])
+@inline getindex(v::Vec3, idx...) = (x = v.x[idx...], y = v.y[idx...], z = v.z[idx...])
 
 """
     place(a::Vec3, cond)

@@ -167,34 +167,6 @@ end
     getproperty(s, :material), Δ -> (Sphere(zero(s.center), zero(s.radius), Δ), nothing)
     
 # ------------ #
-# - Cylinder - #
-# ------------ #
-
-@adjoint Cylinder(center, radius, axis, length, material::Material) =
-    Cylinder(center, radius, axis, length, material),
-    Δ -> (Δ.center, Δ.radius, Δ.axis, Δ.length, Δ.material)
-
-@adjoint literal_getproperty(c::Cylinder, ::Val{:center}) =
-    getproperty(c, :center), Δ -> (Cylinder(Δ, zero(c.radius), zero(c.axis), zero(c.length),
-                                            zero(c.material)), nothing)
-
-@adjoint literal_getproperty(c::Cylinder, ::Val{:radius}) =
-    getproperty(c, :radius), Δ -> (Cylinder(zero(c.center), Δ, zero(c.axis), zero(c.length),
-                                            zero(c.material)), nothing)
-
-@adjoint literal_getproperty(c::Cylinder, ::Val{:axis}) =
-    getproperty(c, :axis), Δ -> (Cylinder(zero(c.center), zero(c.radius), Δ, zero(c.length),
-                                          zero(c.material)), nothing)
-
-@adjoint literal_getproperty(c::Cylinder, ::Val{:length}) =
-    getproperty(c, :length), Δ -> (Cylinder(zero(c.center), zero(c.radius), zero(c.axis), Δ,
-                                            zero(c.material)), nothing)
-
-@adjoint literal_getproperty(c::Cylinder, ::Val{:material}) =
-    getproperty(c, :material), Δ -> (Cylinder(zero(c.center), zero(c.radius), zero(c.axis),
-                                              zero(c.length), Δ), nothing)
-                                                                               
-# ------------ #
 # - Triangle - #
 # ------------ #
   
@@ -212,25 +184,6 @@ end
 
 @adjoint literal_getproperty(t::Triangle, ::Val{:material}) =
     getproperty(t, :material), Δ -> (Triangle(zero(t.v1), zero(t.v2), zero(t.v3), Δ), nothing)
-
-# -------- #
-# - Disc - #
-# -------- #
-
-@adjoint Disc(c, n, r, material::Material) =
-    Disc(c, n, r, material), Δ -> (Δ.center, Δ.normal, Δ.radius, Δ.material)
-
-@adjoint literal_getproperty(d::Disc, ::Val{:center}) =
-    getproperty(d, :center), Δ -> (Disc(Δ, zero(d.normal), zero(d.radius), zero(d.material)), nothing)
-
-@adjoint literal_getproperty(d::Disc, ::Val{:normal}) =
-    getproperty(d, :normal), Δ -> (Disc(zero(d.center), Δ, zero(d.radius), zero(d.material)), nothing)
-
-@adjoint literal_getproperty(d::Disc, ::Val{:radius}) =
-    getproperty(d, :radius), Δ -> (Disc(zero(d.center), zero(d.normal), Δ, zero(d.material)), nothing)
-
-@adjoint literal_getproperty(d::Disc, ::Val{:material}) =
-    getproperty(d, :material), Δ -> (Disc(zero(d.center), zero(d.normal), zero(d.radius), Δ), nothing)
 
 # ---------------- #
 # - TriangleMesh - #

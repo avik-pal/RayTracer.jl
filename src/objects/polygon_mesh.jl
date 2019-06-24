@@ -87,15 +87,18 @@ function parse_mtllib!(file, material_map, outtype)
         elseif wrds[1] == "map_Ka"
             texture_file = "$(rsplit(file, '/', limit = 2)[1])/$(wrds[2])"
             texture_ambient = Vec3([Float32.(permutedims(channelview(load(texture_file)),
-                                                         (3, 2, 1)))[:, :, i] for i in 1:3]...)
+                                                         (3, 2, 1)))[:,end:-1:1,i]
+                                    for i in 1:3]...)
         elseif wrds[1] == "map_Kd"
             texture_file = "$(rsplit(file, '/', limit = 2)[1])/$(wrds[2])"
             texture_diffuse = Vec3([Float32.(permutedims(channelview(load(texture_file)),
-                                                         (3, 2, 1)))[:, :, i] for i in 1:3]...)        
+                                                         (3, 2, 1)))[:,end:-1:1,i]
+                                    for i in 1:3]...)
         elseif wrds[1] == "map_Ks"
             texture_file = "$(rsplit(file, '/', limit = 2)[1])/$(wrds[2])"
             texture_specular = Vec3([Float32.(permutedims(channelview(load(texture_file)),
-                                                          (3, 2, 1)))[:, :, i] for i in 1:3]...)
+                                                          (3, 2, 1)))[:,end:-1:1,i]
+                                     for i in 1:3]...)
         end
     end
     material_map[last_mat] = (color_diffuse = color_diffuse,
@@ -145,6 +148,7 @@ function load_obj(file; outtype = Float32)
             mtllib = "$(rsplit(file, '/', limit = 2)[1])/$(wrds[2])"
         end
     end
+    
     !isnothing(mtllib) && parse_mtllib!(mtllib, material_map, outtype)
     return triangulate_faces(vertices, texture_coordinates, faces, material_map)
 end

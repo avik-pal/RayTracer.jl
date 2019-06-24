@@ -10,6 +10,7 @@ include("materials.jl")
 include("objects.jl")
 include("camera.jl")
 include("optimize.jl")
+include("intersect.jl")
 
 # Renderers
 include("renderers/blinnphong.jl")
