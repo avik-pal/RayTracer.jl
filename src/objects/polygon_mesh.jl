@@ -40,11 +40,11 @@ function parse_mtllib!(file, material_map, outtype)
         wrds = split(line)
         isempty(wrds) && continue
         if wrds[1] == "newmtl"
-            material_map[last_mat] = Material(color_diffuse = color_diffuse,
-                                              color_ambient = color_ambient,
-                                              color_specular = color_specular,
-                                              specular_exponent = specular_exponent,
-                                              reflection = reflection)
+            material_map[last_mat] = (color_diffuse = color_diffuse,
+                                      color_ambient = color_ambient,
+                                      color_specular = color_specular,
+                                      specular_exponent = specular_exponent,
+                                      reflection = reflection)
             last_mat = wrds[2]
             # In case any of these values are not defined for the material
             # we shall use the default values
@@ -67,21 +67,22 @@ function parse_mtllib!(file, material_map, outtype)
             reflection = 1 - parse(outtype, wrds[2])
         end
     end
-    material_map[last_mat] = Material(color_diffuse = color_diffuse,
-                                      color_ambient = color_ambient,
-                                      color_specular = color_specular,
-                                      specular_exponent = specular_exponent,
-                                      reflection = reflection)
+    material_map[last_mat] = (color_diffuse = color_diffuse,
+                              color_ambient = color_ambient,
+                              color_specular = color_specular,
+                              specular_exponent = specular_exponent,
+                              reflection = reflection)
     return nothing
 end
 
-function load_obj(file; mtllib = nothing, outtype = Float32)
+function load_obj(file; outtype = Float32)
     vertices = Vector{Vec3{Vector{outtype}}}()
     texture_coordinates = Vector{Tuple}()
     normals = Vector{Vec3{Vector{outtype}}}()
     faces = Vector{Tuple{Vector{Int}, String}}()
     material_map = Dict{String, Material}()
     last_mat = "RayTracer Default"
+    mtllib = nothing
     for line in eachline(file)
         wrds = split(line)
         isempty(wrds) && continue
@@ -98,6 +99,8 @@ function load_obj(file; mtllib = nothing, outtype = Float32)
         elseif wrds[1] == "usemtl" # Key for parsing mtllib file
             last_mat = wrds[2]
             material_map[last_mat] = Material()
+        elseif wrds[1] == "mtllib"
+            mtllib = "$(rsplit(file, '/', limit = 2)[1])/$(wrds[2])"
         end
     end
     !isnothing(mtllib) && parse_mtllib!(mtllib, material_map, outtype)
@@ -124,9 +127,9 @@ struct FixedTriangleMeshParams{V} <: FixedParams
     normals::Vector{Vec3{V}}
 end
 
-struct TriangleMesh{V, S, R} <: Object
-    triangulated_mesh::Vector{Triangle{V, S, R}}
-    material::Material{S, R}
+struct TriangleMesh{V, P, Q, R, S, T, U} <: Object
+    triangulated_mesh::Vector{Triangle{V, P, Q, R, S, T, U}}
+    material::Material{P, Q, R, S, T, U}
     ftmp::FixedTriangleMeshParams{V}
 end
 

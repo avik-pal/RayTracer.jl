@@ -4,11 +4,11 @@ export Triangle
 # - Triangle - #
 # ------------ #
 
-struct Triangle{V, S, R} <: Object
+struct Triangle{V, P, Q, R, S, T, U} <: Object
     v1::Vec3{V}
     v2::Vec3{V}
     v3::Vec3{V}
-    material::Material{S, R}
+    material::Material{P, Q, R, S, T, U}
 end
 
 show(io::IO, t::Triangle) =

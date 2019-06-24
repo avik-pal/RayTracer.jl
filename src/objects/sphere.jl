@@ -4,10 +4,10 @@ export Sphere
 # - Sphere - #
 # ---------- #
 
-struct Sphere{C, S, R} <: Object
+struct Sphere{C, P, Q, R, S, T, U} <: Object
     center::Vec3{C}
     radius::C
-    material::Material{S, R}
+    material::Material{P, Q, R, S, T, U}
 end
 
 show(io::IO, s::Sphere) =

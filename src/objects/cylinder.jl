@@ -6,12 +6,12 @@ export Cylinder
 
 # FIXME: Cylinder rendering behaves wierdly. So its better not to use this
 #        currently.
-struct Cylinder{C, S, R} <: Object
+struct Cylinder{C, P, Q, R, S, T, U} <: Object
     center::Vec3{C}
     radius::C
     axis::Vec3{C}
     length::C
-    material::Material{S, R}
+    material::Material{P, Q, R, S, T, U}
 end
 
 show(io::IO, c::Cylinder) =

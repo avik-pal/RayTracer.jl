@@ -4,11 +4,11 @@ export Disc
 # - Disc - #
 # -------- #
 
-struct Disc{V, S, R} <: Object
+struct Disc{V, P, Q, R, S, T, U} <: Object
     center::Vec3{V}
     normal::Vec3{V} # This needs to be normalized everytime before usage
     radius::V
-    material::Material{S, R}
+    material::Material{P, Q, R, S, T, U}
 end
 
 show(io::IO, d::Disc) =
