@@ -5,7 +5,7 @@ export Material
 # --------- #
 struct Material{T<:AbstractArray, R<:AbstractVector, U<:Union{Vec3, Nothing},
                 V<:Union{Vec3, Nothing}, W<:Union{Vec3, Nothing},
-                S<:Union{Vector{Tuple}, Nothing}}
+                S<:Union{Vector, Nothing}}
     # Color Information
     color_ambient::Vec3{T}
     color_diffuse::Vec3{T}

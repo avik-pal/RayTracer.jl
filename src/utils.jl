@@ -49,7 +49,7 @@ Vec3(a::T) where {T<:AbstractArray} = Vec3(copy(a), copy(a), copy(a))
 Vec3(a::T, b::T, c::T) where {T<:Real} = Vec3([a], [b], [c])
 
 function show(io::IO, v::Vec3)
-    l = size(v)[1]
+    l = prod(size(v))
     if l == 1
         print(io, "x = ", v.x[], ", y = ", v.y[], ", z = ", v.z[])
     elseif l <= 5
@@ -229,21 +229,26 @@ macro diffops(a)
     quote
         # Addition for gradient accumulation
         function $(esc(:+))(x::$(esc(a)), y::$(esc(a)))
-            return $(esc(a))([getfield(x, i) + getfield(y, i) for i in fieldnames($(esc(a)))]...)
+            return $(esc(a))([(isnothing(getfield(x, i)) || isnothing(getfield(y, i))) ? nothing :
+                              getfield(x, i) + getfield(y, i) for i in fieldnames($(esc(a)))]...)
         end
         # Subtraction for gradient updates
         function $(esc(:-))(x::$(esc(a)), y::$(esc(a)))
-            return $(esc(a))([getfield(x, i) - getfield(y, i) for i in fieldnames($(esc(a)))]...)
+            return $(esc(a))([(isnothing(getfield(x, i)) || isnothing(getfield(y, i))) ? nothing :
+                              getfield(x, i) - getfield(y, i) for i in fieldnames($(esc(a)))]...)
         end
         # Multiply for learning rate and misc ops
         function $(esc(:*))(x::T, y::$(esc(a))) where {T<:Real}
-            return $(esc(a))([x * getfield(y, i) for i in fieldnames($(esc(a)))]...)
+            return $(esc(a))([isnothing(getfield(y, i)) ? nothing :
+                              x * getfield(y, i) for i in fieldnames($(esc(a)))]...)
         end
         function $(esc(:*))(x::$(esc(a)), y::T) where {T<:Real}
-            return $(esc(a))([getfield(x, i) * y for i in fieldnames($(esc(a)))]...)
+            return $(esc(a))([isnothing(getfield(x, i)) ? nothing :
+                              getfield(x, i) * y for i in fieldnames($(esc(a)))]...)
         end
         function $(esc(:*))(x::$(esc(a)), y::$(esc(a)))
-            return $(esc(a))([getfield(x, i) * getfield(y, i) for i in fieldnames($(esc(a)))]...)
+            return $(esc(a))([(isnothing(getfield(x, i)) || isnothing(getfield(y, i))) ? nothing :
+                              getfield(x, i) * getfield(y, i) for i in fieldnames($(esc(a)))]...)
         end
     end
 end
