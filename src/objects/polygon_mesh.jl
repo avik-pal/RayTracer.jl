@@ -4,13 +4,14 @@ export load_obj, TriangleMesh
 # - Load OBJ - #
 # ------------ #
 
-function triangulate_faces(vertices::Vector, faces::Vector)
+function triangulate_faces(vertices::Vector, faces::Vector, material_map::Dict)
     scene = Vector{Triangle}()
     for face in faces
-        for i in 2:(length(face) - 1)
-            push!(scene, Triangle(deepcopy(vertices[face[1]]),
-                                  deepcopy(vertices[face[i]]),
-                                  deepcopy(vertices[face[i + 1]])))
+        for i in 2:(length(face[1]) - 1)
+            push!(scene, Triangle(deepcopy(vertices[face[1][1]]),
+                                  deepcopy(vertices[face[1][i]]),
+                                  deepcopy(vertices[face[1][i + 1]]),
+                                  material_map[face[2]]))
         end
     end
     try
@@ -28,11 +29,59 @@ function triangulate_faces(vertices::Vector, faces::Vector)
     end
 end
 
-function load_obj(file, outtype = Float32)
+function parse_mtllib!(file, material_map, outtype)
+    color_diffuse = Vec3(outtype(1.0f0))
+    color_ambient = Vec3(outtype(1.0f0))
+    color_specular = Vec3(outtype(1.0f0))
+    specular_exponent = outtype(50.0f0)
+    reflection = outtype(0.5f0)
+    last_mat = "RayTracer Default"
+    for line in eachline(file)
+        wrds = split(line)
+        isempty(wrds) && continue
+        if wrds[1] == "newmtl"
+            material_map[last_mat] = Material(color_diffuse = color_diffuse,
+                                              color_ambient = color_ambient,
+                                              color_specular = color_specular,
+                                              specular_exponent = specular_exponent,
+                                              reflection = reflection)
+            last_mat = wrds[2]
+            # In case any of these values are not defined for the material
+            # we shall use the default values
+            color_diffuse = Vec3(outtype(1.0f0))
+            color_ambient = Vec3(outtype(1.0f0))
+            color_specular = Vec3(outtype(1.0f0))
+            specular_exponent = outtype(50.0f0)
+            reflection = outtype(0.5f0)
+        elseif wrds[1] == "Ka"
+            color_ambient = Vec3(parse.(outtype, wrds[2:4])...)
+        elseif wrds[1] == "Kd"
+            color_diffuse = Vec3(parse.(outtype, wrds[2:4])...)
+        elseif wrds[1] == "Ks"
+            color_specular = Vec3(parse.(outtype, wrds[2:4])...)
+        elseif wrds[1] == "Ns"
+            specular_exponent = parse(outtype, wrds[2])
+        elseif wrds[1] == "d"
+            reflection = parse(outtype, wrds[2])
+        elseif wrds[1] == "Tr"
+            reflection = 1 - parse(outtype, wrds[2])
+        end
+    end
+    material_map[last_mat] = Material(color_diffuse = color_diffuse,
+                                      color_ambient = color_ambient,
+                                      color_specular = color_specular,
+                                      specular_exponent = specular_exponent,
+                                      reflection = reflection)
+    return nothing
+end
+
+function load_obj(file; mtllib = nothing, outtype = Float32)
     vertices = Vector{Vec3{Vector{outtype}}}()
     texture_coordinates = Vector{Tuple}()
     normals = Vector{Vec3{Vector{outtype}}}()
-    faces = Vector{Vector{Int}}()
+    faces = Vector{Tuple{Vector{Int}, String}}()
+    material_map = Dict{String, Material}()
+    last_mat = "RayTracer Default"
     for line in eachline(file)
         wrds = split(line)
         isempty(wrds) && continue
@@ -45,10 +94,14 @@ function load_obj(file, outtype = Float32)
         elseif wrds[1] == "f" # Faces
             # Currently we shall only be concerned with the vertices of the face
             # and safely throw away texture and normal information
-            push!(faces, parse.(Int, first.(split.(wrds[2:end], '/', limit = 2))))
+            push!(faces, (parse.(Int, first.(split.(wrds[2:end], '/', limit = 2))), last_mat))
+        elseif wrds[1] == "usemtl" # Key for parsing mtllib file
+            last_mat = wrds[2]
+            material_map[last_mat] = Material()
         end
     end
-    return triangulate_faces(vertices, faces)
+    !isnothing(mtllib) && parse_mtllib!(mtllib, material_map, outtype)
+    return triangulate_faces(vertices, faces, material_map)
 end
 
 function construct_outer_normals(t::Vector{Triangle})
@@ -80,8 +133,8 @@ end
 @diffops TriangleMesh
             
 TriangleMesh(scene::Vector{Triangle}, mat::Material) =
-    TriangleMesh(scene, mat,
-                 FixedTriangleMeshParams(IdDict(), construct_outer_normals(scene)))
+    TriangleMesh(scene, mat, FixedTriangleMeshParams(IdDict(),
+                                                     construct_outer_normals(scene)))
 
 function intersect(t::TriangleMesh, origin, direction)
     distances = map(s -> intersect(s, origin, direction), t.triangulated_mesh)
