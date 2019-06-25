@@ -1,5 +1,10 @@
 # RayTracer.jl
 
+[![Build Status](https://travis-ci.com/avik-pal/RayTracer.jl.svg?branch=master)](https://travis-ci.com/avik-pal/RayTracer.jl)
+[![codecov](https://codecov.io/gh/avik-pal/RayTracer.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/avik-pal/RayTracer.jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/887v1miv7ig4mod2?svg=true)](https://ci.appveyor.com/project/avik-pal/raytracer-jl) 
+[![Latest Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://avik-pal.github.io/RayTracer.jl/dev/)
+
 A Ray Tracer written completely in Julia. This allows us to leverage the AD capablities provided
 by Zygote to differentiate through the Ray Tracer.
 
@@ -22,17 +27,19 @@ For GPU Support
 For usage examples look into the `examples` directory. Also the documentation has some getting
 started examples.
 
+[Duckietown.jl](https://github.com/tejank10/Duckietown.jl) uses RayTracer.jl for generating renders
+of a self-driving car environment. For more complex examples of RayTracer, checkout that project.
+
 ## CURRENT ROADMAP
 
 These are not listed in any particular order
 
-- [X] Add more types of common objects - Disc, Plane, Box
-- [ ] Add support for rendering arbitrary mesh (a proof of concept version is present in `master`
+- [X] Add more types of common objects (use mesh rendering for this) - Disc, Plane, Box
+- [X] Add support for rendering arbitrary mesh
   but is slow)
 - [ ] GPU Support using CuArrays (partially supported in `ap/gpu` branch)
 - [ ] Inverse Rendering Examples
 - [ ] Application in Machine Learning Models through Flux
-- [ ] Texture Rendering
+- [X] Texture Rendering
 - [ ] Make everything differentiable:
-  - [ ] Checkered Surface
   - [ ] Triangle Mesh

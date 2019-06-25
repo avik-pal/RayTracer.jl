@@ -26,7 +26,4 @@ jobs:
       
 script:
   - julia --color=yes -e 'using Pkg; Pkg.activate(); Pkg.instantiate(); Pkg.test()'
-  - julia --color=yes -e 'using Pkg; Pkg.activate("examples"); Pkg.instantiate();
-                          include("examples/rendering/sphere.jl")'
-  - julia --color=yes -e 'using Pkg; Pkg.activate("examples"); Pkg.instantiate();
-                          include("examples/inv_rendering/light_position.jl")'
+  - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
