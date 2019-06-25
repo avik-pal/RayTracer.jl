@@ -1,6 +1,6 @@
 module RayTracer
 
-using Zygote, Flux, Images
+using Zygote, Flux, Images, Distributed
 import Base.show
 
 # Rendering Utilities
