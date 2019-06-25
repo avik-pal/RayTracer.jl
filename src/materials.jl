@@ -60,6 +60,8 @@ get_color(m::Material{T, R, U, V, Nothing, S}, pt::Vec3,
                                         S<:Union{Vector, Nothing}} =
     m.color_specular
 
+Zygote.@nograd infer_index(f::Symbol) = Symbol("texture_$f"), Symbol("color_$f")
+
 # This function is only available for triangles. Maybe I should put a
 # type constraint
 function get_color(m::Material, pt::Vec3, ::Val{f}, obj) where {f}
@@ -85,14 +87,14 @@ function get_color(m::Material, pt::Vec3, ::Val{f}, obj) where {f}
         v_bary .* m.uv_coordinates[2][2] .+
         w_bary .* m.uv_coordinates[3][2]
 
-    which_texture = Symbol("texture_$(f)")
-    which_color = Symbol("color_$(f)")
-    image = getproperty(m, which_texture)
+    which_texture, which_color = infer_index(f)
+    image = Zygote.literal_getproperty(m, Val(which_texture))
     width, height = size(image)
     x_val = mod1.((Int.(ceil.(u .* width)) .- 1), width)
     y_val = mod1.((Int.(ceil.(v .* height)) .- 1), height)
-    return getproperty(m, which_color) *
-           Vec3(image[x_val .+ (y_val .- 1) .* stride(image.x, 2)]...)
+    # Zygote doesn't like me using a splat operation here :'(
+    img = image[x_val .+ (y_val .- 1) .* stride(image.x, 2)]
+    return Zygote.literal_getproperty(m, Val(which_color)) * Vec3(img.x, img.y, img.z)
 end
 
 specular_exponent(m::Material) = m.specular_exponent[]

@@ -116,36 +116,95 @@ end
 # -------- #
 
 @adjoint Material(color_ambient, color_diffuse, color_specular, specular_exponent,
-                  reflection) =
-    Material(color_ambient, color_diffuse, color_specular, specular_exponent, reflection),
+                  reflection, texture_ambient, texture_diffuse, texture_specular,
+                  uv_coordinates) =
+    Material(color_ambient, color_diffuse, color_specular, specular_exponent, reflection,
+             texture_ambient, texture_diffuse, texture_specular, uv_coordinates),
     Δ -> (Δ.color_ambient, Δ.color_diffuse, Δ.color_specular, Δ.specular_exponent,
-          Δ.reflection)
+          Δ.reflection, Δ.texture_ambient, Δ.texture_diffuse, Δ.texture_specular,
+          Δ.uv_coordinates)
 
 @adjoint literal_getproperty(m::Material, ::Val{:color_ambient}) =
     getproperty(m, :color_ambient), Δ -> (Material(Δ, zero(m.color_diffuse), zero(m.color_specular),
-                                                   zero(m.specular_exponent), zero(m.reflection)),
+                                                   zero(m.specular_exponent), zero(m.reflection),
+                                                   isnothing(m.texture_ambient) ? nothing : zero(m.texture_ambient),
+                                                   isnothing(m.texture_diffuse) ? nothing : zero(m.texture_diffuse),
+                                                   isnothing(m.texture_specular) ? nothing : zero(m.texture_specular),
+                                                   isnothing(m.uv_coordinates) ? nothing : zero.(m.uv_coordinates)),
                                           nothing)
 
 @adjoint literal_getproperty(m::Material, ::Val{:color_diffuse}) =
     getproperty(m, :color_diffuse), Δ -> (Material(zero(m.color_ambient), Δ, zero(m.color_specular),
-                                                   zero(m.specular_exponent), zero(m.reflection)),
+                                                   zero(m.specular_exponent), zero(m.reflection),
+                                                   isnothing(m.texture_ambient) ? nothing : zero(m.texture_ambient),
+                                                   isnothing(m.texture_diffuse) ? nothing : zero(m.texture_diffuse),
+                                                   isnothing(m.texture_specular) ? nothing : zero(m.texture_specular),
+                                                   isnothing(m.uv_coordinates) ? nothing : zero.(m.uv_coordinates)),
                                           nothing)
 
 @adjoint literal_getproperty(m::Material, ::Val{:color_specular}) =
     getproperty(m, :color_specular), Δ -> (Material(zero(m.color_ambient), zero(m.color_diffuse), Δ,
-                                                   zero(m.specular_exponent), zero(m.reflection)),
+                                                   zero(m.specular_exponent), zero(m.reflection),
+                                                   isnothing(m.texture_ambient) ? nothing : zero(m.texture_ambient),
+                                                   isnothing(m.texture_diffuse) ? nothing : zero(m.texture_diffuse),
+                                                   isnothing(m.texture_specular) ? nothing : zero(m.texture_specular),
+                                                   isnothing(m.uv_coordinates) ? nothing : zero.(m.uv_coordinates)),
                                           nothing)
     
 @adjoint literal_getproperty(m::Material, ::Val{:specular_exponent}) =
     getproperty(m, :specular_exponent), Δ -> (Material(zero(m.color_ambient), zero(m.color_diffuse),
-                                                       zero(m.color_specular), Δ, zero(m.reflection)),
+                                                       zero(m.color_specular), Δ, zero(m.reflection),
+                                                       isnothing(m.texture_ambient) ? nothing : zero(m.texture_ambient),
+                                                       isnothing(m.texture_diffuse) ? nothing : zero(m.texture_diffuse),
+                                                       isnothing(m.texture_specular) ? nothing : zero(m.texture_specular),
+                                                       isnothing(m.uv_coordinates) ? nothing : zero.(m.uv_coordinates)),
                                               nothing)
 
 @adjoint literal_getproperty(m::Material, ::Val{:reflection}) =
     getproperty(m, :reflection), Δ -> (Material(zero(m.color_ambient), zero(m.color_diffuse),
-                                                zero(m.color_specular), zero(m.specular_exponent), Δ),
-                                          nothing)
+                                                zero(m.color_specular), zero(m.specular_exponent), Δ,
+                                                isnothing(m.texture_ambient) ? nothing : zero(m.texture_ambient),
+                                                isnothing(m.texture_diffuse) ? nothing : zero(m.texture_diffuse),
+                                                isnothing(m.texture_specular) ? nothing : zero(m.texture_specular),
+                                                isnothing(m.uv_coordinates) ? nothing : zero.(m.uv_coordinates)),
+                                       nothing)
 
+@adjoint literal_getproperty(m::Material, ::Val{:texture_ambient}) =
+    getproperty(m, :texture_ambient), Δ -> (Material(zero(m.color_ambient), zero(m.color_diffuse),
+                                                     zero(m.color_specular), zero(m.specular_exponent),
+                                                     zero(m.reflection), Δ,
+                                                     isnothing(m.texture_diffuse) ? nothing : zero(m.texture_diffuse),
+                                                     isnothing(m.texture_specular) ? nothing : zero(m.texture_specular),
+                                                     isnothing(m.uv_coordinates) ? nothing : zero.(m.uv_coordinates)),
+                                            nothing)
+
+@adjoint literal_getproperty(m::Material, ::Val{:texture_diffuse}) =
+    getproperty(m, :texture_diffuse), Δ -> (Material(zero(m.color_ambient), zero(m.color_diffuse),
+                                                     zero(m.color_specular), zero(m.specular_exponent),
+                                                     zero(m.reflection),
+                                                     isnothing(m.texture_ambient) ? nothing : zero(m.texture_ambient), Δ,
+                                                     isnothing(m.texture_specular) ? nothing : zero(m.texture_specular),
+                                                     isnothing(m.uv_coordinates) ? nothing : zero.(m.uv_coordinates)),
+                                            nothing)
+
+@adjoint literal_getproperty(m::Material, ::Val{:texture_specular}) =
+    getproperty(m, :texture_specular), Δ -> (Material(zero(m.color_ambient), zero(m.color_diffuse),
+                                                      zero(m.color_specular), zero(m.specular_exponent),
+                                                      zero(m.reflection),
+                                                      isnothing(m.texture_ambient) ? nothing : zero(m.texture_ambient),
+                                                      isnothing(m.texture_diffuse) ? nothing : zero(m.texture_diffuse), Δ,
+                                                      isnothing(m.uv_coordinates) ? nothing : zero.(m.uv_coordinates)),
+                                             nothing)
+
+@adjoint literal_getproperty(m::Material, ::Val{:uv_coordinates}) =
+    getproperty(m, :uv_coordinates), Δ -> (Material(zero(m.color_ambient), zero(m.color_diffuse),
+                                                    zero(m.color_specular), zero(m.specular_exponent),
+                                                    zero(m.reflection),
+                                                    isnothing(m.texture_ambient) ? nothing : zero(m.texture_ambient),
+                                                    isnothing(m.texture_diffuse) ? nothing : zero(m.texture_diffuse),
+                                                    isnothing(m.texture_specular) ? nothing : zero(m.texture_specular),
+                                                    Δ),
+                                             nothing)
 # ------- #
 # Objects #
 # ------- #

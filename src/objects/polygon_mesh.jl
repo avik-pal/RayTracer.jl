@@ -12,9 +12,9 @@ function triangulate_faces(vertices::Vector, texture_coordinates::Vector,
             if isnothing(face[2])
                 uv_coordinates = nothing
             else
-                uv_coordinates = [texture_coordinates[face[2][1]],
-                                  texture_coordinates[face[2][i]],
-                                  texture_coordinates[face[2][i + 1]]]
+                uv_coordinates = [[texture_coordinates[face[2][1]]...],
+                                  [texture_coordinates[face[2][i]]...],
+                                  [texture_coordinates[face[2][i + 1]]...]]
             end
             mat = Material(;uv_coordinates = uv_coordinates,
                            material_map[face[3]]...)

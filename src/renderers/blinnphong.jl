@@ -21,18 +21,15 @@ function light(s::Object, origin, direction, dist, lgt::Light, eye_pos,
     nudged = pt + normal * 0.0001f0 # Nudged to miss itself
     
     # Shadow
-    @show "Intersect"
-    @time light_distances = map(x -> intersect(x, nudged, dir_light), scene)
+    light_distances = map(x -> intersect(x, nudged, dir_light), scene)
     seelight = fseelight(obj_num, light_distances)
 
     # Ambient
-    @show "Ambient"
-    @time color = get_color(s, pt, Val(:ambient))
+    color = get_color(s, pt, Val(:ambient))
 
     # Lambert Shading (diffuse)
     visibility = max.(dot(normal, dir_light), 0.0f0)
-    @show "Diffuse"
-    @time color += ((get_color(s, pt, Val(:diffuse)) * intensity) * visibility) * seelight
+    color += ((get_color(s, pt, Val(:diffuse)) * intensity) * visibility) * seelight
     
     # Reflection
     if bounce < 2
@@ -42,8 +39,7 @@ function light(s::Object, origin, direction, dist, lgt::Light, eye_pos,
 
     # Blinn-Phong shading (specular)
     phong = dot(normal, normalize(dir_light + dir_origin))
-    @show "Phong"
-    @time color += (get_color(s, pt, Val(:specular)) *
+    color += (get_color(s, pt, Val(:specular)) *
               (clamp.(phong, 0.0f0, 1.0f0) .^ specular_exponent(s))) * seelight
 
     return color
