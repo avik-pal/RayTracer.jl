@@ -4,6 +4,4 @@
 deps/deps.jl
 .stale
 build
-textures
-meshes
 .ipynb*

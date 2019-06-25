@@ -64,7 +64,7 @@ opt = ADAM(0.05)
 
 @info "Starting Optimization Loop"
 
-for i in 1:500
+for i in 1:50
     gs = gradient(x -> loss_fn(x, image), light_perturbed)[1]
     update!(opt, light_perturbed.position, gs.position)
     if i % 10 == 0
