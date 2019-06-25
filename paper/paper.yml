@@ -1,0 +1,17 @@
+title: "RayTracer.jl: A Differentiable Renderer that supports Parameter Optimization for Scene Reconstruction"
+keywords:
+  - Julia
+  - Differentiable Programming
+  - Deep Learning
+  - Automatic Differentiation
+  - Inverse Graphics
+authors:
+  - name: Avik Pal
+    orcid: 0000-0002-3938-7375
+    affiliation: 1
+affiliations:
+  - name: Indian Institute of Technology, Kanpur
+    email: avik.pal.2017@gmail.com
+    index: 1
+date: 7 July 2019
+bibliography: ref.bib

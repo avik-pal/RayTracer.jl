@@ -18,8 +18,7 @@ results be sure to use `Float64` as `Float32` is too numerically unstable.
 function ngradient(f, xs::AbstractArray...)
     grads = zero.(xs)
     for (x, Δ) in zip(xs, grads), i in 1:length(x)
-        # This gives reasonable results
-        δ = 1.0e-13
+        δ = 1.0e-11
         tmp = x[i]
         x[i] = tmp - δ/2
         y1 = f(xs...)
@@ -40,13 +39,53 @@ end
 
 Get the parameters from a struct that can be tuned. The output is in
 the form of an array.
+
+### Example:
+
+```jldoctest
+julia> using RayTracer;
+
+julia> scene = Triangle(Vec3(-1.9f0, 1.6f0, 1.0f0), Vec3(1.0f0, 1.0f0, 0.0f0), Vec3(-0.5f0, -1.0f0, 0.0f0),
+                        Material())
+Triangle Object:
+    Vertex 1 - x = -1.9, y = 1.6, z = 1.0
+    Vertex 2 - x = 1.0, y = 1.0, z = 0.0
+    Vertex 3 - x = -0.5, y = -1.0, z = 0.0
+    Material{Array{Float32,1},Array{Float32,1},Nothing,Nothing,Nothing,Nothing}(x = 1.0, y = 1.0, z = 1.0, x = 1.0, y = 1.0, z = 1.0, x = 1.0, y = 1.0, z = 1.0, Float32[50.0], Float32[0.5], nothing, nothing, nothing, nothing)
+
+julia> RayTracer.get_params(scene)
+20-element Array{Float32,1}:
+ -1.9
+  1.6
+  1.0
+  1.0
+  1.0
+  0.0
+ -0.5
+ -1.0
+  0.0
+  1.0
+  1.0
+  1.0
+  1.0
+  1.0
+  1.0
+  1.0
+  1.0
+  1.0
+ 50.0
+  0.5
+```
 """
-get_params(x::T) where {T<:AbstractArray} = x
+get_params(x::T, typehelp = Float32) where {T<:AbstractArray} = x
 
-get_params(x::T) where {T<:Real} = [x]
+get_params(x::T, typehelp = Float32) where {T<:Real} = [x]
 
-get_params(x::T) where {T} = foldl((a, b) -> [a; b],
-                                   [map(i -> get_params(getfield(x, i)), fieldnames(T))...])
+get_params(::Nothing, typehelp = Float32) = typehelp[]
+
+get_params(x::T, typehelp = Float32) where {T} =
+    foldl((a, b) -> [a; b], [map(i -> get_params(getfield(x, i), typehelp),
+                                 fieldnames(T))...])
                      
 """
     set_params!(x, y::AbstractArray)
@@ -55,25 +94,50 @@ Sets the tunable parameters of the struct `x`. The index of the last element
 set into the struct is returned as output. This may be used to confirm that
 the size of the input array was as expected.
 
-### Example
+### Example:
 
-```julia
-julia> scene = Triangle(Vec3(-1.9, 1.3, 0.1), Vec3(1.2, 1.1, 0.3), Vec3(0.8, -1.2, -0.15),
-                    color = rgb(1.0, 1.0, 1.0), reflection = 0.5)
-Triangle{Array{Float64,1}}(Vec3{Array{Float64,1}}([-1.9], [1.3], [0.1]), Vec3{Array{Float64,1}}([1.2], [1.1], [0.3]), Vec3{Array{Float64,1}}([0.8], [-1.2], [-0.15]), RayTracer.Material{RayTracer.PlainColor,Float64}(RayTracer.PlainColor(Vec3{Array{Float64,1}}([1.0], [1.0], [1.0])), 0.5))
+```jldoctest
+julia> using RayTracer;
 
-julia> x = rand(13)
-13-element Array{Float64,1}:
- 0.39019817669623835
- 0.940810689314205
- .
- .
- .
- 0.5590307650917048
- 0.7551647340674075
+julia> scene = Triangle(Vec3(-1.9f0, 1.6f0, 1.0f0), Vec3(1.0f0, 1.0f0, 0.0f0), Vec3(-0.5f0, -1.0f0, 0.0f0),
+                        Material())
+Triangle Object:
+    Vertex 1 - x = -1.9, y = 1.6, z = 1.0
+    Vertex 2 - x = 1.0, y = 1.0, z = 0.0
+    Vertex 3 - x = -0.5, y = -1.0, z = 0.0
+    Material{Array{Float32,1},Array{Float32,1},Nothing,Nothing,Nothing,Nothing}(x = 1.0, y = 1.0, z = 1.0, x = 1.0, y = 1.0, z = 1.0, x = 1.0, y = 1.0, z = 1.0, Float32[50.0], Float32[0.5], nothing, nothing, nothing, nothing)
 
-julia> RayTracer.set_params!(scene, x)
-13
+julia> new_params = collect(1.0f0:20.0f0)
+20-element Array{Float32,1}:
+  1.0
+  2.0
+  3.0
+  4.0
+  5.0
+  6.0
+  7.0
+  8.0
+  9.0
+ 10.0
+ 11.0
+ 12.0
+ 13.0
+ 14.0
+ 15.0
+ 16.0
+ 17.0
+ 18.0
+ 19.0
+ 20.0
+
+julia> RayTracer.set_params!(scene, new_params);
+
+julia> scene
+Triangle Object:
+    Vertex 1 - x = 1.0, y = 2.0, z = 3.0
+    Vertex 2 - x = 4.0, y = 5.0, z = 6.0
+    Vertex 3 - x = 7.0, y = 8.0, z = 9.0
+    Material{Array{Float32,1},Array{Float32,1},Nothing,Nothing,Nothing,Nothing}(x = 10.0, y = 11.0, z = 12.0, x = 13.0, y = 14.0, z = 15.0, x = 16.0, y = 17.0, z = 18.0, Float32[19.0], Float32[20.0], nothing, nothing, nothing, nothing)
 ```
 """
 function set_params!(x::AbstractArray, y::AbstractArray)
@@ -89,6 +153,7 @@ set_params!(x::T, y::AbstractArray) where {T<:Real} = set_params!([x], y)
 function set_params!(x, y::AbstractArray)
     start = 1
     for i in 1:nfields(x)
+        isnothing(getfield(x, i)) && continue
         start += set_params!(getfield(x, i), y[start:end])
     end
     return start - 1

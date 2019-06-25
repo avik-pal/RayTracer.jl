@@ -1,6 +1,7 @@
 import Base.getproperty
 import Base.findmin
 import Base.findmax
+import Base.push!
 
 using Zygote: @adjoint, @nograd
 
@@ -74,6 +75,10 @@ end
 end
 
 @adjoint place(a::Vec3, cond) = place(a, cond), Δ -> (Vec3(Δ.x[cond], Δ.y[cond], Δ.z[cond]), nothing)
+
+@adjoint place(a::Array, cond) = place(a, cond), Δ -> (Δ[cond], nothing)
+
+@adjoint place_idx!(a::Vec3, b::Vec3, idx) = place_idx!(a, b, idx), Δ -> (zero(Δ), Vec3(Δ[idx]...), nothing)
 
 # ----- #
 # Light #
@@ -354,5 +359,12 @@ for func in (:findmin, :findmax)
     end
 end
 
-@adjoint reducehcat(x) =
-    reduce(hcat, x), Δ -> ([Δ[:, i] for i in 1:length(x)], )
+@adjoint reducehcat(x) = reduce(hcat, x), Δ -> ([Δ[:, i] for i in 1:length(x)], )
+
+@adjoint push!(arr, val) = push!(arr, val), Δ -> (Δ[1:end-1], Δ[end])
+
+@nograd fill
+
+@nograd function update_index!(arr, i, j, val)
+    arr[i, j] = val
+end 
