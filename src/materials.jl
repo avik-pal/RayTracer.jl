@@ -60,11 +60,11 @@ get_color(m::Material{T, R, U, V, Nothing, S}, pt::Vec3,
                                         S<:Union{Vector, Nothing}} =
     m.color_specular
 
-Zygote.@nograd infer_index(f::Symbol) = Symbol("texture_$f"), Symbol("color_$f")
-
 # This function is only available for triangles. Maybe I should put a
 # type constraint
-function get_color(m::Material, pt::Vec3, ::Val{f}, obj) where {f}
+# The three functions are present only for type inference. Ideally Julia
+# should figure it out not sure why it is not the case.
+function get_color(m::Material, pt::Vec3, ::Val{:ambient}, obj)
     v1v2 = obj.v2 - obj.v1
     v1v3 = obj.v3 - obj.v1
     normal = cross(v1v2, v1v3)
@@ -87,14 +87,80 @@ function get_color(m::Material, pt::Vec3, ::Val{f}, obj) where {f}
         v_bary .* m.uv_coordinates[2][2] .+
         w_bary .* m.uv_coordinates[3][2]
 
-    which_texture, which_color = infer_index(f)
-    image = Zygote.literal_getproperty(m, Val(which_texture))
+    # which_texture, which_color = infer_index(f)
+    image = Zygote.literal_getproperty(m, Val(:texture_ambient))
     width, height = size(image)
     x_val = mod1.((Int.(ceil.(u .* width)) .- 1), width)
     y_val = mod1.((Int.(ceil.(v .* height)) .- 1), height)
     # Zygote doesn't like me using a splat operation here :'(
     img = image[x_val .+ (y_val .- 1) .* stride(image.x, 2)]
-    return Zygote.literal_getproperty(m, Val(which_color)) * Vec3(img.x, img.y, img.z)
+    return Zygote.literal_getproperty(m, Val(:color_ambient)) * Vec3(img.x, img.y, img.z)
+end
+
+function get_color(m::Material, pt::Vec3, ::Val{:diffuse}, obj)
+    v1v2 = obj.v2 - obj.v1
+    v1v3 = obj.v3 - obj.v1
+    normal = cross(v1v2, v1v3)
+    denom = l2norm(normal)
+    
+    edge2 = obj.v3 - obj.v2
+    vp2 = pt - obj.v2
+    u_bary = dot(normal, cross(edge2, vp2)) ./ denom
+
+    edge3 = obj.v1 - obj.v3
+    vp3 = pt - obj.v3
+    v_bary = dot(normal, cross(edge3, vp3)) ./ denom
+
+    w_bary = 1 .- u_bary .- v_bary
+
+    u = u_bary .* m.uv_coordinates[1][1] .+
+        v_bary .* m.uv_coordinates[2][1] .+
+        w_bary .* m.uv_coordinates[3][1]
+    v = u_bary .* m.uv_coordinates[1][2] .+
+        v_bary .* m.uv_coordinates[2][2] .+
+        w_bary .* m.uv_coordinates[3][2]
+
+    # which_texture, which_color = infer_index(f)
+    image = Zygote.literal_getproperty(m, Val(:texture_diffuse))
+    width, height = size(image)
+    x_val = mod1.((Int.(ceil.(u .* width)) .- 1), width)
+    y_val = mod1.((Int.(ceil.(v .* height)) .- 1), height)
+    # Zygote doesn't like me using a splat operation here :'(
+    img = image[x_val .+ (y_val .- 1) .* stride(image.x, 2)]
+    return Zygote.literal_getproperty(m, Val(:color_diffuse)) * Vec3(img.x, img.y, img.z)
+end
+
+function get_color(m::Material, pt::Vec3, ::Val{:specular}, obj)
+    v1v2 = obj.v2 - obj.v1
+    v1v3 = obj.v3 - obj.v1
+    normal = cross(v1v2, v1v3)
+    denom = l2norm(normal)
+    
+    edge2 = obj.v3 - obj.v2
+    vp2 = pt - obj.v2
+    u_bary = dot(normal, cross(edge2, vp2)) ./ denom
+
+    edge3 = obj.v1 - obj.v3
+    vp3 = pt - obj.v3
+    v_bary = dot(normal, cross(edge3, vp3)) ./ denom
+
+    w_bary = 1 .- u_bary .- v_bary
+
+    u = u_bary .* m.uv_coordinates[1][1] .+
+        v_bary .* m.uv_coordinates[2][1] .+
+        w_bary .* m.uv_coordinates[3][1]
+    v = u_bary .* m.uv_coordinates[1][2] .+
+        v_bary .* m.uv_coordinates[2][2] .+
+        w_bary .* m.uv_coordinates[3][2]
+
+    # which_texture, which_color = infer_index(f)
+    image = Zygote.literal_getproperty(m, Val(:texture_specular))
+    width, height = size(image)
+    x_val = mod1.((Int.(ceil.(u .* width)) .- 1), width)
+    y_val = mod1.((Int.(ceil.(v .* height)) .- 1), height)
+    # Zygote doesn't like me using a splat operation here :'(
+    img = image[x_val .+ (y_val .- 1) .* stride(image.x, 2)]
+    return Zygote.literal_getproperty(m, Val(:color_specular)) * Vec3(img.x, img.y, img.z)
 end
 
 specular_exponent(m::Material) = m.specular_exponent[]
