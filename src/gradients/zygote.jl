@@ -75,6 +75,8 @@ end
 
 @adjoint place(a::Vec3, cond) = place(a, cond), Δ -> (Vec3(Δ.x[cond], Δ.y[cond], Δ.z[cond]), nothing)
 
+@adjoint place(a::Array, cond) = place(a, cond), Δ -> (Δ[cond], nothing)
+
 # ----- #
 # Light #
 # ----- #

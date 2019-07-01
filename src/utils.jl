@@ -133,6 +133,19 @@ function place(a::Vec3, cond)
     return r
 end
 
+function place(a::Array, cond)
+    r = zeros(eltype(a), size(cond)...)
+    r[cond] .= a
+    return r
+end
+
+function place_idx!(a::Vec3, b::Vec3, idx)
+    a.x[idx] .= b.x
+    a.y[idx] .= b.y
+    a.z[idx] .= b.z
+    return a
+end
+
 Base.clamp(v::Vec3, lo, hi) = Vec3(clamp.(v.x, lo, hi), clamp.(v.y, lo, hi), clamp.(v.z, lo, hi))
 
 for f in (:zero, :similar, :one)

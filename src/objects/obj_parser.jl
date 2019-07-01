@@ -49,6 +49,17 @@ function parse_mtllib!(file, material_map, outtype)
     texture_diffuse = nothing
     texture_specular = nothing
     last_mat = "RayTracer Default"
+    if isnothing(file)
+        material_map[last_mat] = (color_diffuse = color_diffuse,
+                                  color_ambient = color_ambient,
+                                  color_specular = color_specular,
+                                  specular_exponent = specular_exponent,
+                                  reflection = reflection,
+                                  texture_ambient = texture_ambient,
+                                  texture_diffuse = texture_diffuse,
+                                  texture_specular = texture_specular)
+        return nothing
+    end
     for line in eachline(file)
         wrds = split(line)
         isempty(wrds) && continue
@@ -149,7 +160,12 @@ function load_obj(file; outtype = Float32)
         end
     end
     
-    !isnothing(mtllib) && parse_mtllib!(mtllib, material_map, outtype)
+    if !isnothing(mtllib)
+        parse_mtllib!(mtllib, material_map, outtype)
+    else
+        parse_mtllib!(nothing, material_map, outtype)
+    end
+
     return triangulate_faces(vertices, texture_coordinates, faces, material_map)
 end
 

@@ -73,3 +73,45 @@ function get_primary_rays(c::Camera)
 
     return (origin, direction)
 end
+
+function get_transformation_matrix(c::Camera{T}) where {T}
+    forward = normalize(c.lookfrom - c.lookat)
+    right = normalize(cross(c.fixedparams.vup, forward))
+    up = normalize(cross(forward, right))
+
+    return [     right.x[]      right.y[]      right.z[] zero(eltype(T));
+                    up.x[]         up.y[]         up.z[] zero(eltype(T));
+               forward.x[]    forward.y[]    forward.z[] zero(eltype(T));
+            c.lookfrom.x[] c.lookfrom.y[] c.lookfrom.z[]  one(eltype(T))]
+end
+
+function compute_screen_coordinates(c::Camera, film_aperture::Tuple,
+                                    inch_to_mm::Real = 25.4)
+    width = c.fixedparams.width
+    height = c.fixedparams.height
+    vfov = c.vfov[]
+    focus = c.focus[]
+    
+    film_aspect_ratio = film_aperture[1] / film_aperture[2]
+    device_aspect_ratio = width / height
+    
+    top = ((film_aperture[2] * inch_to_mm / 2) / focus)
+    right = ((film_aperture[1] * inch_to_mm / 2) / focus)
+
+    xscale = 1
+    yscale = 1
+
+    if film_aspect_ratio > device_aspect_ratio
+        xscale = device_aspect_ratio / film_aspect_ratio
+    else
+        yscale = film_aspect_ratio / device_aspect_ratio
+    end
+
+    right *= xscale
+    top *= yscale
+
+    bottom = -top
+    left = -right
+
+    return top, right, bottom, left
+end

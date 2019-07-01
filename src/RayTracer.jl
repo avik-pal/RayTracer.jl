@@ -13,6 +13,7 @@ include("optimize.jl")
 
 # Renderers
 include("renderers/blinnphong.jl")
+include("renderers/rasterizer.jl")
 
 # Image Utilities
 include("imutils.jl")
