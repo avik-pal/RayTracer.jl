@@ -154,7 +154,6 @@ for f in (:zero, :similar, :one)
     end
 end
 
-
 # ----- #
 # Color #
 # ----- #
