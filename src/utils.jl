@@ -133,8 +133,8 @@ function place(a::Vec3, cond)
     return r
 end
 
-function place(a::Array, cond)
-    r = zeros(eltype(a), size(cond)...)
+function place(a::Array, cond, val = 0)
+    r = fill(eltype(a)(val), size(cond)...)
     r[cond] .= a
     return r
 end
@@ -216,6 +216,20 @@ Returns the output same as `typemax`. However, in case gradients are computed, i
 the gradient to be `0` instead of `nothing` as in case of typemax.
 """
 @inline bigmul(x) = typemax(x)
+
+function camera2world(point::Vec3, camera_to_world)
+    result = camera2world([point.x point.y point.z], camera_to_world)
+    return Vec3(result[:, 1], result[:, 2], result[:, 3])
+end
+
+camera2world(point::Array, camera_to_world) = point * camera_to_world[1:3, 1:3] .+ camera_to_world[4, 1:3]'
+    
+function world2camera(point::Vec3, world_to_camera)
+    result = world2camera([point.x point.y point.z], world_to_camera)
+    return Vec3(result[:, 1], result[:, 2], result[:, 3])
+end
+
+world2camera(point::Array, world_to_camera) = point * world_to_camera[1:3, 1:3] .+ world_to_camera[4, 1:3]'
 
 # ----------------- #
 # - Helper Macros - #

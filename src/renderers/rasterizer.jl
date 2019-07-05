@@ -10,30 +10,6 @@ const film_aperture = (0.980f0, 0.735f0)
 # Utilities #
 # --------- #
 
-function camera2world(point::Vec3, camera_to_world)
-    result = camera2world([point.x point.y point.z], camera_to_world)
-    return Vec3(result[:, 1], result[:, 2], result[:, 3])
-end
-
-camera2world(point::Array, camera_to_world) = point * camera_to_world[1:3, 1:3] .+ camera_to_world[4, 1:3]'
-
-#=function camera2world_batched(point::Vec3, camera_to_world)
-    transformed = camera2world([point.x point.y point.z], camera_to_world)
-    return Vec3(transformed[:, 1], transformed[:, 2], transformed[:, 3])
-end=#
-    
-function world2camera(point::Vec3, world_to_camera)
-    result = world2camera([point.x point.y point.z], world_to_camera)
-    return Vec3(result[:, 1], result[:, 2], result[:, 3])
-end
-
-world2camera(point::Array, world_to_camera) = point * world_to_camera[1:3, 1:3] .+ world_to_camera[4, 1:3]'
-
-#=function world2camera_batched(point::Vec3, world_to_camera)
-    transformed = world2camera([point.x point.y point.z], world_to_camera)
-    return Vec3(transformed[:, 1], transformed[:, 2], transformed[:, 3])
-end=#
-
 edge_function(pt1::Vec3, pt2::Vec3, point::Vec3) = edge_function_vector(pt1, pt2, point)[] 
  
 edge_function_vector(pt1::Vec3, pt2::Vec3, point::Vec3) =
