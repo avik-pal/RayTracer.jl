@@ -37,19 +37,21 @@ function BoundingVolumeHierarchy(scene::Vector)
         centroid_dict[s] = c
     end
 
-    scene = sort(scene, by = x -> getproperty(centroid_dict[x], longest_direction)[])
+    sort!(scene, by = x -> getproperty(centroid_dict[x], longest_direction)[])
 
     search_space = map(x -> getproperty(x, longest_direction)[], centroids)
-    split_value = mean(search_space)
+    split_value = median(search_space)
     split_index = searchsortedfirst(search_space, split_value)
-
-    left_child = BVHNode(scene[1:split_index - 1], 1, centroid_dict)
-
-    right_child = BVHNode(scene[split_index:end], split_index, centroid_dict)
-
-    bvhnode = BVHNode(x_min, x_max, y_min, y_max, z_min, z_max, 1, length(scene),
-                      left_child, right_child)
-
+    
+    if split_index - 1 == length(scene) || split_index == 1
+        bvhnode = BVHNode(x_min, x_max, y_min, y_max, z_min, z_max, 1, length(scene),
+                          nothing, nothing)
+    else
+        left_child = BVHNode(scene[1:split_index - 1], 1, centroid_dict)
+        right_child = BVHNode(scene[split_index:end], split_index, centroid_dict)
+        bvhnode = BVHNode(x_min, x_max, y_min, y_max, z_min, z_max, 1, length(scene),
+                          left_child, right_child)
+    end
     return BoundingVolumeHierarchy(scene, bvhnode)
 end
 
@@ -63,12 +65,12 @@ function BVHNode(scene, index, centroid_dict)
     longest_direction = getindex([:x, :y, :z], 
                                  argmax([x_max - x_min, y_max - y_min, z_max - z_min]))
 
-    scene = sort(scene, by = x -> getproperty(centroid_dict[x], longest_direction)[])
+    sort!(scene, by = x -> getproperty(centroid_dict[x], longest_direction)[])
     
     centroids = [centroid_dict[s] for s in scene]
 
     search_space = map(x -> getproperty(x, longest_direction)[], centroids)
-    split_value = mean(search_space)
+    split_value = median(search_space)
     split_index = searchsortedfirst(search_space, split_value)
 
     if split_index - 1 == length(scene) || split_index == 1
@@ -97,36 +99,21 @@ isleafnode(bvh::BVHNode) = isnothing(bvh.left_child) && isnothing(bvh.right_chil
 function intersection_check(bvh::BVHNode, origin, direction)
     function check_intersection_ray(dir_x, dir_y, dir_z,
                                     ori_x, ori_y, ori_z)
-        if dir_x < 0
-            tmin = (bvh.x_max - ori_x) / dir_x
-            tmax = (bvh.x_min - ori_x) / dir_x
-         else
-            tmin = (bvh.x_min - ori_x) / dir_x
-            tmax = (bvh.x_max - ori_x) / dir_x
-        end
-        if dir_y < 0
-            tymin = (bvh.y_max - ori_y) / dir_y
-            tymax = (bvh.y_min - ori_y) / dir_y
-        else
-            tymin = (bvh.y_min - ori_y) / dir_y
-            tymax = (bvh.y_max - ori_y) / dir_y
-        end
+        a, b = dir_x < 0 ? (bvh.x_max, bvh.x_min) : (bvh.x_min, bvh.x_max)
+        tmin = (a - ori_x) / dir_x
+        tmax = (b - ori_x) / dir_x
+        a, b = dir_y < 0 ? (bvh.y_max, bvh.y_min) : (bvh.y_min, bvh.y_max)
+        tymin = (a - ori_y) / dir_y
+        tymax = (b - ori_y) / dir_y
         (tmin > tymax || tymin > tmax) && return false
         tmin = max(tmin, tymin)
         tmax = min(tmax, tymax)
-        if dir_z < 0
-            tzmin = (bvh.z_max - ori_z) / dir_z
-            tzmax = (bvh.z_min - ori_z) / dir_z
-        else
-            tzmin = (bvh.z_min - ori_z) / dir_z
-            tzmax = (bvh.z_max - ori_z) / dir_z
-        end
-        # Equivalent to
-        # (tmin > tzmax || tzmin > tmax) && return false
-        # return true
-        return (tmin < tzmax && tzmin < tmax)
+        a, b = dir_z < 0 ? (bvh.z_max, bvh.z_min) : (bvh.z_min, bvh.z_max)
+        tzmin = (a - ori_z) / dir_z
+        tzmax = (b - ori_z) / dir_z
+        (tmin > tzmax || tzmin > tmax) && return false
+        return true
     end
-
     return broadcast(check_intersection_ray, direction.x, direction.y,
                      direction.z, origin.x, origin.y, origin.z)
 end

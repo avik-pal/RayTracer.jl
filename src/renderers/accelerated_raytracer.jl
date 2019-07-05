@@ -2,22 +2,28 @@ function raytrace(origin::Vec3, direction::Vec3, scene::BoundingVolumeHierarchy,
                   lgt::Light, eye_pos::Vec3, bounce::Int = 0)
     distances = intersect(scene, origin, direction)
     
-    dist_reshaped = reducehcat([distances[k] for k in keys(distances)])
+    dist_reshaped = reducehcat([values(distances)...])
     nearest = map(idx -> minimum(dist_reshaped[idx, :]), 1:size(dist_reshaped, 1))
 
     h = .!isinf.(nearest)
 
     color = Vec3(0.0f0)
 
-    for (c, s) in enumerate(scene.scene_list)
-        !haskey(distances, s) && continue
-        d = distances[s]
+    for s in scene.scene_list
+        local d
+        # Zygote can't handle try/catch blocks
+        try
+            d = distances[s]
+        catch e
+            isa(e, KeyError) && continue
+            throw(e)
+        end
         hit = map((x, y, z) -> ifelse(y == z, x, zero(x)), h, d, nearest)
         if any(hit)
             dc = extract(hit, d)
             originc = extract(hit, origin)
             dirc = extract(hit, direction)
-            cc = light(s, originc, dirc, dc, lgt, eye_pos, scene, c, bounce)
+            cc = light(s, originc, dirc, dc, lgt, eye_pos, scene, bounce)
             color += place(cc, hit)
         end
     end
@@ -26,7 +32,7 @@ function raytrace(origin::Vec3, direction::Vec3, scene::BoundingVolumeHierarchy,
 end
 
 function light(s::Object, origin, direction, dist, lgt::Light, eye_pos,
-               scene::BoundingVolumeHierarchy, obj_num, bounce)
+               scene::BoundingVolumeHierarchy, bounce)
     pt = origin + direction * dist
     normal = get_normal(s, pt, direction)
     dir_light, intensity = get_shading_info(lgt, pt)
@@ -59,7 +65,7 @@ function light(s::Object, origin, direction, dist, lgt::Light, eye_pos,
 end
 
 function fseelight(t::Triangle, light_distances)
-    ldist = reducehcat([light_distances[k] for k in keys(light_distances)])
+    ldist = reducehcat([values(light_distances)...])
     seelight = map(idx -> minimum(ldist[idx, :]) == light_distances[t][idx], 1:size(ldist, 1))
     return seelight
 end
