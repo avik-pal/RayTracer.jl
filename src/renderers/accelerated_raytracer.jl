@@ -42,7 +42,7 @@ function light(s::Object, origin, direction, dist, lgt::Light, eye_pos,
     # Shadow
     light_distances = intersect(scene, nudged, dir_light)
     seelight = fseelight(s, light_distances)
-
+    
     # Ambient
     color = get_color(s, pt, Val(:ambient))
 

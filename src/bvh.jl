@@ -37,7 +37,7 @@ function BoundingVolumeHierarchy(scene::Vector)
         centroid_dict[s] = c
     end
 
-    sort!(scene, by = x -> getproperty(centroid_dict[x], longest_direction)[])
+    scene = sort(scene, by = x -> getproperty(centroid_dict[x], longest_direction)[])
 
     search_space = map(x -> getproperty(x, longest_direction)[], centroids)
     split_value = median(search_space)
@@ -47,8 +47,10 @@ function BoundingVolumeHierarchy(scene::Vector)
         bvhnode = BVHNode(x_min, x_max, y_min, y_max, z_min, z_max, 1, length(scene),
                           nothing, nothing)
     else
-        left_child = BVHNode(scene[1:split_index - 1], 1, centroid_dict)
-        right_child = BVHNode(scene[split_index:end], split_index, centroid_dict)
+        left_child, sc = BVHNode(scene[1:split_index - 1], 1, centroid_dict)
+        scene[1:split_index - 1] .= sc
+        right_child, sc = BVHNode(scene[split_index:end], split_index, centroid_dict)
+        scene[split_index:end] .= sc
         bvhnode = BVHNode(x_min, x_max, y_min, y_max, z_min, z_max, 1, length(scene),
                           left_child, right_child)
     end
@@ -56,7 +58,7 @@ function BoundingVolumeHierarchy(scene::Vector)
 end
 
 function BVHNode(scene, index, centroid_dict)
-    length(scene) == 0 && return nothing
+    length(scene) == 0 && return (nothing, scene)
 
     x_min, x_max = extrema(hcat([[s.v1.x[], s.v2.x[], s.v3.x[]] for s in scene]...))
     y_min, y_max = extrema(hcat([[s.v1.y[], s.v2.y[], s.v3.y[]] for s in scene]...))
@@ -65,7 +67,7 @@ function BVHNode(scene, index, centroid_dict)
     longest_direction = getindex([:x, :y, :z], 
                                  argmax([x_max - x_min, y_max - y_min, z_max - z_min]))
 
-    sort!(scene, by = x -> getproperty(centroid_dict[x], longest_direction)[])
+    scene = sort(scene, by = x -> getproperty(centroid_dict[x], longest_direction)[])
     
     centroids = [centroid_dict[s] for s in scene]
 
@@ -75,17 +77,19 @@ function BVHNode(scene, index, centroid_dict)
 
     if split_index - 1 == length(scene) || split_index == 1
         return BVHNode(x_min, x_max, y_min, y_max, z_min, z_max, index, index + length(scene) - 1,
-                       nothing, nothing)
+                       nothing, nothing), scene
     end 
 
-    left_child = BVHNode(scene[1:split_index - 1], index, centroid_dict)
+    left_child, sc = BVHNode(scene[1:split_index - 1], index, centroid_dict)
+    scene[1:split_index - 1] .= sc
 
-    right_child = BVHNode(scene[split_index:end], index + split_index - 1, centroid_dict)
-    
+    right_child, sc = BVHNode(scene[split_index:end], index + split_index - 1, centroid_dict)
+    scene[split_index:end] .= sc
+
     bvhnode = BVHNode(x_min, x_max, y_min, y_max, z_min, z_max, index, index + length(scene) - 1,
                       left_child, right_child)
 
-    return bvhnode
+    return bvhnode, scene
 end
 
 bvh_depth(bvh::BoundingVolumeHierarchy) = bvh_depth(bvh.root_node)
@@ -134,9 +138,9 @@ function intersect(bvh::BVHNode, bvh_structure::BoundingVolumeHierarchy,
         t_values = intersect(bvh.left_child, bvh_structure, ori_rays, dir_rays)
         # We do not need to check the ones which have already intersected but let's
         # keep the code simple for now
-        if !isnothing(bvh.right_child)
-            merge!(t_values, intersect(bvh.right_child, bvh_structure, ori_rays, dir_rays))
-        end
+        # if !isnothing(bvh.right_child)
+        merge!(t_values, intersect(bvh.right_child, bvh_structure, ori_rays, dir_rays))
+        # end
     end
     for k in keys(t_values)
         t_values[k] = place(t_values[k], hit, Inf)
