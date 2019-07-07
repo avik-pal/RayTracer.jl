@@ -10,14 +10,8 @@ function raytrace(origin::Vec3, direction::Vec3, scene::BoundingVolumeHierarchy,
     color = Vec3(0.0f0)
 
     for s in scene.scene_list
-        local d
-        # Zygote can't handle try/catch blocks
-        try
-            d = distances[s]
-        catch e
-            isa(e, KeyError) && continue
-            throw(e)
-        end
+        !haskey(distances, s) && continue
+        d = distances[s]
         hit = map((x, y, z) -> ifelse(y == z, x, zero(x)), h, d, nearest)
         if any(hit)
             dc = extract(hit, d)

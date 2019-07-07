@@ -64,6 +64,11 @@ function BVHNode(scene, index, centroid_dict)
     y_min, y_max = extrema(hcat([[s.v1.y[], s.v2.y[], s.v3.y[]] for s in scene]...))
     z_min, z_max = extrema(hcat([[s.v1.z[], s.v2.z[], s.v3.z[]] for s in scene]...))
     
+    if length(scene) <= 10
+        return BVHNode(x_min, x_max, y_min, y_max, z_min, z_max, index, index + length(scene) -1,
+                       nothing, nothing), scene
+    end
+    
     longest_direction = getindex([:x, :y, :z], 
                                  argmax([x_max - x_min, y_max - y_min, z_max - z_min]))
 
