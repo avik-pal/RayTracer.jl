@@ -20,7 +20,7 @@ show(io::IO, t::Triangle) =
 get_intersections_triangle(a, b, c, d) =
     (a > 0 && b > 0 && c > 0 && d > 0) ? a : bigmul(a)
 
-@adjoint function get_intersections_triangle(a::T, b::T, c::T, d::T) where {T}
+Zygote.@adjoint function get_intersections_triangle(a::T, b::T, c::T, d::T) where {T}
     res = get_intersections_triangle(a, b, c, d)
     function ∇get_intersections_triangle(Δ)
         if a > 0 && b > 0 && c > 0 && d > 0
