@@ -1,69 +1,168 @@
-# ------ #
-# Colors #
-# ------ #
-
-abstract type SurfaceColor end
-
-# -------------- #
-# - PlainColor - #
-# -------------- #
-
-mutable struct PlainColor <: SurfaceColor
-    color::Vec3
-    PlainColor(c::Vec3{T}) where {T} = new(clamp(c, eltype(T)(0), eltype(T)(1)))
-    PlainColor() = new(Vec3(0.0f0))
-end
-
-show(io::IO, pc::PlainColor) = print(io, "Plain Color - (", pc.color, ")")
-
-@diffops PlainColor
-
-diffusecolor(c::PlainColor, pt::Vec3) = c.color
-
-# -------------------- #
-# - CheckeredSurface - #
-# -------------------- #
-
-# FIXME: CheckeredSurface is not differentiable currently
-mutable struct CheckeredSurface <: SurfaceColor
-    color1::Vec3
-    color2::Vec3
-    CheckeredSurface(c1::Vec3{T1}, c2::Vec3{T2}) where {T1, T2} = new(clamp(c1, eltype(T1)(0), eltype(T1)(1)),
-                                                                      clamp(c2, eltype(T2)(0), eltype(T2)(1)))
-    CheckeredSurface() = new(Vec3(0.0f0), Vec3(0.0f0))
-end                                                                
-
-show(io::IO, cs::CheckeredSurface) = print(io, "Checkered Surface - (", cs.color1, ") + (", cs.color2, ")")
-
-@diffops CheckeredSurface
-
-# NOTE: We treat PlainColor as zero gradient for CheckeredSurface. We should define this
-#       in a more general fashion for future.
-cs::CheckeredSurface + ps::PlainColor = cs
-cs::CheckeredSurface - ps::PlainColor = cs
-ps::PlainColor + cs::CheckeredSurface = cs
-ps::PlainColor - cs::CheckeredSurface = cs
-
-function diffusecolor(c::CheckeredSurface, pt::Vec3)
-    checker = (Int.(floor.(abs.(pt.x .* 2.0f0))) .% 2) .==
-              (Int.(floor.(abs.(pt.z .* 2.0f0))) .% 2)
-    return c.color1 * checker + c.color2 * (1.0f0 .- checker)
-end
+export Material
 
 # --------- #
 # Materials #
 # --------- #
-
-# NOTE: For calculating the gradient of reflection it has to be an array
-mutable struct Material{S<:SurfaceColor, R<:Real}
-    color::S
+struct Material{T<:AbstractArray, R<:AbstractVector, U<:Union{Vec3, Nothing},
+                V<:Union{Vec3, Nothing}, W<:Union{Vec3, Nothing},
+                S<:Union{Vector, Nothing}}
+    # Color Information
+    color_ambient::Vec3{T}
+    color_diffuse::Vec3{T}
+    color_specular::Vec3{T}
+    # Surface Properties
+    specular_exponent::R
     reflection::R
+    # Texture Information
+    texture_ambient::U
+    texture_diffuse::V
+    texture_specular::W
+    # UV coordinates (relevant only for triangles)
+    uv_coordinates::S
 end
 
-show(io::IO, mat::Material) =
-    print(io, "Material: ", mat.color, ", Reflection - ", mat.reflection)
+Material(;color_ambient = Vec3(1.0f0), color_diffuse = Vec3(1.0f0),
+         color_specular = Vec3(1.0f0), specular_exponent::Real = 50.0f0,
+         reflection::Real = 0.5f0, texture_ambient = nothing, 
+         texture_diffuse = nothing, texture_specular = nothing,
+         uv_coordinates = nothing) =
+    Material(color_ambient, color_diffuse, color_specular, [specular_exponent],
+             [reflection], texture_ambient, texture_diffuse, texture_specular,
+             uv_coordinates)
 
 @diffops Material
 
-diffusecolor(m::Material, pt::Vec3) = diffusecolor(m.color, pt)
+function Base.zero(m::Material)
+    texture_ambient = isnothing(m.texture_ambient) ? nothing : zero(m.texture_ambient)
+    texture_diffuse = isnothing(m.texture_diffuse) ? nothing : zero(m.texture_diffuse)
+    texture_specular = isnothing(m.texture_specular) ? nothing : zero(m.texture_specular)
+    uv_coordinates = isnothing(m.uv_coordinates) ? nothing : zero.(m.uv_coordinates)
+    return Material(zero(m.color_ambient), zero(m.color_diffuse), zero(m.color_specular),
+                    zero(m.specular_exponent), zero(m.reflection), texture_ambient,
+                    texture_diffuse, texture_specular, uv_coordinates)
+end
 
+get_color(m::Material{T, R, Nothing, V, W, S}, pt::Vec3,
+          ::Val{:ambient}, obj) where {T<:AbstractArray, R<:AbstractVector,
+                                       V<:Union{Vec3, Nothing}, W<:Union{Vec3, Nothing},
+                                       S<:Union{Vector, Nothing}} =
+    m.color_ambient
+
+get_color(m::Material{T, R, U, Nothing, W, S}, pt::Vec3,
+          ::Val{:diffuse}, obj) where {T<:AbstractArray, R<:AbstractVector,
+                                       U<:Union{Vec3, Nothing}, W<:Union{Vec3, Nothing},
+                                       S<:Union{Vector, Nothing}} =
+    m.color_diffuse
+
+get_color(m::Material{T, R, U, V, Nothing, S}, pt::Vec3,
+          ::Val{:specular}, obj) where {T<:AbstractArray, R<:AbstractVector,
+                                        U<:Union{Vec3, Nothing}, V<:Union{Vec3, Nothing},
+                                        S<:Union{Vector, Nothing}} =
+    m.color_specular
+
+# This function is only available for triangles. Maybe I should put a
+# type constraint
+# The three functions are present only for type inference. Ideally Julia
+# should figure it out not sure why it is not the case.
+function get_color(m::Material, pt::Vec3, ::Val{:ambient}, obj)
+    v1v2 = obj.v2 - obj.v1
+    v1v3 = obj.v3 - obj.v1
+    normal = cross(v1v2, v1v3)
+    denom = l2norm(normal)
+    
+    edge2 = obj.v3 - obj.v2
+    vp2 = pt - obj.v2
+    u_bary = dot(normal, cross(edge2, vp2)) ./ denom
+
+    edge3 = obj.v1 - obj.v3
+    vp3 = pt - obj.v3
+    v_bary = dot(normal, cross(edge3, vp3)) ./ denom
+
+    w_bary = 1 .- u_bary .- v_bary
+
+    u = u_bary .* m.uv_coordinates[1][1] .+
+        v_bary .* m.uv_coordinates[2][1] .+
+        w_bary .* m.uv_coordinates[3][1]
+    v = u_bary .* m.uv_coordinates[1][2] .+
+        v_bary .* m.uv_coordinates[2][2] .+
+        w_bary .* m.uv_coordinates[3][2]
+
+    # which_texture, which_color = infer_index(f)
+    image = Zygote.literal_getproperty(m, Val(:texture_ambient))
+    width, height = size(image)
+    x_val = mod1.((Int.(ceil.(u .* width)) .- 1), width)
+    y_val = mod1.((Int.(ceil.(v .* height)) .- 1), height)
+    # Zygote doesn't like me using a splat operation here :'(
+    img = image[x_val .+ (y_val .- 1) .* stride(image.x, 2)]
+    return Zygote.literal_getproperty(m, Val(:color_ambient)) * Vec3(img.x, img.y, img.z)
+end
+
+function get_color(m::Material, pt::Vec3, ::Val{:diffuse}, obj)
+    v1v2 = obj.v2 - obj.v1
+    v1v3 = obj.v3 - obj.v1
+    normal = cross(v1v2, v1v3)
+    denom = l2norm(normal)
+    
+    edge2 = obj.v3 - obj.v2
+    vp2 = pt - obj.v2
+    u_bary = dot(normal, cross(edge2, vp2)) ./ denom
+
+    edge3 = obj.v1 - obj.v3
+    vp3 = pt - obj.v3
+    v_bary = dot(normal, cross(edge3, vp3)) ./ denom
+
+    w_bary = 1 .- u_bary .- v_bary
+
+    u = u_bary .* m.uv_coordinates[1][1] .+
+        v_bary .* m.uv_coordinates[2][1] .+
+        w_bary .* m.uv_coordinates[3][1]
+    v = u_bary .* m.uv_coordinates[1][2] .+
+        v_bary .* m.uv_coordinates[2][2] .+
+        w_bary .* m.uv_coordinates[3][2]
+
+    # which_texture, which_color = infer_index(f)
+    image = Zygote.literal_getproperty(m, Val(:texture_diffuse))
+    width, height = size(image)
+    x_val = mod1.((Int.(ceil.(u .* width)) .- 1), width)
+    y_val = mod1.((Int.(ceil.(v .* height)) .- 1), height)
+    # Zygote doesn't like me using a splat operation here :'(
+    img = image[x_val .+ (y_val .- 1) .* stride(image.x, 2)]
+    return Zygote.literal_getproperty(m, Val(:color_diffuse)) * Vec3(img.x, img.y, img.z)
+end
+
+function get_color(m::Material, pt::Vec3, ::Val{:specular}, obj)
+    v1v2 = obj.v2 - obj.v1
+    v1v3 = obj.v3 - obj.v1
+    normal = cross(v1v2, v1v3)
+    denom = l2norm(normal)
+    
+    edge2 = obj.v3 - obj.v2
+    vp2 = pt - obj.v2
+    u_bary = dot(normal, cross(edge2, vp2)) ./ denom
+
+    edge3 = obj.v1 - obj.v3
+    vp3 = pt - obj.v3
+    v_bary = dot(normal, cross(edge3, vp3)) ./ denom
+
+    w_bary = 1 .- u_bary .- v_bary
+
+    u = u_bary .* m.uv_coordinates[1][1] .+
+        v_bary .* m.uv_coordinates[2][1] .+
+        w_bary .* m.uv_coordinates[3][1]
+    v = u_bary .* m.uv_coordinates[1][2] .+
+        v_bary .* m.uv_coordinates[2][2] .+
+        w_bary .* m.uv_coordinates[3][2]
+
+    # which_texture, which_color = infer_index(f)
+    image = Zygote.literal_getproperty(m, Val(:texture_specular))
+    width, height = size(image)
+    x_val = mod1.((Int.(ceil.(u .* width)) .- 1), width)
+    y_val = mod1.((Int.(ceil.(v .* height)) .- 1), height)
+    # Zygote doesn't like me using a splat operation here :'(
+    img = image[x_val .+ (y_val .- 1) .* stride(image.x, 2)]
+    return Zygote.literal_getproperty(m, Val(:color_specular)) * Vec3(img.x, img.y, img.z)
+end
+
+specular_exponent(m::Material) = m.specular_exponent[]
+
+reflection(m::Material) = m.reflection[]

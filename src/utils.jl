@@ -25,7 +25,7 @@ the gradients w.r.t the fields using the `Params` API of Zygote.
 * `maximum`, `minimum`
 * `size`
 """
-mutable struct Vec3{T<:AbstractArray}
+struct Vec3{T<:AbstractArray}
     x::T
     y::T
     z::T
@@ -49,7 +49,7 @@ Vec3(a::T) where {T<:AbstractArray} = Vec3(copy(a), copy(a), copy(a))
 Vec3(a::T, b::T, c::T) where {T<:Real} = Vec3([a], [b], [c])
 
 function show(io::IO, v::Vec3)
-    l = size(v)[1]
+    l = prod(size(v))
     if l == 1
         print(io, "x = ", v.x[], ", y = ", v.y[], ", z = ", v.z[])
     elseif l <= 5
@@ -99,7 +99,7 @@ end
     return (a / sqrt.(l2))
 end
 
-@inline cross(a::Vec3, b::Vec3) =
+@inline cross(a::Vec3{T}, b::Vec3{T}) where {T} =
     Vec3(a.y .* b.z .- a.z .* b.y, a.z .* b.x .- a.x .* b.z,
          a.x .* b.y .- a.y .* b.x)
 
@@ -111,7 +111,7 @@ end
 
 @inline size(v::Vec3) = size(v.x)
 
-@inline getindex(v::Vec3, idx) = (x = v.x[idx], y = v.y[idx], z = v.z[idx])
+@inline getindex(v::Vec3, idx...) = (x = v.x[idx...], y = v.y[idx...], z = v.z[idx...])
 
 """
     place(a::Vec3, cond)
@@ -133,6 +133,19 @@ function place(a::Vec3, cond)
     return r
 end
 
+function place(a::Array, cond, val = 0)
+    r = fill(eltype(a)(val), size(cond)...)
+    r[cond] .= a
+    return r
+end
+
+function place_idx!(a::Vec3, b::Vec3, idx)
+    a.x[idx] .= b.x
+    a.y[idx] .= b.y
+    a.z[idx] .= b.z
+    return a
+end
+
 Base.clamp(v::Vec3, lo, hi) = Vec3(clamp.(v.x, lo, hi), clamp.(v.y, lo, hi), clamp.(v.z, lo, hi))
 
 for f in (:zero, :similar, :one)
@@ -140,7 +153,6 @@ for f in (:zero, :similar, :one)
         Base.$(f)(v::Vec3) = Vec3($(f)(v.x), $(f)(v.y), $(f)(v.z))
     end
 end
-
 
 # ----- #
 # Color #
@@ -205,9 +217,19 @@ the gradient to be `0` instead of `nothing` as in case of typemax.
 """
 @inline bigmul(x) = typemax(x)
 
-@inline isnotbigmul(x) = !isinf(x)
+function camera2world(point::Vec3, camera_to_world)
+    result = camera2world([point.x point.y point.z], camera_to_world)
+    return Vec3(result[:, 1], result[:, 2], result[:, 3])
+end
 
-@inline hashit(h, d, n) = h * (d == n)
+camera2world(point::Array, camera_to_world) = point * camera_to_world[1:3, 1:3] .+ camera_to_world[4, 1:3]'
+    
+function world2camera(point::Vec3, world_to_camera)
+    result = world2camera([point.x point.y point.z], world_to_camera)
+    return Vec3(result[:, 1], result[:, 2], result[:, 3])
+end
+
+world2camera(point::Array, world_to_camera) = point * world_to_camera[1:3, 1:3] .+ world_to_camera[4, 1:3]'
 
 # ----------------- #
 # - Helper Macros - #
@@ -233,21 +255,26 @@ macro diffops(a)
     quote
         # Addition for gradient accumulation
         function $(esc(:+))(x::$(esc(a)), y::$(esc(a)))
-            return $(esc(a))([getfield(x, i) + getfield(y, i) for i in fieldnames($(esc(a)))]...)
+            return $(esc(a))([(isnothing(getfield(x, i)) || isnothing(getfield(y, i))) ? nothing :
+                              getfield(x, i) + getfield(y, i) for i in fieldnames($(esc(a)))]...)
         end
         # Subtraction for gradient updates
         function $(esc(:-))(x::$(esc(a)), y::$(esc(a)))
-            return $(esc(a))([getfield(x, i) - getfield(y, i) for i in fieldnames($(esc(a)))]...)
+            return $(esc(a))([(isnothing(getfield(x, i)) || isnothing(getfield(y, i))) ? nothing :
+                              getfield(x, i) - getfield(y, i) for i in fieldnames($(esc(a)))]...)
         end
         # Multiply for learning rate and misc ops
         function $(esc(:*))(x::T, y::$(esc(a))) where {T<:Real}
-            return $(esc(a))([x * getfield(y, i) for i in fieldnames($(esc(a)))]...)
+            return $(esc(a))([isnothing(getfield(y, i)) ? nothing :
+                              x * getfield(y, i) for i in fieldnames($(esc(a)))]...)
         end
         function $(esc(:*))(x::$(esc(a)), y::T) where {T<:Real}
-            return $(esc(a))([getfield(x, i) * y for i in fieldnames($(esc(a)))]...)
+            return $(esc(a))([isnothing(getfield(x, i)) ? nothing :
+                              getfield(x, i) * y for i in fieldnames($(esc(a)))]...)
         end
         function $(esc(:*))(x::$(esc(a)), y::$(esc(a)))
-            return $(esc(a))([getfield(x, i) * getfield(y, i) for i in fieldnames($(esc(a)))]...)
+            return $(esc(a))([(isnothing(getfield(x, i)) || isnothing(getfield(y, i))) ? nothing :
+                              getfield(x, i) * getfield(y, i) for i in fieldnames($(esc(a)))]...)
         end
     end
 end
@@ -274,4 +301,3 @@ for op in (:+, :*, :-, :/, :%)
         @inline $(op)(a, b::FixedParams) = b
     end
 end
-

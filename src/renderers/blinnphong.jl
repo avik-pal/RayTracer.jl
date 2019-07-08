@@ -12,8 +12,8 @@ internal usage and should in no case be called by the user. This function is
 quite general and supports user defined **Objects**. For support of custom
 Objects have a look at the examples.
 """
-function light(s::S, origin, direction, dist, lgt::L, eye_pos,
-               scene, obj_num, bounce) where {S<:Object, L<:Light}
+function light(s::Object, origin, direction, dist, lgt::Light, eye_pos,
+               scene, obj_num, bounce)
     pt = origin + direction * dist
     normal = get_normal(s, pt, direction)
     dir_light, intensity = get_shading_info(lgt, pt)
@@ -25,22 +25,22 @@ function light(s::S, origin, direction, dist, lgt::L, eye_pos,
     seelight = fseelight(obj_num, light_distances)
 
     # Ambient
-    color = rgb(0.05f0)
+    color = get_color(s, pt, Val(:ambient))
 
     # Lambert Shading (diffuse)
     visibility = max.(dot(normal, dir_light), 0.0f0)
-    color += ((diffusecolor(s, pt) * intensity) * visibility) * seelight
+    color += ((get_color(s, pt, Val(:diffuse)) * intensity) * visibility) * seelight
     
     # Reflection
     if bounce < 2
         rayD = normalize(direction - normal * 2.0f0 * dot(direction, normal))
-        color += raytrace(nudged, rayD, scene, lgt, eye_pos, bounce + 1) *
-                 s.material.reflection
+        color += raytrace(nudged, rayD, scene, lgt, eye_pos, bounce + 1) * reflection(s)
     end
 
     # Blinn-Phong shading (specular)
     phong = dot(normal, normalize(dir_light + dir_origin))
-    color += (rgb(1.0f0) * (clamp.(phong, 0.0f0, 1.0f0) .^ 50)) * seelight
+    color += (get_color(s, pt, Val(:specular)) *
+              (clamp.(phong, 0.0f0, 1.0f0) .^ specular_exponent(s))) * seelight
 
     return color
 end
@@ -67,28 +67,25 @@ much faster if global illumination is off but at the same time is much less phot
     do so. Nevertheless it exists just for the sake of experimentation.
 """
 function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
-                  lgt::L, eye_pos::Vec3, bounce::Int = 0) where {L<:Light}
+                  lgt::Light, eye_pos::Vec3, bounce::Int = 0)
     distances = map(x -> intersect(x, origin, direction), scene)
 
-    dist_reshaped = hcat(distances...)
+    dist_reshaped = reducehcat(distances)
     nearest = map(idx -> minimum(dist_reshaped[idx, :]), 1:size(dist_reshaped, 1))
 
-    h = isnotbigmul.(nearest)
+    h = .!isinf.(nearest)
 
-    color = rgb(0.0f0)
+    color = Vec3(0.0f0)
 
-    c = 1
-    for s in scene
-        d = distances[c]
-        hit = hashit.(h, d, nearest)
-        if sum(hit) != 0
+    for (c, (s, d)) in enumerate(zip(scene, distances))
+        hit = map((x, y, z) -> ifelse(y == z, x, zero(x)), h, d, nearest)
+        if any(hit)
             dc = extract(hit, d)
             originc = extract(hit, origin)
             dirc = extract(hit, direction)
             cc = light(s, originc, dirc, dc, lgt, eye_pos, scene, c, bounce)
             color += place(cc, hit)
         end
-        c += 1
     end
 
     return color
@@ -98,14 +95,22 @@ end
 #        a light vector in the `light` function itself.
 function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
                   lgt::Vector{L}, eye_pos::Vec3, bounce::Int = 0) where {L<:Light}
-    colors = pmap(x -> raytrace(origin, direction, scene, x, eye_pos, 0), lgt)
+    colors = pmap(x -> raytrace(origin, direction, scene, x, eye_pos, bounce), lgt)
     return sum(colors)
 end
 
+# ------------------------ #
+# General Helper Functions #
+# ------------------------ #
+
 function fseelight(n, light_distances)
-    ldist = hcat(light_distances...)
+    ldist = reducehcat(light_distances)
     seelight = map(idx -> minimum(ldist[idx, :]) == ldist[idx,n], 1:size(ldist, 1))
     return seelight
 end
 
 # fseelight(n, light_distances) = map((x...) -> min(x...) == x[n], light_distances...)
+
+# The version of Zygote we are currently using can't differentiate through this
+# function. So we define a custom adjoint for this
+reducehcat(x) = reduce(hcat, x)

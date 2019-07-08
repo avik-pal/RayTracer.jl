@@ -13,24 +13,23 @@ end
 
 screen_size = (w = 400, h = 300)
 
-light = PointLight(Vec3(1.0), 1000.0, Vec3(0.15, 0.5, -110.5))
+light = PointLight(Vec3(1.0f0), 1000.0f0, Vec3(0.15f0, 0.5f0, -110.5f0))
 
-eye_pos = Vec3(0.0, 0.0, -5.0)
+eye_pos = Vec3(0.0f0, 0.0f0, -5.0f0)
 
-cam = Camera(eye_pos, Vec3(0.0), Vec3(0.0, 1.0, 0.0), 45.0, 1.0, screen_size...)
+cam = Camera(eye_pos, Vec3(0.0f0), Vec3(0.0f0, 1.0f0, 0.0f0), 45.0f0, 1.0f0, screen_size...)
 
 origin, direction = get_primary_rays(cam);
 
 @testset "Triangle" begin
-
     scene = [
-        Triangle(Vec3(-1.7, 1.0, 0.0), Vec3(1.0, 1.0, 0.0), Vec3(1.0, -1.0, 0.0),
-                 color = rgb(1.0, 1.0, 1.0), reflection = 0.5)
+        Triangle(Vec3(-1.7f0, 1.0f0, 0.0f0), Vec3(1.0f0, 1.0f0, 0.0f0), Vec3(1.0f0, -1.0f0, 0.0f0),
+                 Material())
     ]
 
     scene_new = [
-        Triangle(Vec3(-1.9, 1.3, 0.1), Vec3(1.2, 1.1, 0.3), Vec3(0.8, -1.2, -0.15),
-                 color = rgb(1.0, 1.0, 1.0), reflection = 0.5)
+        Triangle(Vec3(-1.9f0, 1.3f0, 0.1f0), Vec3(1.2f0, 1.1f0, 0.3f0), Vec3(0.8f0, -1.2f0, -0.15f0),
+                 Material())
     ]
     
     color = raytrace(origin, direction, scene, light, eye_pos, 0)
@@ -41,17 +40,15 @@ origin, direction = get_primary_rays(cam);
 
     # Ignore the Material Gradients
     @test isapprox(numerical_grads[1:end-4], zygote_grads[1:end-4], rtol = 1.0e-1)
-
 end
     
 @testset "Sphere" begin
-
     scene = [
-        SimpleSphere(Vec3(-1.7, 1.0, 0.0), 0.6, color = rgb(1.0, 1.0, 1.0), reflection = 0.5)
+        Sphere(Vec3(-1.7f0, 1.0f0, 0.0f0), [0.6f0], Material())
     ]
 
     scene_new = [
-        SimpleSphere(Vec3(-1.9, 1.3, 0.1), 0.9, color = rgb(1.0, 1.0, 1.0), reflection = 0.5)
+        Sphere(Vec3(-1.9f0, 1.3f0, 0.1f0), [0.9f0], Material())
     ]
     
     color = raytrace(origin, direction, scene, light, eye_pos, 0)
@@ -62,5 +59,4 @@ end
 
     # Ignore the Material Gradients
     @test isapprox(numerical_grads[1:end-5], zygote_grads[1:end-5], rtol = 1.0e-1)
-
 end

@@ -1,48 +1,4 @@
-export load_obj, TriangleMesh
-
-# ------------ #
-# - Load OBJ - #
-# ------------ #
-
-function triangulate_faces(vertices::Vector, faces::Vector)
-    scene = Vector{Triangle}()
-    for face in faces
-        for i in 2:(length(face) - 1)
-            push!(scene, Triangle(deepcopy(vertices[face[1]]),
-                                  deepcopy(vertices[face[i]]),
-                                  deepcopy(vertices[face[i + 1]])))
-        end
-    end
-    return scene
-end
-
-function load_obj(file, outtype = Float32)
-    vertices = Vector{Vec3{Vector{outtype}}}()
-    texture_coordinates = Vector{Tuple}()
-    normals = Vector{Vec3{Vector{outtype}}}()
-    faces = Vector{Vector{Int}}()
-    for line in eachline(file)
-        wrds = split(line)
-        isempty(wrds) && continue
-        if wrds[1] == "v" # Vertices
-            push!(vertices, Vec3(parse.(outtype, wrds[2:4])...))
-        elseif wrds[1] == "vt" # Texture Coordinates
-            push!(texture_coordinates, tuple(parse.(outtype, wrds[2:3])...))
-        elseif wrds[1] == "vn" # Normal
-            push!(normals, Vec3(parse.(outtype, wrds[2:4])...))
-        elseif wrds[1] == "f" # Faces
-            # Currently we shall only be concerned with the vertices of the face
-            # and safely throw away texture and normal information
-            push!(faces, parse.(Int, first.(split.(wrds[2:end], '/', limit = 2))))
-        end
-    end
-    return triangulate_faces(vertices, faces)
-end
-
-function construct_outer_normals(t::Vector{Triangle})
-    centroid = sum(map(x -> (x.v1 + x.v2 + x.v3) / 3, t)) / length(t)
-    return map(x -> get_normal(x, Vec3(0.0f0), x.v1 - centroid), t)
-end
+export TriangleMesh
 
 # ----------------- #
 # - Triangle Mesh - #
@@ -54,22 +10,27 @@ end
 # intersect call recompute everything, so we prefer to avoid this extra computation
 # for now.
 # The `intersections` store point to index of triangle mapping for getting the normals
-mutable struct FixedTriangleMeshParams <: FixedParams
+struct FixedTriangleMeshParams{V} <: FixedParams
     intersections::IdDict
-    normals::Vector{Vec3}
+    normals::Vector{Vec3{V}}
 end
 
-mutable struct TriangleMesh <: Object
-    triangulated_mesh::Vector{Triangle}
-    material::Material
-    ftmp::FixedTriangleMeshParams
+struct TriangleMesh{V, P, Q, R, S, T, U} <: Object
+    triangulated_mesh::Vector{Triangle{V, P, Q, R, S, T, U}}
+    material::Material{P, Q, R, S, T, U}
+    ftmp::FixedTriangleMeshParams{V}
+end
+
+function construct_outer_normals(t::Vector{Triangle})
+    centroid = sum(map(x -> (x.v1 + x.v2 + x.v3) / 3, t)) / length(t)
+    return map(x -> get_normal(x, Vec3(0.0f0), x.v1 - centroid), t)
 end
 
 @diffops TriangleMesh
             
-TriangleMesh(scene::Vector{Triangle}, color = rgb(0.5f0), reflection = 0.5f0) =
-    TriangleMesh(scene, Material(PlainColor(color), reflection),
-                 FixedTriangleMeshParams(IdDict(), construct_outer_normals(scene)))
+TriangleMesh(scene::Vector{Triangle}, mat::Material) =
+    TriangleMesh(scene, mat, FixedTriangleMeshParams(IdDict(),
+                                                     construct_outer_normals(scene)))
 
 function intersect(t::TriangleMesh, origin, direction)
     distances = map(s -> intersect(s, origin, direction), t.triangulated_mesh)

@@ -4,3 +4,4 @@
 deps/deps.jl
 .stale
 build
+.ipynb*

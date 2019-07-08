@@ -4,11 +4,11 @@ export Triangle
 # - Triangle - #
 # ------------ #
 
-mutable struct Triangle{V} <: Object
+struct Triangle{V, P, Q, R, S, T, U} <: Object
     v1::Vec3{V}
     v2::Vec3{V}
     v3::Vec3{V}
-    material::Material
+    material::Material{P, Q, R, S, T, U}
 end
 
 show(io::IO, t::Triangle) =
@@ -17,29 +17,19 @@ show(io::IO, t::Triangle) =
 
 @diffops Triangle
 
-# The next 2 functions are just convenience functions for handling
-# gradients properly for getproperty function
-function Triangle(v::Vec3{T}, sym::Symbol) where {T}
-    z = eltype(T)(0)
-    mat = Material(PlainColor(rgb(z)), z)
-    if sym == :v1
-        return Triangle(v, Vec3(z), Vec3(z), mat)
-    elseif sym == :v2
-        return Triangle(Vec3(z), v, Vec3(z), mat)
-    elseif sym == :v3
-        return Triangle(Vec3(z), Vec3(z), v, mat)
+get_intersections_triangle(a, b, c, d) =
+    (a > 0 && b > 0 && c > 0 && d > 0) ? a : bigmul(a)
+
+Zygote.@adjoint function get_intersections_triangle(a::T, b::T, c::T, d::T) where {T}
+    res = get_intersections_triangle(a, b, c, d)
+    function ∇get_intersections_triangle(Δ)
+        if a > 0 && b > 0 && c > 0 && d > 0
+            return (Δ, T(0), T(0), T(0))
+        else
+            return (T(0), T(0), T(0), T(0))
+        end
     end
-end
-
-# Symbol argument not needed but helps in writing the adjoint code
-function Triangle(mat::Material{S, R}, ::Symbol) where {S, R}
-    z = R(0)
-    return Triangle(Vec3(z), Vec3(z), Vec3(z), mat)
-end
-
-function Triangle(v1::Vec3, v2::Vec3, v3::Vec3; color = rgb(0.5f0), reflection = 0.5f0)
-    mat = Material(PlainColor(color), reflection)
-    return Triangle(v1, v2, v3, mat)
+    return res, ∇get_intersections_triangle
 end
 
 function intersect(t::Triangle, origin, direction)
@@ -55,38 +45,17 @@ function intersect(t::Triangle, origin, direction)
     val1 = dot(normal, cross(edge1, c₁))
     val2 = dot(normal, cross(edge2, c₂))
     val3 = dot(normal, cross(edge3, c₃))
-    get_intersections(a, b, c, d) =
-        (a > 0 && b > 0 && c > 0 && d > 0) ? a : bigmul(a + b + c + d)
-    result = broadcast(get_intersections, h, val1, val2, val3)
+    result = broadcast(get_intersections_triangle, h, val1, val2, val3)
     return result
-    # NOTE: Moller Trumbore as implemented here is slower than the
-    #       above implementation
-    #=
-    v12 = t.v2 - t.v1
-    v13 = t.v3 - t.v1
-    pvec = cross(direction, v13)
-    det = dot(v12, pvec)
-    invdet = 1 / det
-
-    tvec = origin - t.v1
-    u = dot(tvec, pvec) .* invdet
-    qvec = cross(tvec, v12)
-    v = dot(direction, qvec) .* invdet
-    t = dot(v12, qvec) .* invdet
-
-    get_intersections(a, b, c) = (a < 0 || b < 0 || a > 1 || (a + b) > 1) ? bigmul(a + b + c) : c
-
-    result = broadcast(get_intersections, u, v, t)
-    return result
-    =#
 end
 
 function get_normal(t::Triangle, pt, dir)
     # normal not expanded
     normal_nexp = normalize(cross(t.v2 - t.v1, t.v3 - t.v1))
-    direction = -sign.(dot(normal_nexp, dir))
-    normal = Vec3(repeat(normal_nexp.x, inner = size(pt.x)),
-                  repeat(normal_nexp.y, inner = size(pt.y)),
-                  repeat(normal_nexp.z, inner = size(pt.z)))
-    return normal * direction
+    # direction = -sign.(dot(normal_nexp, dir))
+    # normal = Vec3(repeat(normal_nexp.x, inner = size(pt.x)),
+    #               repeat(normal_nexp.y, inner = size(pt.y)),
+    #               repeat(normal_nexp.z, inner = size(pt.z)))
+    # return normal * direction
+    return normal_nexp
 end
