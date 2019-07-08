@@ -67,7 +67,7 @@ much faster if global illumination is off but at the same time is much less phot
     do so. Nevertheless it exists just for the sake of experimentation.
 """
 function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
-                  lgt::L, eye_pos::Vec3, bounce::Int = 0) where {L<:Light}
+                  lgt::Light, eye_pos::Vec3, bounce::Int = 0)
     distances = map(x -> intersect(x, origin, direction), scene)
 
     dist_reshaped = reducehcat(distances)

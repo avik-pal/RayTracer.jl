@@ -17,6 +17,21 @@ show(io::IO, t::Triangle) =
 
 @diffops Triangle
 
+get_intersections_triangle(a, b, c, d) =
+    (a > 0 && b > 0 && c > 0 && d > 0) ? a : bigmul(a)
+
+@adjoint function get_intersections_triangle(a::T, b::T, c::T, d::T) where {T}
+    res = get_intersections_triangle(a, b, c, d)
+    function ∇get_intersections_triangle(Δ)
+        if a > 0 && b > 0 && c > 0 && d > 0
+            return (Δ, T(0), T(0), T(0))
+        else
+            return (T(0), T(0), T(0), T(0))
+        end
+    end
+    return res, ∇get_intersections_triangle
+end
+
 function intersect(t::Triangle, origin, direction)
     normal = normalize(cross(t.v2 - t.v1, t.v3 - t.v1))
     h = (-dot(normal, origin) .+ dot(normal, t.v1)) ./ dot(normal, direction)
@@ -30,18 +45,17 @@ function intersect(t::Triangle, origin, direction)
     val1 = dot(normal, cross(edge1, c₁))
     val2 = dot(normal, cross(edge2, c₂))
     val3 = dot(normal, cross(edge3, c₃))
-    get_intersections(a, b, c, d) =
-        (a > 0 && b > 0 && c > 0 && d > 0) ? a : bigmul(a + b + c + d)
-    result = broadcast(get_intersections, h, val1, val2, val3)
+    result = broadcast(get_intersections_triangle, h, val1, val2, val3)
     return result
 end
 
 function get_normal(t::Triangle, pt, dir)
     # normal not expanded
     normal_nexp = normalize(cross(t.v2 - t.v1, t.v3 - t.v1))
-    direction = -sign.(dot(normal_nexp, dir))
-    normal = Vec3(repeat(normal_nexp.x, inner = size(pt.x)),
-                  repeat(normal_nexp.y, inner = size(pt.y)),
-                  repeat(normal_nexp.z, inner = size(pt.z)))
-    return normal * direction
+    # direction = -sign.(dot(normal_nexp, dir))
+    # normal = Vec3(repeat(normal_nexp.x, inner = size(pt.x)),
+    #               repeat(normal_nexp.y, inner = size(pt.y)),
+    #               repeat(normal_nexp.z, inner = size(pt.z)))
+    # return normal * direction
+    return normal_nexp
 end
