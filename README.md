@@ -24,11 +24,63 @@ For GPU Support
 
 ## USAGE EXAMPLES
 
-For usage examples look into the `examples` directory. Also the documentation has some getting
-started examples.
+Follow the instructions below to run individual code examples or use
+`code/script.sh` to run all of them together.
+
+First we need to get the versions of the packages used when these
+examples were written.
+
+**NOTE:** We have tested the examples on versions of Julia >= 1.1.
+          It is known that the RayTracer won't function in Julia 1.0.
+
+```bash
+$ cd code
+$ julia --color=yes -e "using Pkg; Pkg.instantiate()"
+```
+
+Now we can run any of the file we need by
+`julia --project=. --color=yes "/path/to/file"`
+
+### Some specific things for certain examples
+
+1. For the `teapot` rendering we need to download the `obj` file.
+
+`wget https://raw.githubusercontent.com/McNopper/OpenGL/master/Binaries/teapot.obj`
+
+2. For the performance benchmarks:
+
+```bash
+$ mkdir meshes
+$ cd meshes
+$ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/meshes/sign_yield.obj
+$ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/meshes/sign_yield.mtl1
+$ cd ..
+
+$ mkdir textures
+$ cd textures
+$ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/textures/wood_osb.jpg
+$ wget raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/textures/sign_yield.png
+$ cd ..
+```
+
+This example requires a few arguments to be passes from command line. Chack them using
+
+`julia  --project=. --color=yes "performance_benchmarks.jl" --help`
+
+### Additional Examples
 
 [Duckietown.jl](https://github.com/tejank10/Duckietown.jl) uses RayTracer.jl for generating renders
 of a self-driving car environment. For more complex examples of RayTracer, checkout that project.
+
+## JULIACON PAPER
+
+## Build Instructions
+
+```bash
+$ cd paper
+$ latexmk -bibtex -pdf paper.tex
+$ latexmk -c
+```
 
 ## CURRENT ROADMAP
 

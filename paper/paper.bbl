@@ -1,0 +1,44 @@
+\begin{thebibliography}{1}
+
+\bibitem{jax}
+Jax.
+\url{https://github.com/google/jax}, 2018.
+
+\bibitem{bezanson2017julia}
+Jeff Bezanson, Alan Edelman, Stefan Karpinski, and Viral~B Shah.
+Julia: A fresh approach to numerical computing.
+{\em SIAM review}, 59(1):65--98, 2017.
+
+\bibitem{DBLP:journals/corr/abs-1810-07951}
+Michael Innes.
+Don't unroll adjoint: Differentiating ssa-form programs.
+{\em CoRR}, abs/1810.07951, 2018.
+
+\bibitem{Flux.jl-2018}
+Michael Innes, Elliot Saba, Keno Fischer, Dhairya Gandhi, Marco~Concetto
+  Rudilosso, Neethu~Mariya Joy, Tejan Karmali, Avik Pal, and Viral Shah.
+Fashionable modelling with flux.
+{\em CoRR}, abs/1811.01457, 2018.
+
+\bibitem{Kay:1986:RTC:15922.15916}
+Timothy~L. Kay and James~T. Kajiya.
+Ray tracing complex scenes.
+In {\em Proceedings of the 13th Annual Conference on Computer Graphics and
+  Interactive Techniques}, SIGGRAPH '86, pages 269--278, New York, NY, USA,
+  1986. ACM.
+
+\bibitem{kingma2014adam}
+Diederik~P. Kingma and Jimmy Ba.
+Adam: A method for stochastic optimization, 2014.
+
+\bibitem{Li:2018:DMC}
+Tzu-Mao Li, Miika Aittala, Fr{\'e}do Durand, and Jaakko Lehtinen.
+Differentiable monte carlo ray tracing through edge sampling.
+{\em ACM Trans. Graph. (Proc. SIGGRAPH Asia)}, 37(6):222:1--222:11, 2018.
+
+\bibitem{RayTracer.jl}
+Avik Pal.
+Raytracer.jl.
+\url{https://github.com/avik-pal/RayTracer.jl}, 2019.
+
+\end{thebibliography}
