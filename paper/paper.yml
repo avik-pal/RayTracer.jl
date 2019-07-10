@@ -1,4 +1,4 @@
-title: "RayTracer.jl: A General Purpose Differentiable Renderer"
+title: "RayTracer.jl: A Differentiable Renderer that supports Parameter Optimization for Scene Reconstruction"
 keywords:
   - Julia
   - Differentiable Programming
