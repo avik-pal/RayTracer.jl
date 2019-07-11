@@ -37,7 +37,7 @@ update!(opt, x::T, Δ::T) where {T<:Real} = (update!(opt, [x], [Δ]))[]
 # This makes sure we donot end up optimizing the value of the material.
 # We cannot do this update in a stable manner for now. So it is wise
 # to just avoid it for now.
-update!(opt, x::Material, Δ::Material) = x
+# update!(opt, x::Material, Δ::Material) = x
 
 update!(opt, x::FixedParams, Δ::FixedParams) = x 
 

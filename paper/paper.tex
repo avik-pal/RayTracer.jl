@@ -86,11 +86,16 @@ In this paper, we explore the idea of differentiability through a renderer, by l
 
 There are several photo-realistic renderers available which contain a vast amount of implicit knowledge. Differentiation allows such renderers to make use of gradients to learn the inverse mapping from an image to its parameter space. This knowledge can then be used in combination with any machine learning / deep learning models to train them in a fast and efficient manner. Experiments in \cite{retinaface} demonstrate the effectiveness of incorporate differentiable renderers in deep learning pipelines by achieving State of the Art results in WIDERFace Hard dataset.
 
-However, as usual it is difficult to compute efficient derivatives from a production-ready renderer, typically written in a performance language like C++. This provides the primary motivation towards the development of RayTracer.jl. We develop an entire general purpose ray tracer in a high level numerical computation language. The presence of strong automatic differentiation libraries like Zygote.jl make it trivial to compute efficient derivatives from the renderer.
+However, as usual it is difficult to compute efficient derivatives from a production-ready renderer, typically written in a performance language like C++. This provides the primary motivation towards the development of RayTracer.jl. We develop an entire general purpose ray tracer in a high level numerical computation language. The presence of strong automatic differentiation libraries like Zygote.jl make it trivial to compute efficient derivatives from the renderer. We present the performance gains we get on using Zygote as compared to Central Differencing in Figure~\ref{fig:ad_perf}.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\linewidth, height=150px]{images/differentiation.png}
+    \caption{Performance Comparison between Zygote AD and Numerical Differentiation}
+    \label{fig:ad_perf}
+\end{figure}
 
 RayTracer.jl \cite{RayTracer.jl} is a package for Differentiable Ray Tracing written to solve this particular issue. It relies heavily on the source-to-source automatic differentiation package, Zygote for computing gradients with respect to arbitrary scene parameters. This package allows the user to configure the location of objects, lights and a camera in the scene. This scene is then interpreted by the renderer to generate the image. RayTracer.jl is naturally interfaced with the deep learning library Flux \cite{Flux.jl-2018}, due to the common AD backend, for use in more complex differentiable pipelines.
-
-\todo[inline]{Add graphs comparing finite differencing to AD}
 
 \section{Scene Rendering}
 

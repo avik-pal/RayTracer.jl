@@ -55,11 +55,21 @@ end
     
 @testset "Sphere" begin
     scene = [
-        Sphere(Vec3(-1.7, 1.0, 0.0), [0.6], Material())
+        Sphere(Vec3(-1.7, 1.0, 0.0), [0.6],
+               Material(color_ambient = Vec3(1.0),
+                        color_diffuse = Vec3(1.0),
+                        color_specular = Vec3(1.0),
+                        specular_exponent = 50.0,
+                        reflection = 1.0))
     ]
 
     scene_new = [
-        Sphere(Vec3(-1.9, 1.3, 0.1), [0.9], Material())
+        Sphere(Vec3(-1.9, 1.3, 0.1), [0.9],
+	       Material(color_ambient = Vec3(1.0),
+                        color_diffuse = Vec3(1.0),
+                        color_specular = Vec3(1.0),
+                        specular_exponent = 50.0,
+                        reflection = 1.0))
     ]
     
     color = raytrace(origin, direction, scene, light, eye_pos, 0)
