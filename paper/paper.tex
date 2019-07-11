@@ -23,7 +23,7 @@
 \maketitle
 
 \begin{abstract}
-In this paper we present RayTracer.jl, a renderer in Julia that is fully differentiable using source-to-source Automatic Differentiation (AD). This means that RayTracer not only renders 2D images from 3D scene parameters, but it can be used to optimize for model parameters that generate a target image in a Differentiable Programming (DP) pipeline. We interface our renderer with the deep learning library Flux for use in combination with neural networks. We demonstrate the use of this differentiable renderer in rendering tasks and in solving inverse graphics problems.
+In this paper, we present RayTracer.jl, a renderer in Julia that is fully differentiable using source-to-source Automatic Differentiation (AD). This means that RayTracer not only renders 2D images from 3D scene parameters, but it can be used to optimize for model parameters that generate a target image in a Differentiable Programming (DP) pipeline. We interface our renderer with the deep learning library Flux for use in combination with neural networks. We demonstrate the use of this differentiable renderer in rendering tasks and in solving inverse graphics problems.
 
 \headingtable
 
@@ -74,19 +74,19 @@ In this paper we present RayTracer.jl, a renderer in Julia that is fully differe
 \section{Introduction}
 \label{intro}
 
-Rendering is a technique of generating photorealistic or non photorealistic 2D projections from 3D objects. As such there are several algorithms for rendering complex scenes. One of the most popular techniques for photo realistic rendering is ray tracing. However, for real time rendering algorithms like rasterization are used.
+Rendering is a technique of generating photorealistic or non-photorealistic 2D projections from 3D objects. As such there are several algorithms for rendering complex scenes. One of the most popular techniques for photorealistic rendering is ray tracing. However, for real-time rendering algorithms like rasterization is used.
 
-Ray Tracing is a technique in computer graphics for rendering 3D graphics with complex light interactions. In this technique, rays are traced backwards from the eye/camera to the light source(s). The ray of can undergo reflection and refraction due to interactions with the objects in its path. This technique, however, is very computationally expensive and hence difficult to do in real time. But since ray tracing leverages the properties of the materials of the objects in the scene, a natural extension to the rendering problem would be to extract the exact properties of the materials, lighting, etc. given an image of the scene. Unfortunately ray tracing is non-differentiable at some points and calculating the analytic gradients is a very tedious task. This has made it a very difficult task to present a general inverse rendering method. As such there is only one framework in our knowledge, redner\cite{Li:2018:DMC}, which has been able to do so by using analytic gradients.
+Ray Tracing is a technique in computer graphics for rendering 3D graphics with complex light interactions. In this technique, rays are traced backward from the eye/camera to the light source(s). The ray can undergo reflection and refraction due to interactions with the objects in its path. This technique, however, is very computationally expensive and hence difficult to do in real-time. But since ray tracing leverages the properties of the materials of the objects in the scene, a natural extension to the rendering problem would be to extract the exact properties of the materials, lighting, etc. given an image of the scene. Unfortunately, ray tracing is non-differentiable at some points and calculating the analytic gradients is a very tedious task. This has made it a very difficult task to present a general inverse rendering method. As such, there is only one framework in our knowledge, redner\cite{Li:2018:DMC}, which has been able to do so by using analytic gradients.
 
-Rendering being a computationally expensive operation is generally done in static languages like C++. This makes it very time expensive to develop the software. Also, most languages lack the support of state of the art automatic differentiation tools like Zygote \cite{DBLP:journals/corr/abs-1810-07951}, Jax \cite{jax}, etc which are generally implemented for high level languages like Julia and Python. As such it is difficult to develop differentiable renderers in those languages and then interface with popular deep learning software.
+Rendering is a computationally expensive technique, and so it is generally done in static languages like C++. This makes it very time expensive to develop the software. Also, most languages lack the support of the state of the art automatic differentiation tools like Zygote \cite{DBLP:journals/corr/abs-1810-07951}, Jax \cite{jax}, etc which are generally implemented for high-level languages like Julia and Python. As such, it is difficult to develop differentiable renderers in those languages and then interface with popular deep learning software.
 
 In this paper, we explore the idea of differentiability through a renderer, by leveraging the AD in Julia\cite{bezanson2017julia}. We present a fully general renderer capable of handling complex scenes and able to differentiate through them. We don't rely on analytic gradients but use source-to-source AD to generate efficient gradient code in the backward pass.
 
 \section{Differentiable Ray Tracing}
 
-There are several photo-realistic renderers available which contain a vast amount of implicit knowledge. Differentiation allows such renderers to make use of gradients to learn the inverse mapping from an image to its parameter space. This knowledge can then be used in combination with any machine learning / deep learning models to train them in a fast and efficient manner. Experiments in \cite{retinaface} demonstrate the effectiveness of incorporate differentiable renderers in deep learning pipelines by achieving State of the Art results in WIDERFace Hard dataset.
+There are several photo-realistic renderers available which contain a vast amount of implicit knowledge. Differentiation allows such renderers to make use of gradients to learn the inverse mapping from an image to its parameter space. We can then use this knowledge in combination with any machine learning / deep learning models to train them in a fast and efficient manner. Experiments in \cite{retinaface} demonstrate the effectiveness of incorporate differentiable renderers in deep learning pipelines by achieving State of the Art results in WIDERFace Hard dataset.
 
-However, as usual it is difficult to compute efficient derivatives from a production-ready renderer, typically written in a performance language like C++. This provides the primary motivation towards the development of RayTracer.jl. We develop an entire general purpose ray tracer in a high level numerical computation language. The presence of strong automatic differentiation libraries like Zygote.jl make it trivial to compute efficient derivatives from the renderer. We present the performance gains we get on using Zygote as compared to Central Differencing in Figure~\ref{fig:ad_perf}.
+However, as usual, it is difficult to compute efficient derivatives from a production-ready renderer, typically written in a performance language like C++. This provides the primary motivation towards the development of RayTracer.jl. We develop an entire general purpose ray tracer in a high-level numerical computation language. The presence of strong automatic differentiation libraries like Zygote.jl make it trivial to compute efficient derivatives from the renderer. We present the performance gains we get on using Zygote as compared to Central Differencing in Figure~\ref{fig:ad_perf}.
 
 \begin{figure}[!htb]
     \centering
@@ -105,18 +105,16 @@ RayTracer gives users a lot of control to the user over the scene they want to r
 
 \subsection{Accelerating the Rendering Process}
 
-To accelerate the rendering process we have acceleration structures. Currently only one such acceleration structure, Bounding Volume Hierarchy \cite{Kay:1986:RTC:15922.15916}, is supported. We follow the exact same API for ray tracing using these accelerators. In this case instead of passing a \textit{Vector of Objects} we wrap it in a \textit{BoundingVolumeHierarchy} object and pass it. So in order to use this, we would have to change the scene variable to \textit{BoundingVolumeHierarchy(load\_obj("teapot.obj"))}.
+To accelerate the rendering process we support an acceleration structure, Bounding Volume Hierarchy \cite{Kay:1986:RTC:15922.15916}. We follow the exact same API for ray tracing using these accelerators. In this case instead of passing a \textit{Vector of Objects} we wrap it in a \textit{BoundingVolumeHierarchy} object and pass it. So in order to use this, we would have to change the scene variable to \textit{BoundingVolumeHierarchy(load\_obj("teapot.obj"))}.
 
-\todo[inline]{Clarifications and Reproducibility}
-We show the benefits of using Acceleration Structures in Figures~\ref{fig:bvh_perf} and \ref{fig:bvh_mem}. As can be seen from the plots we not only get a good performance gain (Figure~\ref{fig:bvh_perf}) in terms of speed, we also end up allocating much less memory (Figure~\ref{fig:bvh_mem} on using Bounding Volume Hierarchy.
+Using acceleration structures allow us to minimize the total allocations (Figure~\ref{fig:bvh_mem}) and gives us a significant performance boost (Figure~\ref{fig:bvh_perf}). For these measurements we use a mesh with $137$ centered at the origin\footnote{We provide the code for reproducing the experiment in \href{https://github.com/avik-pal/RayTracer.jl/examples}{https://github.com/avik-pal/RayTracer.jl/examples}}.
 
 \subsection{Rendering the Utah Teapot}
-\todo[inline]{Clarity and Grammer}
 
-In this section we shall render a very popular model in computer graphics: the Utah Teapot. We simply load the model from a wavefront object (obj) file. Support for other types of files is trivial through the MeshIO.jl package with defines file reader for common mesh object files. Once the scene is loaded the next step is to configure the other elements in the scene - the camera and the light(s). Script~\ref{lst:example_render} illustrates the code for rendering the teapot model.
+In this section we demonstrate the general pipeline for defining a 3D scene using RayTracer.jl and then rendering it. We are going to render the popular Utah Teapot model. We need to specify the 3D model in the form of a Vector of Objects. We can do it manually for custom scenes or we could simply load it from a wavefront object (obj) file. Support for additional file formats can be provided via MeshIO.jl. Apart from the scene vector, we need to specify the camera configuration and the configuration of light(s). We summarize the entire code to render the teapot in Listing~\ref{lst:example_render}. 
 
-\noindent
-\begin{minipage}{\linewidth}
+% \noindent
+% \begin{minipage}{\linewidth}
 \begin{lstlisting}[caption = {Rendering the Utah Teapot Model},
                    label = {lst:example_render},
                    captionpos = b,
@@ -156,15 +154,13 @@ color = raytrace(
     2
 )
 \end{lstlisting}
-\end{minipage}
+% \end{minipage}
 
 \section{Inverse Rendering}
 
-\todo[inline]{More clarity in writing}
+The rendering problem is to project 3D scene parameters to form an image in the 2D plane. Inverse Rendering problem is just the opposite: generating a mapping from the 2D image back to the parameters of the 3D scene.
 
-Just like rendering can be thought of as the projection of 3D objects into a 2D plane, the inverse rendering problem can be described as just the opposite. It is the mapping of the 2D image back to the parameters of the scene.
-
-As we have mentioned previously, one of the primary motivations of RayTracer.jl is for solving the problem of inverse graphics. Being able to compute gradients wrt any scene parameter, means that we can optimize that parameter. The optimization algorithm is pretty straight forward and is general enough to work for any arbitrary parameter. We describe the algorithm in \ref{alg:inv_render}.
+One of the primary motivations of RayTracer.jl is to solve the inverse graphics problem. Since the renderer can be used to compute the gradient with respect to any arbitrary parameter (as long as it is differentiable), we can then use any gradient based optimization technique to optimize on that parameter. This allows us to propose a generalized Algorithm~\ref{alg:inv_render} which is capable of optimizing any differentiable parameter.
 
 \begin{algorithm}[!htb]
     \caption{Gradient Based Optimization of Scene Parameters}
@@ -213,57 +209,17 @@ As we have mentioned previously, one of the primary motivations of RayTracer.jl 
     \label{fig:cam_invrender}
 \end{figure*}
 
-\begin{figure*}[!htb]
-    \centering
-    \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\linewidth]{images/light/loss_plot_light.png}
-        \caption{Loss Values over the Light Configuration Optimization Process}
-        \label{fig:loss_plot_light}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.45\textwidth}
-        \begin{subfigure}[b]{0.4\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{images/light/original.png}
-            \caption{Image to be reconstructed}
-            \label{fig:target_light}
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}[b]{0.4\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{images/light/initial.png}
-            \caption{Initial Guess of Lighting Parameters}
-            \label{fig:guess_light}
-        \end{subfigure}
-        \centering
-        \hfill
-        \begin{subfigure}[b]{0.4\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{images/light/161.png}
-            \caption{Image produced after 10 iterations}
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}[b]{0.4\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{images/light/501.png}
-            \caption{Image with converged parameters}
-        \end{subfigure}
-    \end{subfigure}
-    \caption{Optimization of the lighting conditions to reconstruct Image~\ref{fig:target_light} from Image~\ref{fig:guess_light}}
-    \label{fig:light_position}
-\end{figure*}
+In this section we showcase our differentiable renderer in some toy inverse rendering problems. Using the following two experiments we demonstrate the use of gradients obtained via AD to recover the camera, material and lighting parameters for a scene. In both the experiments we make use of the Adam optimizer as described in \cite{kingma2014adam}. We interface the raytracer with Flux to use these optimizers. As an alternative, we have tested the functioning of our package with the optimizers present in Optim.
 
-In this section we showcase our differentiable renderer in some toy inverse rendering problems. Using the following two experiments we demonstrate the use of gradients obtained via AD to recover the camera and lighting parameters fr a scene. In both the experiments we make use of the Adam optimizer as described in \cite{kingma2014adam}. We interface the raytracer with Flux to use these optimizers. As an alternative, we have tested the functioning of our package with the optimizers present in Optim.
-
-\subsection{\textbf{Calibration of Camera Parameters}}
+\subsection{Calibration of Camera Parameters}
 \label{sec:calcam}
 
-In this experiment we start with the image of a rectangle (Listing~\ref{lst:rect_light}) under some configuration of the Camera model (Listing~\ref{lst:cam_opt}). Since RayTracer supports only two primitive shapes - Spheres and Triangles, we need to triangulate the rectangle.
+In this experiment we start with the image of a rectangle (Listing~\ref{lst:light_config}) under some configuration of the Camera model (Listing~\ref{lst:cam_opt}). Since RayTracer supports only two primitive shapes - Spheres and Triangles, we need to triangulate the rectangle.
 
-\noindent
-\begin{minipage}{\linewidth}
-\begin{lstlisting}[caption = {Configuration of the Rectangle for Experiment~\ref{sec:calcam}},
-                   label = {lst:rect_light},
+% \noindent
+% \begin{minipage}{\linewidth}
+\begin{lstlisting}[caption = {Configuration of the Scene for Experiment~\ref{sec:calcam}},
+                   label = {lst:light_config},
                    captionpos = b,
                    language = Julia]
 scene = [
@@ -280,8 +236,14 @@ scene = [
         Material(
             color_diffuse = Vec3(0.0, 1.0, 0.0)))
 ]
+
+light = PointLight(
+    Vec3(1.0, 0.0, 0.0),
+    100000.0,
+    Vec3(0.0, 0.0, -10.0)
+)
 \end{lstlisting}
-\end{minipage}
+% \end{minipage}
 
 \noindent
 \begin{minipage}{\linewidth}
@@ -303,22 +265,6 @@ camera_target =
 
 \noindent
 \begin{minipage}{\linewidth}
-\begin{lstlisting}[caption = {Light Configuration},
-                   label = {lst:lgt_param},
-                   captionpos = b,
-                   language = Julia]
-light = PointLight(
-    Vec3(1.0, 0.0, 0.0),
-    100000.0,
-    Vec3(0.0, 0.0, -10.0)
-)
-\end{lstlisting}
-\end{minipage}
-
-Our aim is to reconstruct the image of this rectangle (Figure~\ref{fig:cam_target}) by modifying the focus and the location of the camera. We assume that all the other parameters of the model, like the light configuration (Listing~\ref{lst:lgt_param}), position of objects, etc. are known apriori. We use algorithm~\ref{alg:inv_render} for optimizing the parameters. We make an initial guess of the parameters and initialize the camera (Listing~\ref{lst:cam_initial}).
-
-\noindent
-\begin{minipage}{\linewidth}
 \begin{lstlisting}[caption = {Initial Guess of the Camera Parameters},
                    label = {lst:cam_initial},
                    captionpos = b,
@@ -335,26 +281,184 @@ camera_guess =
 \end{lstlisting}
 \end{minipage}
 
+Our aim is to reconstruct the image of this rectangle (Figure~\ref{fig:cam_target}) by modifying the focus and the location of the camera. We assume that all the other parameters of the model, like the light configuration (Listing~\ref{lst:light_config}), position of objects, etc. are known apriori. We use algorithm~\ref{alg:inv_render} for optimizing the parameters. We make an initial guess of the parameters and initialize the camera (Listing~\ref{lst:cam_initial}).
+
 As our loss function, we use the mean squared difference between rendered and target images, each with $300\times400$ pixels having fractional RGB values. We minimize loss with the Adam optimizer, with learning rate 0.05, and declare the model to have converged if loss falls below 10 (where the initial loss is in the order of 600). Figure~\ref{fig:cam_invrender} shows the optimization steps.
 
-\subsection{\textbf{Optimizing the Light Source}}
-\todo[inline]{More details to reproduce the results}
+\subsection{Optimizing the Light Source}
+\label{sec:light_source}
 
-In this experiment we describe our solution to the inverse lighting problem. In this case we assume the knowledge of the geometry and surface properties of the objects, camera position and the target image of the scene.
+\begin{figure*}[!htb]
+    \centering
+    \begin{subfigure}[c]{0.45\textwidth}
+        \includegraphics[width=\linewidth]{images/light/loss_plot_light.png}
+        \caption{Loss Values over the Light Configuration Optimization Process}
+        \label{fig:loss_plot_light}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[c]{0.45\textwidth}
+        \begin{subfigure}[c]{0.45\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{images/light/original.png}
+            \caption{Image to be reconstructed}
+            \label{fig:target_light}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[c]{0.45\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{images/light/initial.png}
+            \caption{Initial Guess of Lighting Parameters}
+            \label{fig:guess_light}
+        \end{subfigure}
+        \centering
+        \hfill
+        \begin{subfigure}[c]{0.45\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{images/light/161.png}
+            \caption{Image produced after 10 iterations}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[c]{0.45\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{images/light/501.png}
+            \caption{Image with converged parameters}
+        \end{subfigure}
+    \end{subfigure}
+    \caption{Optimization of the lighting conditions to reconstruct Image~\ref{fig:target_light} from Image~\ref{fig:guess_light}}
+    \label{fig:light_position}
+\end{figure*}
 
-For this experiment we try to optimize the lighting for a scene containing a tree. We are given the target image with proper lighting conditions. We start with an arbitrary lighting and then iteratively improve the lighting using algorithm~\ref{alg:inv_render}.
+In this experiment we describe our solution to the inverse lighting problem. This problem involved predicting the configuration of the light source(s) in the scene given a target image (Figure~\ref{fig:target_light}). All the other information about the geometry and surface properties of the objects and the camera configuration are already known. Listing~\ref{lst:initial_config_expt2} describes the known configurations.
 
-We present the images generated during the optimization process in Figure~\ref{fig:light_position}.
+\noindent
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption = {Configuration of the Scene for Experiment~\ref{sec:light_source}},
+                   label = {lst:initial_config_expt2},
+                   captionpos = b,
+                   language = Julia]
+
+screen_size = (w = 128, h = 128)
+
+camera = Camera(
+    Vec3(0.0f0, 6.0f0, -10.0f0),
+    Vec3(0.0f0, 2.0f0,  0.0f0),
+    Vec3(0.0f0, 1.0f0,  0.0f0),
+    45.0f0,
+    0.5f0,
+    screen_size...
+)
+
+scene = load_obj("tree.obj")
+\end{lstlisting}
+\end{minipage}
+
+The object in our scene is a tree. We start with an arbitrary lighting (Listing~\ref{lst:lgt_guess}) condition and then iteratively improve the lighting using Algorithm~\ref{alg:inv_render}. We present the loss curve and the images generated during the optimization process in Figure~\ref{fig:light_position}.
+
+\noindent
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption = {Target Lighting Conditions},
+                   label = {lst:lgt_target},
+                   captionpos = b,
+                   language = Julia]
+light_target = PointLight(
+    Vec3(1.0f0, 1.0f0, 1.0f0),
+    20000.0f0,
+    Vec3(1.0f0, 10.0f0, -50.0f0)
+)
+\end{lstlisting}
+\end{minipage}
+
+\noindent
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption = {Initial Guess of Lighting Conditions},
+                   label = {lst:lgt_guess},
+                   captionpos = b,
+                   language = Julia]
+light_guess = PointLight(
+    Vec3(1.0f0, 1.0f0, 1.0f0),
+    10000.0f0,
+    Vec3(-1.0f0, -10.0f0, -50.0f0)
+)
+\end{lstlisting}
+\end{minipage}
+
+\subsection{Retrieving Color of Materials}
+\label{sec:mat_color}
+
+\begin{figure}[!htb]
+    \centering
+    \begin{subfigure}[c]{0.23\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/material/target.png}
+        \caption{Image to be reconstructed}
+        \label{fig:target_material}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[c]{0.23\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/material/initial.png}
+        \caption{Initial Guess of the Materials}
+        \label{fig:guess_material}
+    \end{subfigure}
+    \centering
+    \hfill
+    \begin{subfigure}[c]{0.23\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/material/1.png}
+        \caption{Image produced after just 1 iteration}
+        \label{fig:single_step}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[c]{0.23\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/material/33.png}
+        \caption{Image obtained after 35 iterations}
+    \end{subfigure}
+    \caption{Optimization of the materials of the mesh to reconstruct Image~\ref{fig:target_material} from Image~\ref{fig:guess_material}}
+    \label{fig:mat_correction}
+\end{figure}
+
+RayTracer.jl can also be used to recover the properties of the material of a mesh. For this experiment we shall use the same tree mesh from Experiment~\ref{sec:light_source}. We are going to optimize the diffuse color of the mesh. The position of the camera and the lighting conditions are mentioned in Listing~\ref{lst:config_mat}.
+
+The major difference of this optimization from the prior experiments is that the range of values the color can take is constrained between $0.0$ and $1.0$. Hence, after every step of the optimizer we need to clamp the value of the diffuse color for each mesh triangle.
+
+We use the sum squared loss function. We minimize the loss with Adam optimizer, with a learning rate of 0.05. The converge of the model is quite fast and we get a good approximation of the paramters just after a single optimizer step (Figure~\ref{fig:single_step}).
+
+\noindent
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption = {Configuration of the Scene for Experiment~\ref{sec:mat_color}},
+                   label = {lst:config_mat},
+                   captionpos = b,
+                   language = Julia]
+screen_size = (w = 400, h = 300)
+
+light = PointLight(
+    Vec3(1.0f0),
+    1000000.0f0,
+    Vec3(0.15f0, 0.5f0, -10.5f0)
+)
+
+cam = Camera(
+    Vec3(-2.0f0, 2.0f0, -5.0f0),
+    Vec3( 0.0f0, 1.7f0,  0.0f0),
+    Vec3( 0.0f0, 1.0f0,  0.0f0),
+    45.0f0,
+    1.0f0,
+    screen_size...
+)
+
+scene = load_obj("tree.obj")
+\end{lstlisting}
+\end{minipage}
+
 
 \section{Current Limitations}
-\todo[inline]{Write this section highlighting the problem for non differentiable parts}
 
+Despite the success of our approach in solving a variety of inverse graphics problems, we fail to deal with problems that are non-differentiable in nature. One such instance would be estimating the proper geometry of an object given an image. Such problems are non-differentiable due to the large number of discrete choices in the position of the triangle vertices. Hence, trying to optimize such parameters generally causes them to diverge. The other cases which we can't handle properly are secondary lighting (shadows) and global illumination. Most of these cases can be dealt with, similar to the way proposed by \cite{Li:2018:DMC}, but that leads to a significant slowdown to the rendering of the scene. 
 
 \section{Conclusion}
-\todo[inline]{Needs a rewrite using the comments in the review}
-In conclusion, we have presented how julia can be leveraged to build differentiable systems. Integrating them with the machine learning pipeline can make an end-to-end differentiable pipeline. Using this pipeline we can define differentiable programming algorithm on it to solve the problem. As expected making the pipeline differentiable allows us to exploit the huge amount of implicit knowledge stored in the system.
 
-% \newpage
+In conclusion, we have showed how Julia can be leveraged to build differentiable systems. We have presented which to the best of our knowledge is the first differentiable renderer which uses source-to-source AD. We have used a set of toy examples to demonstrate the ability of our renderer to reconstruct scenes (which are differentiable) from only a single image. This also shows that this renderer can be used in differentiable programming pipelines which involve image generation.  
 
 \bibliographystyle{juliacon}
 \bibliography{ref}
