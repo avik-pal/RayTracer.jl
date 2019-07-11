@@ -18,8 +18,7 @@ results be sure to use `Float64` as `Float32` is too numerically unstable.
 function ngradient(f, xs::AbstractArray...)
     grads = zero.(xs)
     for (x, Δ) in zip(xs, grads), i in 1:length(x)
-        # This gives reasonable results
-        δ = 1.0e-13
+        δ = 1.0e-11
         tmp = x[i]
         x[i] = tmp - δ/2
         y1 = f(xs...)
@@ -41,12 +40,15 @@ end
 Get the parameters from a struct that can be tuned. The output is in
 the form of an array.
 """
-get_params(x::T) where {T<:AbstractArray} = x
+get_params(x::T, typehelp = Float32) where {T<:AbstractArray} = x
 
-get_params(x::T) where {T<:Real} = [x]
+get_params(x::T, typehelp = Float32) where {T<:Real} = [x]
 
-get_params(x::T) where {T} = foldl((a, b) -> [a; b],
-                                   [map(i -> get_params(getfield(x, i)), fieldnames(T))...])
+get_params(::Nothing, typehelp = Float32) = typehelp[]
+
+get_params(x::T, typehelp = Float32) where {T} =
+    foldl((a, b) -> [a; b], [map(i -> get_params(getfield(x, i), typehelp),
+                                 fieldnames(T))...])
                      
 """
     set_params!(x, y::AbstractArray)
@@ -89,6 +91,7 @@ set_params!(x::T, y::AbstractArray) where {T<:Real} = set_params!([x], y)
 function set_params!(x, y::AbstractArray)
     start = 1
     for i in 1:nfields(x)
+        isnothing(getfield(x, i)) && continue
         start += set_params!(getfield(x, i), y[start:end])
     end
     return start - 1

@@ -8,7 +8,6 @@ end
 
 @testset "Differentiable Ray Tracing" begin
     @testset "Gradient Checks" begin
-        # Numerical Gradients are presently broken
-        # include("gradcheck.jl")
+        include("gradcheck.jl")
     end
 end
