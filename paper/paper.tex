@@ -209,12 +209,12 @@ One of the primary motivations of RayTracer.jl is to solve the inverse graphics 
     \label{fig:cam_invrender}
 \end{figure*}
 
-In this section we showcase our differentiable renderer in some toy inverse rendering problems. Using the following two experiments we demonstrate the use of gradients obtained via AD to recover the camera, material and lighting parameters for a scene. In both the experiments we make use of the Adam optimizer as described in \cite{kingma2014adam}. We interface the raytracer with Flux to use these optimizers. As an alternative, we have tested the functioning of our package with the optimizers present in Optim.
+In this section we showcase our differentiable renderer in some toy inverse rendering problems. Using the following two experiments we demonstrate the use of gradients obtained via AD to recover the camera, material and lighting parameters for a scene. In both experiments we make use of the Adam optimizer as described in~\cite{kingma2014adam}. We interface the raytracer with Flux to use these optimizers. As an alternative, we have tested the functioning of our package with the optimizers present in Optim.
 
 \subsection{Calibration of Camera Parameters}
 \label{sec:calcam}
 
-In this experiment we start with the image of a rectangle (Listing~\ref{lst:light_config}) under some configuration of the Camera model (Listing~\ref{lst:cam_opt}). Since RayTracer supports only two primitive shapes - Spheres and Triangles, we need to triangulate the rectangle.
+In this experiment we start with the image of a rectangle (Listing~\ref{lst:light_config}) under some configuration of the Camera model (Listing~\ref{lst:cam_opt}). Since RayTracer supports only two primitive shapes, Spheres and Triangles, we need to triangulate the rectangle.
 
 % \noindent
 % \begin{minipage}{\linewidth}
@@ -422,7 +422,7 @@ RayTracer.jl can also be used to recover the properties of the material of a mes
 
 The major difference of this optimization from the prior experiments is that the range of values the color can take is constrained between $0.0$ and $1.0$. Hence, after every step of the optimizer we need to clamp the value of the diffuse color for each mesh triangle.
 
-We use the sum squared loss function. We minimize the loss with Adam optimizer, with a learning rate of 0.05. The converge of the model is quite fast and we get a good approximation of the paramters just after a single optimizer step (Figure~\ref{fig:single_step}).
+We use the sum squared loss function. We minimize the loss with Adam optimizer, with a learning rate of 0.05. The convergence of the model is quite fast and we get a good approximation of the paramters just after a single optimizer step (Figure~\ref{fig:single_step}).
 
 \noindent
 \begin{minipage}{\linewidth}
