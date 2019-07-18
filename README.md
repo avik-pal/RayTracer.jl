@@ -5,18 +5,12 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/887v1miv7ig4mod2?svg=true)](https://ci.appveyor.com/project/avik-pal/raytracer-jl) 
 [![Latest Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://avik-pal.github.io/RayTracer.jl/dev/)
 
-A Ray Tracer written completely in Julia. This allows us to leverage the AD capablities provided
-by Zygote to differentiate through the Ray Tracer.
-
-## A SELF-DRIVING CAR ENVIRONMENT RENDER
-
 <p align="center">
     <img src="docs/src/assets/udem1.gif">
 </p>
 
-<p align="right">
-    Thanks to Tejan Karmali (@tejank10) for preparing this demo using his awesome package [Duckietown.jl](https://github.com/tejank10/Duckietown.jl).
-</p>
+A Ray Tracer written completely in Julia. This allows us to leverage the AD capablities provided
+by Zygote to differentiate through the Ray Tracer.
 
 ## INSTALLATION
 

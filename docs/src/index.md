@@ -1,5 +1,11 @@
 # RayTracer : Differentiable Ray Tracing in Julia
 
+```@raw html
+<p align="center">
+    <img src="./assets/udem1.gif">
+</p>
+```
+
 RayTracer.jl is a library for differentiable ray tracing. It provides utilities for
 
 1. Render complex 3D scenes.
@@ -11,7 +17,7 @@ RayTracer.jl is a library for differentiable ray tracing. It provides utilities 
 Download [Julia 1.1](https://julialang.org/) or later. 
 
 !!! note
-    This library won't work with Julia 1.0.
+    This library won't work with Julia 1.0 as it needs the `isnothing` function.
 
 For the time being, the library is under active development and hence is not registered. But the
 master branch is pretty stable for experimentation. To install it simply open a julia REPL and 

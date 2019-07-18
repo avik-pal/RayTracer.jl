@@ -8,8 +8,7 @@ makedocs(modules=[RayTracer],
                                   assets = ["assets/documenter.css"]),
          pages = ["Home" => "index.md",
                   "Getting Started" => [
-                      "Rendering" => "getting_started/rendering.md",
-                      "Inverse Rendering" => "getting_started/optimization.md"],
+                      "Introduction to Rendering" => "getting_started/teapot_rendering.md"],
                   "API Documentation" => "api.md"])
 
 deploydocs(repo = "github.com/avik-pal/RayTracer.jl.git")
