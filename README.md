@@ -8,6 +8,16 @@
 A Ray Tracer written completely in Julia. This allows us to leverage the AD capablities provided
 by Zygote to differentiate through the Ray Tracer.
 
+## A SELF-DRIVING CAR ENVIRONMENT RENDER
+
+<p align="center">
+    <img src="docs/src/assets/udem1.gif">
+</p>
+
+<p align="right">
+    Thanks to Tejan Karmali (@tejank10) for preparing this demo using his awesome package [Duckietown.jl](https://github.com/tejank10/Duckietown.jl).
+</p>
+
 ## INSTALLATION
 
 The package is currently not registered. So open up a Julia 1.1+ repl and enter the pkg mode.
@@ -25,13 +35,14 @@ For GPU Support
 ## USAGE EXAMPLES
 
 Follow the instructions below to run individual code examples or use
-`code/script.sh` to run all of them together.
+`examples/script.sh` to run all of them together.
 
 First we need to get the versions of the packages used when these
 examples were written.
 
 **NOTE:** We have tested the examples on versions of Julia >= 1.1.
-          It is known that the RayTracer won't function in Julia 1.0.
+          It is known that the RayTracer won't function in Julia 1.0
+          due to the absence of `isnothing` function.
 
 ```bash
 $ cd code
@@ -86,12 +97,11 @@ $ latexmk -c
 
 These are not listed in any particular order
 
-- [X] Add more types of common objects (use mesh rendering for this) - Disc, Plane, Box
+- [X] Add more types of common objects (use mesh rendering for this)
 - [X] Add support for rendering arbitrary mesh
-  but is slow)
 - [ ] GPU Support using CuArrays (partially supported in `ap/gpu` branch)
-- [ ] Inverse Rendering Examples
-- [ ] Application in Machine Learning Models through Flux
+- [X] Inverse Rendering Examples
+- [ ] Application in Machine Learning Models through Flux (work in progress)
 - [X] Texture Rendering
 - [ ] Make everything differentiable:
   - [ ] Triangle Mesh
