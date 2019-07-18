@@ -1,7 +1,33 @@
 export BoundingVolumeHierarchy
 
+"""
+    AccelerationStructure
+
+Base Type for all Acceleration Structures. These can be used to speed up
+rendering by a significant amount. The main design behind an acceleration
+structure should be such that it can be used as a simple replacement for
+a vector of [`Object`](@ref)s.
+"""                  
 abstract type AccelerationStructure end
 
+"""
+    BVHNode
+
+A node in the graph created from the scene list using [`BoundingVolumeHierarchy`](@ref).
+
+### Fields:
+
+* `x_min`       - Minimum x-value for the bounding box
+* `x_max`       - Maximum x-value for the bounding box
+* `y_min`       - Minimum y-value for the bounding box 
+* `y_max`       - Maximum y-value for the bounding box 
+* `z_min`       - Minimum z-value for the bounding box 
+* `z_max`       - Maximum z-value for the bounding box 
+* `index_start` - Starting triangle in the scene list
+* `index_end`   - Last triangle in the scene list
+* `left_child`  - Can be `nothing` or another [`BVHNode`](@ref)
+* `right_child` - Can be `nothing` or another [`BVHNode`](@ref)
+"""
 struct BVHNode{T}
     x_min::T
     x_max::T
@@ -15,6 +41,18 @@ struct BVHNode{T}
     right_child::Union{Nothing, BVHNode}
 end
 
+"""
+    BoundingVolumeHierarchy
+
+Construct the Bounding Volume Hierarchy from a given Vector of
+[`Triangle`](@ref)s.
+
+### Fields:
+
+* `scene_list` - The scene list passed into the BVH constructor but in
+                 sorted order
+* `root_node`  - Root [`BVHNode`](@ref)
+"""
 struct BoundingVolumeHierarchy{T, S} <: AccelerationStructure
     scene_list::Vector{T}
     root_node::BVHNode{S}

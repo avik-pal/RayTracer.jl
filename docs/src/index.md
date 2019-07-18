@@ -47,7 +47,8 @@ Pages = ["index.md",
          "api/differentiation.md",
          "api/scene.md",
          "api/optimization.md",
-         "api/renderers.md"]
+         "api/renderers.md",
+         "api/accelerators.md"]
 Depth = 3
 ```
 

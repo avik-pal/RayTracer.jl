@@ -14,11 +14,12 @@ makedocs(
             "Introduction to Rendering" => "getting_started/teapot_rendering.md",
         ],
         "API Documentation" => [
-            "General Utilities"   => "api/utilities.md",
-            "Differentiation"     => "api/differentiation.md",
-            "Scene Configuration" => "api/scene.md",
-            "Renderers"           => "api/renderers.md",
-            "Optimization"        => "api/optimization.md",
+            "General Utilities"         => "api/utilities.md",
+            "Differentiation"           => "api/differentiation.md",
+            "Scene Configuration"       => "api/scene.md",
+            "Renderers"                 => "api/renderers.md",
+            "Optimization"              => "api/optimization.md",
+            "Acceleration Structures"   => "api/accelerators.md",
         ],
     ],
 )

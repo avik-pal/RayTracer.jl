@@ -11,6 +11,10 @@ Implements the Blinn Phong rendering algorithm. This function is merely for
 internal usage and should in no case be called by the user. This function is
 quite general and supports user defined **Objects**. For support of custom
 Objects have a look at the examples.
+
+!!! warning
+    Don't try to use this function by itself. But if you are person who likes
+    to ignore warnings look into the way [`raytrace`](@ref) calls this.
 """
 function light(s::Object, origin, direction, dist, lgt::Light, eye_pos,
                scene, obj_num, bounce)
@@ -46,8 +50,14 @@ function light(s::Object, origin, direction, dist, lgt::Light, eye_pos,
 end
 
 """
-    raytrace(origin::Vec3, direction::Vec3, scene::Vector, lgt::Light, eye_pos::Vec3, bounce::Int)
-    raytrace(origin::Vec3, direction::Vec3, scene::Vector, lgt::Vector{Light}, eye_pos::Vec3, bounce::Int)
+    raytrace(origin::Vec3, direction::Vec3, scene::Vector, lgt::Light,
+             eye_pos::Vec3, bounce::Int)
+    raytrace(origin::Vec3, direction::Vec3, scene, lgt::Vector{Light},
+             eye_pos::Vec3, bounce::Int)
+    raytrace(origin::Vec3, direction::Vec3, scene::BoundingVolumeHierarchy,
+             lgt::Light, eye_pos::Vec3, bounce::Int)
+    raytrace(;origin = nothing, direction = nothing, scene = nothing,
+              light_source = nothing, global_illumination = false)
 
 Computes the color contribution to every pixel by tracing every single ray.
 Internally it calls the `light` function which implements Blinn Phong Rendering
@@ -65,7 +75,15 @@ much faster if global illumination is off but at the same time is much less phot
     The support for multiple lights is primitive as we loop over the lights.
     Even though it is done in a parallel fashion, it is not the best way to
     do so. Nevertheless it exists just for the sake of experimentation.
+
+!!! note
+    None of the parameters (except global_illumination) in the keyword argument version of
+    [`raytrace`](@ref) is optional. It is just present for convenience.
 """
+raytrace(;origin = nothing, direction = nothing, scene = nothing,
+          light_source = nothing, global_illumination = false) =
+    raytrace(origin, direction, scene, light_source, origin, global_illumination ? 0 : 2)
+
 function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
                   lgt::Light, eye_pos::Vec3, bounce::Int = 0)
     distances = map(x -> intersect(x, origin, direction), scene)
@@ -93,7 +111,7 @@ end
 
 # FIXME: This is a temporary solution. Long term solution is to support
 #        a light vector in the `light` function itself.
-function raytrace(origin::Vec3, direction::Vec3, scene::Vector,
+function raytrace(origin::Vec3, direction::Vec3, scene,
                   lgt::Vector{L}, eye_pos::Vec3, bounce::Int = 0) where {L<:Light}
     colors = pmap(x -> raytrace(origin, direction, scene, x, eye_pos, bounce), lgt)
     return sum(colors)
@@ -103,6 +121,11 @@ end
 # General Helper Functions #
 # ------------------------ #
 
+"""
+    fseelight(n::Int, light_distances)
+
+Checks if the ``n^{th}`` object in the scene list can see the light source.
+"""
 function fseelight(n, light_distances)
     ldist = reducehcat(light_distances)
     seelight = map(idx -> minimum(ldist[idx, :]) == ldist[idx,n], 1:size(ldist, 1))
@@ -111,6 +134,10 @@ end
 
 # fseelight(n, light_distances) = map((x...) -> min(x...) == x[n], light_distances...)
 
-# The version of Zygote we are currently using can't differentiate through this
-# function. So we define a custom adjoint for this
+"""
+    reducehcat(x)
+
+This is simply `reduce(hcat(x))`. The version of Zygote we are currently using
+can't differentiate through this function. So we define a custom adjoint for this.
+"""
 reducehcat(x) = reduce(hcat, x)

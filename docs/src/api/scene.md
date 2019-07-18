@@ -37,6 +37,7 @@ Pages = ["materials.jl"]
 Modules = [RayTracer]
 Pages = ["sphere.jl",
          "triangle.jl",
+         "obj_parser.jl",
          "polygon_mesh.jl",
          "objects.jl"]
 ```
