@@ -4,6 +4,19 @@ export Triangle
 # - Triangle - #
 # ------------ #
 
+"""
+    Triangle
+
+Triangle is a primitive object. Any complex object can be represented as a mesh
+of Triangles.
+
+### Fields:
+
+* `v1`       - Vertex 1
+* `v2`       - Vertex 2
+* `v3`       - Vertex 3
+* `material` - Material of the Triangle
+"""
 struct Triangle{V, P, Q, R, S, T, U} <: Object
     v1::Vec3{V}
     v2::Vec3{V}

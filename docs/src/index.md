@@ -32,21 +32,24 @@ image must be of reasonably high resolution.
     Only rendering is currently supported on GPUs. Gradient Computation is broken but
     will be supported in the future.
 
-## Contents
-
-```@contents
-Pages = ["index.md",
-         "getting_started/rendering.md",
-         "getting_started/optimization.md",
-         "api.md"]
-Depth = 3
-```
-
 ## Contributions
 
 This package is written and maintained by [Avik Pal](https://avik-pal.github.io). Please fork and
 send a pull request or create a [GitHub issue](https://github.com/avik-pal/RayTracer.jl/issues) for
 bug reports or feature requests.
+
+## Contents
+
+```@contents
+Pages = ["index.md",
+         "getting_started/teapot_rendering.md",
+         "api/utilities.md",
+         "api/differentiation.md",
+         "api/scene.md",
+         "api/optimization.md",
+         "api/renderers.md"]
+Depth = 3
+```
 
 ## Index
 

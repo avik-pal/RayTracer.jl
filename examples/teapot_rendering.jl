@@ -22,7 +22,10 @@ screen_size = (w = 256, h = 256)
 scene = load_obj("teapot.obj")
 
 # We shall define a convenience function for rendering and saving
-# the images
+# the images.
+# For understanding the parameters passed to the individual functions
+# look into the documentations of [`get_primary_rays`](@ref), [`raytrace`](@ref)
+# and [`get_image`](@ref)
 function generate_render_and_save(cam, light, filename)
     #src # Get the primary rays for the camera
     origin, direction = get_primary_rays(cam)
@@ -45,7 +48,7 @@ end
 #
 # ### DistantLight
 #
-# In this example we will be using the `DistantLight`. This king of lighting
+# In this example we will be using the [`DistantLight`](@ref). This king of lighting
 # is useful when we want to render a scene in which all parts of the scene
 # receive the same intensity of light.
 # 
@@ -56,8 +59,9 @@ end
 #
 # ### Camera
 #
-# We use a perspective view Camera Model in RayTracer. Let us look into the
+# We use a perspective view [`Camera`](@ref) Model in RayTracer. Let us look into the
 # arguments we need to pass into the Camera constructor.
+#
 # * LookFrom - The position of the Camera
 # * LookAt   - The point in 3D space where the Camera is pointing
 # * vup      - The UP vector of the world (typically Vec3(0.0, 1.0, 0.0), i.e. the y-axis)

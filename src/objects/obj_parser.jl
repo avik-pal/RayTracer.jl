@@ -3,7 +3,16 @@ export load_obj
 # ------------------------- #
 # - Parse OBJ & MTL Files - #
 # ------------------------- #
+"""
+    triangulate_faces(vertices::Vector, texture_coordinates::Vector,
+                      faces::Vector, material_map::Dict)
 
+Triangulates the `faces` and converts it into valid [`Triangle`](@ref) objects.
+
+!!! warning
+    Avoid using this function in itself. It is designed to be used internally
+    by the [`load_obj`](@ref) function.
+"""
 function triangulate_faces(vertices::Vector, texture_coordinates::Vector,
                            faces::Vector, material_map::Dict)
     scene = Vector{Triangle}()
@@ -39,6 +48,16 @@ function triangulate_faces(vertices::Vector, texture_coordinates::Vector,
     end
 end
 
+"""
+    parse_mtllib!(file, material_map, outtype)
+
+Parses `.mtl` file and creates a map from the material name to 
+[`Material`](@ref) objects.
+
+Not all fields of the `mtl` file are parsed. We only parse :
+`newmtl`, `Ka`, `Kd`, `Ks`, `Ns`, `d`, `Tr`, `map_Kd`, `map_Ks`,
+and `map_Ka`.
+"""
 function parse_mtllib!(file, material_map, outtype)
     color_diffuse = Vec3(outtype(1.0f0))
     color_ambient = Vec3(outtype(1.0f0))
@@ -122,6 +141,14 @@ function parse_mtllib!(file, material_map, outtype)
     return nothing
 end
 
+"""
+    load_obj(file; outtype = Float32)
+
+Parser for `obj` file. It returns a set of Triangles that make up the scene.
+
+Only the following things are parsed as of now: `v`, `vt`, `vn`, `f`, `usemtl`
+and `mtllib`.
+"""
 function load_obj(file; outtype = Float32)
     vertices = Vector{Vec3{Vector{outtype}}}()
     texture_coordinates = Vector{Tuple}()
