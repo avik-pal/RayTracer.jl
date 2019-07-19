@@ -6,7 +6,7 @@ makedocs(
     sitename = "RayTracer",
     authors = "Avik Pal",
     format = Documenter.HTML(
-        # prettyurls = get(ENV, "CI", nothing) == "true",
+        prettyurls = get(ENV, "CI", nothing) == "true",
         assets     = ["assets/raytracer.css"],
     ),
     pages = [

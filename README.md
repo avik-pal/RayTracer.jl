@@ -35,10 +35,10 @@ For GPU Support
         <a href="examples/teapot_rendering.jl">Introductory Rendering Tutorial</a>
       </th>
       <th style="text-align:center">
-        <a href="example/inverse_lighting.jl">Inverse Lighting Tutorial</a>
+        <a href="examples/inverse_lighting.jl">Inverse Lighting Tutorial</a>
       </th>
       <th style="text-align:center">
-        <a href="example/optim_compatibility.jl">Inverse Rendering with Optim.jl Tutorial</a>
+        <a href="examples/optim_compatibility.jl">Inverse Rendering with Optim.jl Tutorial</a>
       </th>
     </tr>
     <tr>
