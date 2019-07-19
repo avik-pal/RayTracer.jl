@@ -13,7 +13,7 @@ quite general and supports user defined **Objects**. For support of custom
 Objects have a look at the examples.
 
 !!! warning
-    Don't try to use this function by itself. But if you are person who likes
+    Don't try to use this function by itself. But if you are a person who likes
     to ignore warnings look into the way [`raytrace`](@ref) calls this.
 """
 function light(s::Object, origin, direction, dist, lgt::Light, eye_pos,
