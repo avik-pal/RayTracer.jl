@@ -7,8 +7,10 @@ an obj file for the scene. This needs to be downloaded manually.
 Run this code in your terminal to get the file:
 `wget https://raw.githubusercontent.com/McNopper/OpenGL/master/Binaries/teapot.obj`
 
+If you are using REPL mode you need the `ImageView.jl` package
+
 ```julia
-using RayTracer, Images
+using RayTracer, Images #, ImageView
 ```
 
 ## General Attributes of the Scene
@@ -48,6 +50,7 @@ function generate_render_and_save(cam, light, filename)
     img = get_image(color, screen_size...)
 
     #src # Display the image
+    #src # For REPL mode change this to `imshow(img)`
     display(img)
 
     #src # Save the generated image
@@ -55,7 +58,7 @@ function generate_render_and_save(cam, light, filename)
 end
 ```
 
-## Understanding the `Light` and `Camera` API
+## Understanding the [`Light`](@ref) and [`Camera`](@ref) API
 
 ### DistantLight
 

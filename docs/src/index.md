@@ -43,13 +43,14 @@ bug reports or feature requests.
 ```@contents
 Pages = ["index.md",
          "getting_started/teapot_rendering.md",
+         "getting_started/inverse_lighting.md",
          "api/utilities.md",
          "api/differentiation.md",
          "api/scene.md",
          "api/optimization.md",
          "api/renderers.md",
          "api/accelerators.md"]
-Depth = 3
+Depth = 2
 ```
 
 ## Index

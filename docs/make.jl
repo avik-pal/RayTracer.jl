@@ -13,6 +13,7 @@ makedocs(
         "Home"              => "index.md",
         "Getting Started"   => [
             "Introduction to Rendering" => "getting_started/teapot_rendering.md",
+            "Inverse Lighting"          => "getting_started/inverse_lighting.md",
         ],
         "API Documentation" => [
             "General Utilities"         => "api/utilities.md",

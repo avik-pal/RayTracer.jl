@@ -19,7 +19,7 @@ echo "Performance Benchmarks"
 mkdir meshes
 cd meshes
 wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/meshes/sign_yield.obj
-wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/meshes/sign_yield.mtl1
+wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/meshes/sign_yield.mtl
 cd $WORKDIR
 
 mkdir textures
