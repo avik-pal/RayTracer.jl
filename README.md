@@ -5,6 +5,9 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/887v1miv7ig4mod2?svg=true)](https://ci.appveyor.com/project/avik-pal/raytracer-jl) 
 [![Latest Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://avik-pal.github.io/RayTracer.jl/dev/)
 
+**NOTE**: For the latest version and documentation please use the `review_updates` branch. It
+contains a set of getting started examples.
+
 A Ray Tracer written completely in Julia. This allows us to leverage the AD capablities provided
 by Zygote to differentiate through the Ray Tracer.
 
