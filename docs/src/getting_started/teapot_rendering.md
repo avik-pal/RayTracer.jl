@@ -58,7 +58,7 @@ function generate_render_and_save(cam, light, filename)
 end
 ```
 
-## Understanding the [`Light`](@ref) and [`Camera`](@ref) API
+## Understanding the Light and Camera API
 
 ### DistantLight
 

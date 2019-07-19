@@ -6,7 +6,7 @@ makedocs(
     sitename = "RayTracer",
     authors = "Avik Pal",
     format = Documenter.HTML(
-        prettyurls = get(ENV, "CI", nothing) == "true",
+        # prettyurls = get(ENV, "CI", nothing) == "true",
         assets     = ["assets/raytracer.css"],
     ),
     pages = [
@@ -14,6 +14,7 @@ makedocs(
         "Getting Started"   => [
             "Introduction to Rendering" => "getting_started/teapot_rendering.md",
             "Inverse Lighting"          => "getting_started/inverse_lighting.md",
+            "Optimizing using Optim.jl" => "getting_started/optim_compatibility.md",
         ],
         "API Documentation" => [
             "General Utilities"         => "api/utilities.md",

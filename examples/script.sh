@@ -28,4 +28,17 @@ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/tex
 wget raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/textures/sign_yield.png
 cd $WORKDIR
 
-julia  --project=. --color=yes "performance_benchmarks.jl" -m "./meshes/sign_yield.jl" -g 2
+julia --project=. --color=yes "performance_benchmarks.jl" -m "./meshes/sign_yield.jl" -g 2
+
+# Inverse Lighting
+
+echo "Inverse Lighting"
+
+cd meshes
+wget https://raw.githubusercontent.com/tejank10/Duckietown.jl/master/src/meshes/tree.obj
+wget https://raw.githubusercontent.com/tejank10/Duckietown.jl/master/src/meshes/tree.mtl
+cd $WORKDIR
+
+julia --project=. --color=yes "inverse_lighting.jl"
+julia --project=. --color=yes "optim_compatibility.jl"
+

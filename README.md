@@ -37,6 +37,9 @@ For GPU Support
       <th style="text-align:center">
         <a href="example/inverse_lighting.jl">Inverse Lighting Tutorial</a>
       </th>
+      <th style="text-align:center">
+        <a href="example/optim_compatibility.jl">Inverse Rendering with Optim.jl Tutorial</a>
+      </th>
     </tr>
     <tr>
       <td align="center">
@@ -49,13 +52,18 @@ For GPU Support
           <img border="0" src="docs/src/assets/inv_lighting.gif" width="200" height="200">
         </a>
       </td>
+      <td align="center">
+        <a href="examples/optim_compatibility.jl">
+          <img border="0" src="docs/src/assets/inv_lighting_optim.gif" width="200" height="200">
+        </a>
+      </td>
     </tr>
   </table>
 </div>
 
 ## USAGE EXAMPLES
 
-Follow the instructions below to run individual code examples or use
+Follow the instructions below to run individual examples or use
 `examples/script.sh` to run all of them together.
 
 First we need to get the versions of the packages used when these
@@ -66,7 +74,7 @@ examples were written.
           due to the absence of `isnothing` function.
 
 ```bash
-$ cd code
+$ cd examples
 $ julia --color=yes -e "using Pkg; Pkg.instantiate()"
 ```
 
@@ -98,6 +106,13 @@ $ cd ..
 This example requires a few arguments to be passes from command line. Chack them using
 
 `julia  --project=. --color=yes "performance_benchmarks.jl" --help`
+
+3. For the `inverse lighting demos` we need to have the `tree.mtl` and `tree.obj` files.
+
+```
+$ wget https://raw.githubusercontent.com/tejank10/Duckietown.jl/master/src/meshes/tree.obj 
+$ wget https://raw.githubusercontent.com/tejank10/Duckietown.jl/master/src/meshes/tree.mtl
+```
 
 ### Additional Examples
 

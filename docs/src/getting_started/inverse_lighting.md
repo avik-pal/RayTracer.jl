@@ -61,7 +61,7 @@ end
 showimg(img) = colorview(RGB, permutedims(img[:,:,:,1], (3,2,1)))
 ```
 
-## Ground Truth Image
+## [Ground Truth Image](@id inv_light)
 
 For this tutorial we shall use the [`PointLight`](@ref) source.
 We define the ground truth lighting source and the rendered image. We
@@ -89,7 +89,7 @@ showimg(zeroonenorm(render(light_gt, scene)))
 ## Initial Guess of Lighting Parameters
 
 We shall make some arbitrary guess of the lighting parameters (intensity and
-position) and try to get back the image in [Ground Truth Image](@ref)
+position) and try to get back the image in [Ground Truth Image](@ref inv_light)
 
 ```julia
 light_guess = PointLight(

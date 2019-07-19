@@ -44,6 +44,7 @@ bug reports or feature requests.
 Pages = ["index.md",
          "getting_started/teapot_rendering.md",
          "getting_started/inverse_lighting.md",
+         "getting_started/optim_compatibility.md",
          "api/utilities.md",
          "api/differentiation.md",
          "api/scene.md",
