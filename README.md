@@ -26,6 +26,33 @@ For GPU Support
 ] add https://github.com/avik-pal/RayTracer.jl#ap/gpu
 ```
 
+## TUTORIALS
+
+<div align="center">
+  <table>
+    <tr>
+      <th style="text-align:center">
+        <a href="examples/teapot_rendering.jl">Introductory Rendering Tutorial</a>
+      </th>
+      <th style="text-align:center">
+        <a href="example/inverse_lighting.jl">Inverse Lighting Tutorial</a>
+      </th>
+    </tr>
+    <tr>
+      <td align="center">
+        <a href="examples/teapot_rendering.jl">
+          <img border="0" src="paper/images/render/teapot_top.jpg" width="200" height="200">
+        </a>
+      </td>
+      <td align="center">
+        <a href="examples/inverse_lighting.jl">
+          <img border="0" src="docs/src/assets/inv_lighting.gif" width="200" height="200">
+        </a>
+      </td>
+    </tr>
+  </table>
+</div>
+
 ## USAGE EXAMPLES
 
 Follow the instructions below to run individual code examples or use
