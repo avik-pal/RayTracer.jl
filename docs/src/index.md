@@ -14,10 +14,7 @@ RayTracer.jl is a library for differentiable ray tracing. It provides utilities 
                                                                       
 ## Installation
 
-Download [Julia 1.1](https://julialang.org/) or later. 
-
-!!! note
-    This library won't work with Julia 1.0 as it needs the `isnothing` function.
+Download [Julia 1.0](https://julialang.org/) or later. 
 
 For the time being, the library is under active development and hence is not registered. But the
 master branch is pretty stable for experimentation. To install it simply open a julia REPL and 
@@ -32,11 +29,50 @@ image must be of reasonably high resolution.
     Only rendering is currently supported on GPUs. Gradient Computation is broken but
     will be supported in the future.
 
-## Contributions
+## Contribution Guideline
 
 This package is written and maintained by [Avik Pal](https://avik-pal.github.io). Please fork and
 send a pull request or create a [GitHub issue](https://github.com/avik-pal/RayTracer.jl/issues) for
-bug reports or feature requests.
+bug reports. If you are submitting a pull request make sure to follow the official
+[Julia Style Guide](https://docs.julialang.org/en/v1/manual/style-guide/index.html) and please use
+4 spaces and NOT tabs.
+
+### Adding a new feature
+
+* For adding a new feature open a Github Issue first to discuss about it.
+
+* Please note that we try and avoid having many primitive objects. This might speed up 
+  rendering in some rare cases (as most objects will end up being represented as [`Triangle`](@ref)s)
+  but is really painful to maintain in the future.
+
+* If you wish to add rendering algorithms it needs to be added to the `src/renderers` directory.
+  Ideally we wish that this is differentiable but we do accept algorithms which are not differentiable
+  (simply add a note in the documentation).
+
+* Any new type that is defined should have a corresponding entry in `src/gradients/zygote.jl`. Look
+  at existing types to understand how it is done. Note that it is a pretty ugly thing to do and
+  becomes uglier as the number of fields in your struct increases, so do not define something that has
+  a lot of fields unless you need it (see [`Material`](@ref)).
+
+* If you don't want a field in your custom type to be not updated while inverse rendering create a
+  subtype of [`FixedParams`](@ref) and wrap those field in it and store it in your custom type.
+
+### Adding a tutorial/example
+
+* We use Literate.jl to convert `examples` to `markdown` files. Look into its
+  [documentation](https://fredrikekre.github.io/Literate.jl/stable/)
+
+* Next use the following commands to convert he script to markdown
+
+```
+julia> using Literate
+
+julia>  Literate.markdown("examples/your_example.jl", "docs/src/getting_started/", documenter = false)
+```
+
+* Add an entry to `docs/make.jl` so that it is available in the side navigation bar.
+
+* Add an entry to the `docs/src/index.md` [Contents](@ref) section.
 
 ## Contents
 

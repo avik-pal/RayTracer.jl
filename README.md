@@ -69,10 +69,6 @@ Follow the instructions below to run individual examples or use
 First we need to get the versions of the packages used when these
 examples were written.
 
-**NOTE:** We have tested the examples on versions of Julia >= 1.1.
-          It is known that the RayTracer won't function in Julia 1.0
-          due to the absence of `isnothing` function.
-
 ```bash
 $ cd examples
 $ julia --color=yes -e "using Pkg; Pkg.instantiate()"
@@ -81,19 +77,22 @@ $ julia --color=yes -e "using Pkg; Pkg.instantiate()"
 Now we can run any of the file we need by
 `julia --project=. --color=yes "/path/to/file"`
 
-### Some specific things for certain examples
+### Running Individual Examples
 
-1. For the `teapot` rendering we need to download the `obj` file.
+* [`teapot_rendering.jl`](examples/teapot_rendering.jl) -- We need to download the `teapot.obj` file.
 
-`wget https://raw.githubusercontent.com/McNopper/OpenGL/master/Binaries/teapot.obj`
+```
+wget https://raw.githubusercontent.com/McNopper/OpenGL/master/Binaries/teapot.obj
+```
 
-2. For the performance benchmarks:
+* [`performance_benchmarks.jl`](examples/performance_benchmarks.jl) -- We need the mesh and texture for
+  the yield sign board.
 
 ```bash
 $ mkdir meshes
 $ cd meshes
 $ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/meshes/sign_yield.obj
-$ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/meshes/sign_yield.mtl1
+$ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/meshes/sign_yield.mtl
 $ cd ..
 
 $ mkdir textures
@@ -107,7 +106,9 @@ This example requires a few arguments to be passes from command line. Chack them
 
 `julia  --project=. --color=yes "performance_benchmarks.jl" --help`
 
-3. For the `inverse lighting demos` we need to have the `tree.mtl` and `tree.obj` files.
+* [`inverse_lighting.jl`](examples/inverse_lighting.jl) &
+  [`optim_compatibility.jl`](examples/optim_compatibility.jl) -- We need to the `tree.mtl`
+  and `tree.obj` files.
 
 ```
 $ wget https://raw.githubusercontent.com/tejank10/Duckietown.jl/master/src/meshes/tree.obj 

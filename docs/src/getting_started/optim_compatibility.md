@@ -15,32 +15,13 @@ is same as the previous tutorial.
 using RayTracer, Images, Zygote, Flux, Statistics, Optim
 ```
 
-## Configuring the Scene
-
-If you want a better quality image increase this value but it will slow down the
-optimization.
+## Script for setting up the Scene
 
 ```julia
 screen_size = (w = 64, h = 64)
-```
 
-Now we shall load the scene using [`load_obj`](@ref) function. For
-this we need the `obj` and `mtl` files. This will be downloaded using
-the following commands:
-
-```
-wget https://raw.githubusercontent.com/tejank10/Duckietown.jl/master/src/meshes/tree.obj
-wget https://raw.githubusercontent.com/tejank10/Duckietown.jl/master/src/meshes/tree.mtl
-```
-
-```julia
 scene = load_obj("./tree.obj")
-```
 
-Let us set up the [`Camera`](@ref). For a more detailed understanding of
-the rendering process look into [Introduction to rendering using RayTracer.jl](@ref).
-
-```julia
 cam = Camera(
     Vec3(0.0f0, 6.0f0, -10.0f0),
     Vec3(0.0f0, 2.0f0,  0.0f0),
@@ -51,14 +32,7 @@ cam = Camera(
 )
 
 origin, direction = get_primary_rays(cam)
-```
 
-We should define a few convenience functions. Since we are going to calculate
-the gradients only wrt to `light` we have it as an argument to the function. Having
-`scene` as an additional parameters simply allows us to test our method for other
-meshes without having to run `Zygote.refresh()` repeatedly.
-
-```julia
 function render(light, scene)
     packed_image = raytrace(origin, direction, scene, light, origin, 2)
     array_image = reshape(hcat(packed_image.x, packed_image.y, packed_image.z),
@@ -67,16 +41,7 @@ function render(light, scene)
 end
 
 showimg(img) = colorview(RGB, permutedims(img[:,:,:,1], (3,2,1)))
-```
 
-## [Ground Truth Image](@id optim)
-
-For this tutorial we shall use the [`PointLight`](@ref) source.
-We define the ground truth lighting source and the rendered image. We
-will later assume that we have no information about this lighting
-condition and try to reconstruct the image.
-
-```julia
 light_gt = PointLight(
     Vec3(1.0f0, 1.0f0, 1.0f0),
     20000.0f0,
@@ -86,20 +51,7 @@ light_gt = PointLight(
 target_img = render(light_gt, scene)
 
 showimg(zeroonenorm(render(light_gt, scene)))
-```
 
-```@raw html
-<p align="center">
-    <img width=300 height=300 src="../../assets/inv_light_original.png">
-</p>
-```
-
-## Initial Guess of Lighting Parameters
-
-We shall make some arbitrary guess of the lighting parameters (intensity and
-position) and try to get back the image in [Ground Truth Image](@ref optim)
-
-```julia
 light_guess = PointLight(
     Vec3(1.0f0, 1.0f0, 1.0f0),
     1.0f0,
@@ -107,12 +59,6 @@ light_guess = PointLight(
 )
 
 showimg(zeroonenorm(render(light_guess, scene)))
-```
-
-```@raw html
-<p align="center">
-    <img width=300 height=300 src="../../assets/inv_light_initial.png">
-</p>
 ```
 
 ## Writing the Optimization Loop using Optim
@@ -173,9 +119,8 @@ res = optimize(loss_function, ∇loss_function!, initial_parameters, LBFGS())
 @show res.minimizer
 ```
 
-One interesting thing to notice is that LBFGS took us to the global minima while
-ADAM in the previous tutorial was only able to reach a local minima. Also, the
-optimization took only 252 iterations compared to 500 incase of ADAM.
+It might be interesting to note that convergence using LBFGS was much faster (only
+252 iterations) compared to ADAM (401 iterations).
 
 If we generate a `gif` for the optimization process it will look similar to this
 ```@raw html

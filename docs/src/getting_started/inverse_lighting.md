@@ -17,8 +17,9 @@ screen_size = (w = 300, h = 300)
 ```
 
 Now we shall load the scene using [`load_obj`](@ref) function. For
-this we need the `obj` and `mtl` files. This will be downloaded using
-the following commands:
+this we need the [`obj`](https://en.wikipedia.org/wiki/Wavefront_.obj_file)
+and [`mtl`](https://en.wikipedia.org/wiki/Wavefront_.obj_file#Material_template_library)
+files. They can be downloaded using the following commands:
 
 ```
 wget https://raw.githubusercontent.com/tejank10/Duckietown.jl/master/src/meshes/tree.obj
@@ -34,12 +35,13 @@ the rendering process look into [Introduction to rendering using RayTracer.jl](@
 
 ```julia
 cam = Camera(
-    Vec3(0.0f0, 6.0f0, -10.0f0),
-    Vec3(0.0f0, 2.0f0,  0.0f0),
-    Vec3(0.0f0, 1.0f0,  0.0f0),
-    45.0f0,
-    0.5f0,
-    screen_size...
+    lookfrom = Vec3(0.0f0, 6.0f0, -10.0f0),
+    lookat   = Vec3(0.0f0, 2.0f0,  0.0f0),
+    vup      = Vec3(0.0f0, 1.0f0,  0.0f0),
+    vfov     = 45.0f0,
+    focus    = 0.5f0,
+    width    = screen_size.w,
+    height   = screen_size.h
 )
 
 origin, direction = get_primary_rays(cam)
@@ -70,14 +72,20 @@ condition and try to reconstruct the image.
 
 ```julia
 light_gt = PointLight(
-    Vec3(1.0f0, 1.0f0, 1.0f0),
-    20000.0f0,
-    Vec3(1.0f0, 10.0f0, -50.0f0)
+    color     = Vec3(1.0f0, 1.0f0, 1.0f0),
+    intensity = 20000.0f0,
+    position  = Vec3(1.0f0, 10.0f0, -50.0f0)
 )
 
 target_img = render(light_gt, scene)
+```
 
-showimg(zeroonenorm(render(light_gt, scene)))
+The presence of [`zeroonenorm`](@ref) is very important here. It rescales the
+values in the image to 0 to 1. If we don't perform this step `Images` will
+clamp the values while generating the image in RGB format.
+
+```julia
+showimg(zeroonenorm(target_img))
 ```
 
 ```@raw html
@@ -93,9 +101,9 @@ position) and try to get back the image in [Ground Truth Image](@ref inv_light)
 
 ```julia
 light_guess = PointLight(
-    Vec3(1.0f0, 1.0f0, 1.0f0),
-    1.0f0,
-    Vec3(-1.0f0, -10.0f0, -50.0f0)
+    color     = Vec3(1.0f0, 1.0f0, 1.0f0),
+    intensity = 1.0f0,
+    position  = Vec3(-1.0f0, -10.0f0, -50.0f0)
 )
 
 showimg(zeroonenorm(render(light_guess, scene)))

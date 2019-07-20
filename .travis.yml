@@ -1,5 +1,6 @@
 # Documentation: http://docs.travis-ci.com/user/languages/julia/
 language: julia
+codecov: true
 
 os:
   - linux
@@ -27,4 +28,3 @@ jobs:
       
 script:
   - julia --color=yes -e 'using Pkg; Pkg.activate(); Pkg.instantiate(); Pkg.test(coverage=true)'
-  - julia --color=yes -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'

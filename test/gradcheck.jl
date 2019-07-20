@@ -78,5 +78,5 @@ end
 
     numerical_grads = get_params(numderiv(x -> loss_fn([x], color), scene_new[1]))
 
-    @test isapprox(numerical_grads, zygote_grads, rtol = 1.0e-3)
+    @test isapprox(numerical_grads[1:4], zygote_grads[1:4], rtol = 1.0e-3)
 end
