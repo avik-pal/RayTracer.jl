@@ -6,7 +6,9 @@
 [![Latest Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://avik-pal.github.io/RayTracer.jl/dev/)
 
 <p align="center">
-    <img src="docs/src/assets/udem1.gif">
+    <video width="512" height="320" autoplay>
+        <source src="docs/src/assets/udem1.webm" type="video/webm">
+    </video>
 </p>
 
 A Ray Tracer written completely in Julia. This allows us to leverage the AD capablities provided

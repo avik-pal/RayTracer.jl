@@ -2,7 +2,9 @@
 
 ```@raw html
 <p align="center">
-    <img src="./assets/udem1.gif">
+    <video width="512" height="320" autoplay>
+        <source src="./assets/udem1.webm" type="video/webm">
+    </video> 
 </p>
 ```
 
@@ -29,7 +31,7 @@ image must be of reasonably high resolution.
     Only rendering is currently supported on GPUs. Gradient Computation is broken but
     will be supported in the future.
 
-## Contribution Guideline
+## Contribution Guidelines
 
 This package is written and maintained by [Avik Pal](https://avik-pal.github.io). Please fork and
 send a pull request or create a [GitHub issue](https://github.com/avik-pal/RayTracer.jl/issues) for
@@ -55,7 +57,7 @@ bug reports. If you are submitting a pull request make sure to follow the offici
   a lot of fields unless you need it (see [`Material`](@ref)).
 
 * If you don't want a field in your custom type to be not updated while inverse rendering create a
-  subtype of [`FixedParams`](@ref) and wrap those field in it and store it in your custom type.
+  subtype of [`RayTracer.FixedParams`](@ref) and wrap those field in it and store it in your custom type.
 
 ### Adding a tutorial/example
 
@@ -67,7 +69,8 @@ bug reports. If you are submitting a pull request make sure to follow the offici
 ```
 julia> using Literate
 
-julia>  Literate.markdown("examples/your_example.jl", "docs/src/getting_started/", documenter = false)
+julia> Literate.markdown("examples/your_example.jl", "docs/src/getting_started/",
+                         documenter = false)
 ```
 
 * Add an entry to `docs/make.jl` so that it is available in the side navigation bar.
@@ -76,17 +79,37 @@ julia>  Literate.markdown("examples/your_example.jl", "docs/src/getting_started/
 
 ## Contents
 
+### Home
+
 ```@contents
-Pages = ["index.md",
-         "getting_started/teapot_rendering.md",
-         "getting_started/inverse_lighting.md",
-         "getting_started/optim_compatibility.md",
-         "api/utilities.md",
-         "api/differentiation.md",
-         "api/scene.md",
-         "api/optimization.md",
-         "api/renderers.md",
-         "api/accelerators.md"]
+Pages = [
+    "index.md"
+]
+Depth = 2
+```
+
+### Getting Started Tutorials
+
+```@contents
+Pages = [
+    "getting_started/teapot_rendering.md",
+    "getting_started/inverse_lighting.md",
+    "getting_started/optim_compatibility.md"
+]
+Depth = 2
+```
+
+### API Documentation
+
+```@contents
+Pages = [
+    "api/utilities.md",
+    "api/differentiation.md",
+    "api/scene.md",
+    "api/optimization.md",
+    "api/renderers.md",
+    "api/accelerators.md"
+]
 Depth = 2
 ```
 
