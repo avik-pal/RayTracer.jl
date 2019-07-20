@@ -2,7 +2,7 @@
 
 ```@raw html
 <p align="center">
-    <video width="512" height="320" autoplay>
+    <video width="512" height="320" autoplay loop>
         <source src="./assets/udem1.webm" type="video/webm">
     </video> 
 </p>

@@ -6,7 +6,7 @@
 [![Latest Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://avik-pal.github.io/RayTracer.jl/dev/)
 
 <p align="center">
-    <video width="512" height="320" autoplay>
+    <video width="512" height="320" autoplay loop>
         <source src="docs/src/assets/udem1.webm" type="video/webm">
     </video>
 </p>
