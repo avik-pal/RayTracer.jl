@@ -27,5 +27,5 @@ jobs:
       after_success: skip
       
 script:
-  - julia --color=yes -e 'using Pkg; Pkg.activate("test");
+  - julia --color=yes -e 'using Pkg; Pkg.activate();
                           Pkg.instantiate(); Pkg.test(coverage=true)'
