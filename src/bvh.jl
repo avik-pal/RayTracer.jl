@@ -44,14 +44,20 @@ end
 """
     BoundingVolumeHierarchy
 
-Construct the Bounding Volume Hierarchy from a given Vector of
-[`Triangle`](@ref)s.
+An [`AccelerationStructure`](@ref) which constructs bounding boxes around
+groups of triangles to speed up intersection checking. A detailed description
+of ths technique is present [here](https://www.scratchapixel.com/lessons/advanced-rendering/introduction-acceleration-structure/bounding-volume-hierarchy-BVH-part1).
 
 ### Fields:
 
 * `scene_list` - The scene list passed into the BVH constructor but in
                  sorted order
 * `root_node`  - Root [`BVHNode`](@ref)
+
+### Constructors:
+
+* `BoundingVolumeHierarchy(scene::Vector)`
+
 """
 struct BoundingVolumeHierarchy{T, S} <: AccelerationStructure
     scene_list::Vector{T}
