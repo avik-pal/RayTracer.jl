@@ -1,4 +1,4 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{1}
 
 \bibitem{casadi}
 Joel A~E Andersson, Joris Gillis, Greg Horn, James~B Rawlings, and Moritz
@@ -11,12 +11,6 @@ Joel A~E Andersson, Joris Gillis, Greg Horn, James~B Rawlings, and Moritz
 Jeff Bezanson, Alan Edelman, Stefan Karpinski, and Viral~B Shah.
 Julia: A fresh approach to numerical computing.
 {\em SIAM review}, 59(1):65--98, 2017.
-
-\bibitem{retinaface}
-Jiankang Deng, Jia Guo, Yuxiang Zhou, Jinke Yu, Irene Kotsia, and Stefanos
-  Zafeiriou.
-Retinaface: Single-stage dense face localisation in the wild.
-{\em CoRR}, abs/1905.00641, 2019.
 
 \bibitem{DBLP:journals/corr/abs-1810-07951}
 Michael Innes.
