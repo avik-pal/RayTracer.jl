@@ -1,8 +1,11 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
-\bibitem{jax}
-Jax.
-\url{https://github.com/google/jax}, 2018.
+\bibitem{casadi}
+Joel A~E Andersson, Joris Gillis, Greg Horn, James~B Rawlings, and Moritz
+  Diehl.
+{CasADi} -- {A} software framework for nonlinear optimization and optimal
+  control.
+{\em Mathematical Programming Computation}, In Press, 2018.
 
 \bibitem{bezanson2017julia}
 Jeff Bezanson, Alan Edelman, Stefan Karpinski, and Viral~B Shah.
@@ -25,6 +28,11 @@ Michael Innes, Elliot Saba, Keno Fischer, Dhairya Gandhi, Marco~Concetto
   Rudilosso, Neethu~Mariya Joy, Tejan Karmali, Avik Pal, and Viral Shah.
 Fashionable {M}odelling with {F}lux.
 {\em CoRR}, abs/1811.01457, 2018.
+
+\bibitem{jax}
+Matt Johnson, Roy Frostig, Dougal Maclaurin, and Chris Leary.
+{JAX}: {A}utograd and {XLA}.
+\url{https://github.com/google/jax}, 2018.
 
 \bibitem{Kay:1986:RTC:15922.15916}
 Timothy~L. Kay and James~T. Kajiya.
