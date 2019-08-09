@@ -3,6 +3,40 @@ export Material
 # --------- #
 # Materials #
 # --------- #
+"""
+    Material
+
+This Type stores information about the material of an [`Object`](@ref).
+We compute the color of a point by dispatching on the type of the material.
+That is why we store `nothing` when a particular field is absent.
+
+!!! note
+    `texture_*` and `uv_coordinates` fields are applicable only if the
+    object used is a [`Triangle`](@ref). If any of the texture fields are
+    present, `uv_coordinates` must be present.
+
+### Fields:
+
+* `color_ambient`     - The Ambient Color of the Material.
+* `color_diffuse`     - The Diffuse Color of the Material.
+* `color_specular`    - The Specular Color of the Material.
+* `specular_exponent` - Specular Exponent of the Material.
+* `reflection`        - The reflection coefficient of the material.
+* `texture_ambient`   - Stores the ambient texture image (if present) in Vec3 format.
+* `texture_diffuse`   - Stores the diffuse texture image (if present) in Vec3 format.
+* `texture_specular`  - Stores the specular texture image (if present) in VEc3 format.
+* `uv_coordinates`    - The uv coordinates are stored as a vector (of length 3) of tuples.
+
+### Available Constructors
+
+```
+Material(;color_ambient = Vec3(1.0f0), color_diffuse = Vec3(1.0f0),
+          color_specular = Vec3(1.0f0), specular_exponent::Real = 50.0f0,
+          reflection::Real = 0.5f0, texture_ambient = nothing, 
+          texture_diffuse = nothing, texture_specular = nothing,
+          uv_coordinates = nothing)
+```
+"""
 struct Material{T<:AbstractArray, R<:AbstractVector, U<:Union{Vec3, Nothing},
                 V<:Union{Vec3, Nothing}, W<:Union{Vec3, Nothing},
                 S<:Union{Vector, Nothing}}
@@ -22,10 +56,10 @@ struct Material{T<:AbstractArray, R<:AbstractVector, U<:Union{Vec3, Nothing},
 end
 
 Material(;color_ambient = Vec3(1.0f0), color_diffuse = Vec3(1.0f0),
-         color_specular = Vec3(1.0f0), specular_exponent::Real = 50.0f0,
-         reflection::Real = 0.5f0, texture_ambient = nothing, 
-         texture_diffuse = nothing, texture_specular = nothing,
-         uv_coordinates = nothing) =
+          color_specular = Vec3(1.0f0), specular_exponent::Real = 50.0f0,
+          reflection::Real = 0.5f0, texture_ambient = nothing, 
+          texture_diffuse = nothing, texture_specular = nothing,
+          uv_coordinates = nothing) =
     Material(color_ambient, color_diffuse, color_specular, [specular_exponent],
              [reflection], texture_ambient, texture_diffuse, texture_specular,
              uv_coordinates)
@@ -42,6 +76,14 @@ function Base.zero(m::Material)
                     texture_diffuse, texture_specular, uv_coordinates)
 end
 
+"""
+    get_color(m::Material, pt::Vec3, ::Val{T}, obj::Object)
+
+Returns the color at the point `pt`. We use `T` and the type of the Material `m`
+for efficiently dispatching to the right function. The right function is determined
+by the presence/absence of the texture field. The possible values of `T` are
+`:ambient`, `:diffuse`, and `:specular`.
+"""
 get_color(m::Material{T, R, Nothing, V, W, S}, pt::Vec3,
           ::Val{:ambient}, obj) where {T<:AbstractArray, R<:AbstractVector,
                                        V<:Union{Vec3, Nothing}, W<:Union{Vec3, Nothing},
@@ -163,6 +205,16 @@ function get_color(m::Material, pt::Vec3, ::Val{:specular}, obj)
     return Zygote.literal_getproperty(m, Val(:color_specular)) * Vec3(img.x, img.y, img.z)
 end
 
+"""
+    specular_exponent(m::Material)
+
+Returns the `specular_exponent` of the Material `m`.
+"""
 specular_exponent(m::Material) = m.specular_exponent[]
 
+"""
+    reflection(m::Material)
+
+Returns the `reflection coefficient` of the Material `m`.
+"""
 reflection(m::Material) = m.reflection[]

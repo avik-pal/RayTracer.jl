@@ -5,6 +5,12 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/887v1miv7ig4mod2?svg=true)](https://ci.appveyor.com/project/avik-pal/raytracer-jl) 
 [![Latest Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://avik-pal.github.io/RayTracer.jl/dev/)
 
+<p align="center">
+    <video width="512" height="320" autoplay loop>
+        <source src="docs/src/assets/udem1.webm" type="video/webm">
+    </video>
+</p>
+
 A Ray Tracer written completely in Julia. This allows us to leverage the AD capablities provided
 by Zygote to differentiate through the Ray Tracer.
 
@@ -22,38 +28,73 @@ For GPU Support
 ] add https://github.com/avik-pal/RayTracer.jl#ap/gpu
 ```
 
+## TUTORIALS
+
+<div align="center">
+  <table>
+    <tr>
+      <th style="text-align:center">
+        <a href="examples/teapot_rendering.jl">Introductory Rendering Tutorial</a>
+      </th>
+      <th style="text-align:center">
+        <a href="examples/inverse_lighting.jl">Inverse Lighting Tutorial</a>
+      </th>
+      <th style="text-align:center">
+        <a href="examples/optim_compatibility.jl">Inverse Rendering with Optim.jl Tutorial</a>
+      </th>
+    </tr>
+    <tr>
+      <td align="center">
+        <a href="examples/teapot_rendering.jl">
+          <img border="0" src="paper/images/render/teapot_top.jpg" width="200" height="200">
+        </a>
+      </td>
+      <td align="center">
+        <a href="examples/inverse_lighting.jl">
+          <img border="0" src="docs/src/assets/inv_lighting.gif" width="200" height="200">
+        </a>
+      </td>
+      <td align="center">
+        <a href="examples/optim_compatibility.jl">
+          <img border="0" src="docs/src/assets/inv_lighting_optim.gif" width="200" height="200">
+        </a>
+      </td>
+    </tr>
+  </table>
+</div>
+
 ## USAGE EXAMPLES
 
-Follow the instructions below to run individual code examples or use
-`code/script.sh` to run all of them together.
+Follow the instructions below to run individual examples or use
+`examples/script.sh` to run all of them together.
 
 First we need to get the versions of the packages used when these
 examples were written.
 
-**NOTE:** We have tested the examples on versions of Julia >= 1.1.
-          It is known that the RayTracer won't function in Julia 1.0.
-
 ```bash
-$ cd code
+$ cd examples
 $ julia --color=yes -e "using Pkg; Pkg.instantiate()"
 ```
 
 Now we can run any of the file we need by
 `julia --project=. --color=yes "/path/to/file"`
 
-### Some specific things for certain examples
+### Running Individual Examples
 
-1. For the `teapot` rendering we need to download the `obj` file.
+* [`teapot_rendering.jl`](examples/teapot_rendering.jl) -- We need to download the `teapot.obj` file.
 
-`wget https://raw.githubusercontent.com/McNopper/OpenGL/master/Binaries/teapot.obj`
+```
+wget https://raw.githubusercontent.com/McNopper/OpenGL/master/Binaries/teapot.obj
+```
 
-2. For the performance benchmarks:
+* [`performance_benchmarks.jl`](examples/performance_benchmarks.jl) -- We need the mesh and texture for
+  the yield sign board.
 
 ```bash
 $ mkdir meshes
 $ cd meshes
 $ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/meshes/sign_yield.obj
-$ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/meshes/sign_yield.mtl1
+$ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/meshes/sign_yield.mtl
 $ cd ..
 
 $ mkdir textures
@@ -66,6 +107,15 @@ $ cd ..
 This example requires a few arguments to be passes from command line. Chack them using
 
 `julia  --project=. --color=yes "performance_benchmarks.jl" --help`
+
+* [`inverse_lighting.jl`](examples/inverse_lighting.jl) &
+  [`optim_compatibility.jl`](examples/optim_compatibility.jl) -- We need to the `tree.mtl`
+  and `tree.obj` files.
+
+```
+$ wget https://raw.githubusercontent.com/tejank10/Duckietown.jl/master/src/meshes/tree.obj 
+$ wget https://raw.githubusercontent.com/tejank10/Duckietown.jl/master/src/meshes/tree.mtl
+```
 
 ### Additional Examples
 
@@ -86,12 +136,11 @@ $ latexmk -c
 
 These are not listed in any particular order
 
-- [X] Add more types of common objects (use mesh rendering for this) - Disc, Plane, Box
+- [X] Add more types of common objects (use mesh rendering for this)
 - [X] Add support for rendering arbitrary mesh
-  but is slow)
 - [ ] GPU Support using CuArrays (partially supported in `ap/gpu` branch)
-- [ ] Inverse Rendering Examples
-- [ ] Application in Machine Learning Models through Flux
+- [X] Inverse Rendering Examples
+- [ ] Application in Machine Learning Models through Flux (work in progress)
 - [X] Texture Rendering
 - [ ] Make everything differentiable:
   - [ ] Triangle Mesh

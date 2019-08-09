@@ -9,12 +9,56 @@ const film_aperture = (0.980f0, 0.735f0)
 # --------- #
 # Utilities #
 # --------- #
+"""
+    edge_function(pt1::Vec3, pt2::Vec3, point::Vec3)
 
+Checks on which side of the line formed by `pt1` and `pt2` does
+`point` lie.
+"""
 edge_function(pt1::Vec3, pt2::Vec3, point::Vec3) = edge_function_vector(pt1, pt2, point)[] 
  
+"""
+    edge_function_vector(pt1::Vec3, pt2::Vec3, point::Vec3)
+
+Vectoried form of the [`edge_function`](@ref)
+"""
 edge_function_vector(pt1::Vec3, pt2::Vec3, point::Vec3) =
     ((point.x .- pt1.x) .* (pt2.y - pt1.y) .- (point.y .- pt1.y) .* (pt2.x .- pt1.x))
 
+"""
+    convert2raster(vertex_world::Vec3, world_to_camera, left::Real, right::Real,
+                   top::Real, bottom::Real, width::Int, height::Int)
+    convert2raster(vertex_camera::Vec3{T}, left::Real, right::Real, top::Real, bottom::Real,
+                   width::Int, height::Int) where {T}
+
+Converts a Point in 3D world space to the 3D raster space. The conversion is done by the
+following steps:
+
+```math
+V_{camera} = World2CameraTransform(V_{world})
+```
+```math
+V_{screen_x} = -\\frac{V_{camera_x}}{V_{camera_z}}
+```
+```math
+V_{screen_y} = -\\frac{V_{camera_y}}{V_{camera_z}}
+```
+```math
+V_{NDC_x} = \\frac{2 \\times V_{screen_x} - right - left}{right - left}
+```
+```math
+V_{NDC_y} = \\frac{2 \\times V_{screen_y} - top - bottom}{top - bottom}
+```
+```math
+V_{raster_x} = \\frac{V_{NDC_x} + 1}{2 \\times width}
+```
+```math
+V_{raster_y} = \\frac{1 - V_{NDC_y}}{2 \\times height}
+```
+```math
+V_{raster_z} = - V_{camera_z}
+```
+"""
 function convert2raster(vertex_world::Vec3, world_to_camera, left::Real, right::Real,
                         top::Real, bottom::Real, width::Int, height::Int)
     vertex_camera = world2camera(vertex_world, world_to_camera)
@@ -43,6 +87,15 @@ end
 # Rasterizer #
 # ---------- #
 
+"""
+   rasterize(cam::Camera, scene::Vector)
+   rasterize(cam::Camera, scene::Vector, camera_to_world,
+             world_to_camera, top, right, bottom, left)
+
+Implements the raterization algorithm. This is extremely fast when compared
+to the [`raytrace`](@ref) function. However, the image generated is much less
+photorealistic with no lighting effects.
+"""
 function rasterize(cam::Camera, scene::Vector)
     top, right, bottom, left = compute_screen_coordinates(cam, film_aperture)
     camera_to_world = get_transformation_matrix(cam)

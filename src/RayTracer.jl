@@ -3,6 +3,9 @@ module RayTracer
 using Zygote, Flux, Images, Distributed, Statistics
 import Base.show
 
+using Compat
+import Compat.isnothing
+
 # Rendering Utilities
 include("utils.jl")
 include("light.jl")

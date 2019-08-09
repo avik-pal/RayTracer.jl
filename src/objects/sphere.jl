@@ -4,6 +4,17 @@ export Sphere
 # - Sphere - #
 # ---------- #
 
+"""
+    Sphere
+
+Sphere is a primitive object.
+
+### Fields:
+
+* `center`   - Center of the Sphere in 3D world space
+* `radius`   - Radius of the Sphere
+* `material` - Material of the Sphere
+"""
 struct Sphere{C, P, Q, R, S, T, U} <: Object
     center::Vec3{C}
     radius::C
