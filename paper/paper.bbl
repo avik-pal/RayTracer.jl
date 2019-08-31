@@ -1,4 +1,4 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{casadi}
 Joel A~E Andersson, Joris Gillis, Greg Horn, James~B Rawlings, and Moritz
@@ -6,6 +6,12 @@ Joel A~E Andersson, Joris Gillis, Greg Horn, James~B Rawlings, and Moritz
 {CasADi} -- {A} software framework for nonlinear optimization and optimal
   control.
 {\em Mathematical Programming Computation}, In Press, 2018.
+
+\bibitem{Appel:1968:TSM:1468075.1468082}
+Arthur Appel.
+{Some Techniques for Shading Machine Renderings of Solids}.
+In {\em Proceedings of the April 30--May 2, 1968, Spring Joint Computer
+  Conference}, AFIPS '68 (Spring), pages 37--45, New York, NY, USA, 1968. ACM.
 
 \bibitem{bezanson2017julia}
 Jeff Bezanson, Alan Edelman, Stefan Karpinski, and Viral~B Shah.
@@ -28,6 +34,11 @@ Matt Johnson, Roy Frostig, Dougal Maclaurin, and Chris Leary.
 {JAX}: {A}utograd and {XLA}.
 \url{https://github.com/google/jax}, 2018.
 
+\bibitem{K2018Optim}
+Patrick K~Mogensen and Asbjørn N~Riseth.
+Optim: A mathematical optimization package for julia.
+{\em Journal of Open Source Software}, 3(24):615, 4 2018.
+
 \bibitem{Kay:1986:RTC:15922.15916}
 Timothy~L. Kay and James~T. Kajiya.
 Ray {T}racing {C}omplex {S}cenes.
@@ -45,9 +56,21 @@ Tzu-Mao Li, Miika Aittala, Fr{\'e}do Durand, and Jaakko Lehtinen.
 Differentiable {M}onte {C}arlo {R}ay {T}racing through {E}dge {S}ampling.
 {\em ACM Trans. Graph. (Proc. SIGGRAPH Asia)}, 37(6):222:1--222:11, 2018.
 
+\bibitem{softraster}
+Shichen Liu, Tianye Li, Weikai Chen, and Hao Li.
+Soft rasterizer: {A} differentiable renderer for image-based 3d reasoning.
+{\em CoRR}, abs/1904.01786, 2019.
+
 \bibitem{RayTracer.jl}
 Avik Pal.
 Ray{T}racer.jl.
 \url{https://github.com/avik-pal/RayTracer.jl}, 2019.
+
+\bibitem{Pineda:1988:PAP:54852.378457}
+Juan Pineda.
+{A Parallel Algorithm for Polygon Rasterization}.
+In {\em Proceedings of the 15th Annual Conference on Computer Graphics and
+  Interactive Techniques}, SIGGRAPH '88, pages 17--20, New York, NY, USA, 1988.
+  ACM.
 
 \end{thebibliography}
