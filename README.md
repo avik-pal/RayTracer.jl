@@ -7,12 +7,27 @@
 
 <p align="center">
     <video width="512" height="320" autoplay loop>
-        <source src="docs/src/assets/udem1.webm" type="video/webm">
+        <source src="docs/src/assets/udem1.gif" type="video/gif">
     </video>
 </p>
 
 A Ray Tracer written completely in Julia. This allows us to leverage the AD capablities provided
 by Zygote to differentiate through the Ray Tracer.
+
+## SUPPORTING AND CITING:
+
+This software was developed as part of academic research. If you would like to help support it, please star the repository. If you use this software as part of your research, teaching, or other activities, we would be grateful if you could cite:
+
+```
+@misc{pal2019raytracerjl,
+    title={{RayTracer.jl: A Differentiable Renderer that supports Parameter Optimization for Scene Reconstruction}},
+    author={Avik Pal},
+    year={2019},
+    eprint={1907.07198},
+    archivePrefix={arXiv},
+    primaryClass={cs.GR}
+}
+```
 
 ## INSTALLATION
 
