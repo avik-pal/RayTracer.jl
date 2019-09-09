@@ -1,5 +1,3 @@
-export TriangleMesh
-
 # ----------------- #
 # - Triangle Mesh - #
 # ----------------- #
