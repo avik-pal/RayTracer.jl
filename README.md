@@ -5,6 +5,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/887v1miv7ig4mod2?svg=true)](https://ci.appveyor.com/project/avik-pal/raytracer-jl) 
 [![Latest Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://avik-pal.github.io/RayTracer.jl/dev/)
 [![status](https://submissions.juliacon.org/papers/ebd92f2a47780826004bd88a6fd1f717/status.svg)](https://submissions.juliacon.org/papers/ebd92f2a47780826004bd88a6fd1f717)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1442781.svg)](https://doi.org/10.5281/zenodo.1442781)
 
 <p align="center">
     <video width="512" height="320" autoplay loop>
