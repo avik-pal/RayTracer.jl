@@ -2,7 +2,6 @@
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
-IRTools = "7869d1d1-7146-5819-86e3-90919afe41df"
 ImageMagick = "6218d12a-5da1-5696-b52f-db25d2ecc6d1"
 Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
