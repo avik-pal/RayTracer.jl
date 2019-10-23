@@ -95,14 +95,14 @@ wget https://raw.githubusercontent.com/McNopper/OpenGL/master/Binaries/teapot.ob
 ```bash
 $ mkdir meshes
 $ cd meshes
-$ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/meshes/sign_yield.obj
-$ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/meshes/sign_yield.mtl
+$ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/master/test/meshes/sign_yield.obj
+$ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/master/test/meshes/sign_yield.mtl
 $ cd ..
 
 $ mkdir textures
 $ cd textures
-$ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/textures/wood_osb.jpg
-$ wget raw.githubusercontent.com/avik-pal/RayTracer.jl/ap/texture/test/textures/sign_yield.png
+$ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/master/test/textures/wood_osb.jpg
+$ wget https://raw.githubusercontent.com/avik-pal/RayTracer.jl/master/test/textures/sign_yield.png
 $ cd ..
 ```
 
