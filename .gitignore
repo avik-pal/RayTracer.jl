@@ -6,3 +6,4 @@ deps/deps.jl
 build
 site
 .ipynb*
+*.cls
