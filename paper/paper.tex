@@ -170,11 +170,12 @@ RayTracer.jl can be used to solve a variety of inverse graphics problems. Since 
 \begin{algorithm}[!htb]
 \DontPrintSemicolon
 \SetAlgoLined
-\KwIn{Initial Guess of the Scene Parameters, Maximum Number of Iterations, Tolerance in Loss}
+\KwIn{Initial Guess of the Scene Parameters, Maximum Number of Iterations, Tolerance in Loss, First-Order Optimization Algorithm}
 \KwOut{Optimized set of Scene Parameters}
 params $\gets$ Initial Guess of Scene Parameters\;
 tolerance $\gets$ Tolerance in Loss\;
 max\_iter $\gets$ Maximum Number of Iterations\;
+optimizer $\gets$ First-Order Optimization Algorithm\;
 converged $\gets$ false\;
 iter $\gets$ 0\;
 \While{not \textbf{converged} or iter < max\_iter}{
