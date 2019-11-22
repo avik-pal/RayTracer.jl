@@ -20,10 +20,10 @@ Download [Julia 1.0](https://julialang.org/) or later.
 
 For the time being, the library is under active development and hence is not registered. But the
 master branch is pretty stable for experimentation. To install it simply open a julia REPL and 
-do `] add https://github.com/avik-pal/RayTracer.jl`.
+do `] add RayTracer`.
 
 The master branch will do all computation on CPU. To try out the experimental GPU support do
-`] add https://github.com/avik-pal/RayTracer.jl#ap/gpu`. To observe the potential performance
+`] add RayTracer#ap/gpu`. To observe the potential performance
 gains of using GPU you will have to render scenes having more number of objects and the 2D
 image must be of reasonably high resolution.
 
