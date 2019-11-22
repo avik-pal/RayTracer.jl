@@ -21,13 +21,13 @@ by Zygote to differentiate through the Ray Tracer.
 The package is currently not registered. So open up a Julia 1.1+ repl and enter the pkg mode.
 
 ```julia
-] add https://github.com/avik-pal/RayTracer.jl
+] add RayTracer
 ```
 
 For GPU Support
 
 ```julia
-] add https://github.com/avik-pal/RayTracer.jl#ap/gpu
+] add RayTracer#ap/gpu
 ```
 
 ## TUTORIALS
