@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Optimizing using Optim.jl · RayTracer</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link href="../../assets/documenter.css" rel="stylesheet" type="text/css"/><link href="../../assets/raytracer.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><h1>RayTracer</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="../../search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../../">Home</a></li><li><span class="toctext">Getting Started</span><ul><li><a class="toctext" href="../teapot_rendering/">Introduction to Rendering</a></li><li><a class="toctext" href="../inverse_lighting/">Inverse Lighting</a></li><li class="current"><a class="toctext" href>Optimizing using Optim.jl</a><ul class="internal"><li><a class="toctext" href="#Script-for-setting-up-the-Scene-1">Script for setting up the Scene</a></li><li><a class="toctext" href="#Writing-the-Optimization-Loop-using-Optim-1">Writing the Optimization Loop using Optim</a></li></ul></li></ul></li><li><span class="toctext">API Documentation</span><ul><li><a class="toctext" href="../../api/utilities/">General Utilities</a></li><li><a class="toctext" href="../../api/differentiation/">Differentiation</a></li><li><a class="toctext" href="../../api/scene/">Scene Configuration</a></li><li><a class="toctext" href="../../api/renderers/">Renderers</a></li><li><a class="toctext" href="../../api/optimization/">Optimization</a></li><li><a class="toctext" href="../../api/accelerators/">Acceleration Structures</a></li></ul></li></ul></nav><article id="docs"><header><nav><ul><li>Getting Started</li><li><a href>Optimizing using Optim.jl</a></li></ul><a class="edit-page" href="https://github.com/avik-pal/RayTracer.jl/blob/master/docs/src/getting_started/optim_compatibility.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Optimizing using Optim.jl</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Optimizing-Scene-Parameters-using-Optim.jl-1" href="#Optimizing-Scene-Parameters-using-Optim.jl-1">Optimizing Scene Parameters using Optim.jl</a></h1><p>In this tutorial we will explore the exact same problem as demonstrated in <a href="../inverse_lighting/#Inverse-Lighting-Tutorial-1">Inverse Lighting Tutorial</a> but this time we will use the Optimization Package <a href="https://julianlsolvers.github.io/Optim.jl/stable/">Optim.jl</a>. I would recommend going through a few of the <a href="https://julianlsolvers.github.io/Optim.jl/stable/#user/minimization/#_top">tutorials on Optim</a> before starting this one.</p><p>If you have already read the previous tutorial, you can safely skip to <a href="#Writing-the-Optimization-Loop-using-Optim-1">Writing the Optimization Loop using Optim</a>. The part previous to this is same as the previous tutorial.</p><pre><code class="language-julia">using RayTracer, Images, Zygote, Flux, Statistics, Optim</code></pre><h2><a class="nav-anchor" id="Script-for-setting-up-the-Scene-1" href="#Script-for-setting-up-the-Scene-1">Script for setting up the Scene</a></h2><pre><code class="language-julia">screen_size = (w = 64, h = 64)
+
+scene = load_obj(&quot;./tree.obj&quot;)
+
+cam = Camera(
+    Vec3(0.0f0, 6.0f0, -10.0f0),
+    Vec3(0.0f0, 2.0f0,  0.0f0),
+    Vec3(0.0f0, 1.0f0,  0.0f0),
+    45.0f0,
+    0.5f0,
+    screen_size...
+)
+
+origin, direction = get_primary_rays(cam)
+
+function render(light, scene)
+    packed_image = raytrace(origin, direction, scene, light, origin, 2)
+    array_image = reshape(hcat(packed_image.x, packed_image.y, packed_image.z),
+                          (screen_size.w, screen_size.h, 3, 1))
+    return array_image
+end
+
+showimg(img) = colorview(RGB, permutedims(img[:,:,:,1], (3,2,1)))
+
+light_gt = PointLight(
+    Vec3(1.0f0, 1.0f0, 1.0f0),
+    20000.0f0,
+    Vec3(1.0f0, 10.0f0, -50.0f0)
+)
+
+target_img = render(light_gt, scene)
+
+showimg(zeroonenorm(render(light_gt, scene)))
+
+light_guess = PointLight(
+    Vec3(1.0f0, 1.0f0, 1.0f0),
+    1.0f0,
+    Vec3(-1.0f0, -10.0f0, -50.0f0)
+)
+
+showimg(zeroonenorm(render(light_guess, scene)))</code></pre><h2><a class="nav-anchor" id="Writing-the-Optimization-Loop-using-Optim-1" href="#Writing-the-Optimization-Loop-using-Optim-1">Writing the Optimization Loop using Optim</a></h2><p>Since, there is no direct support of Optim (unlike for Flux) in RayTracer the interface might seem a bit ugly. This is mainly due to the way the two optimization packages work. Flux allows inplace operation and ideally even RayTracer prefers that. But Optim requires us to give the parameters as an <code>AbstractArray</code>.</p><p>Firstly, we shall extract the parameters, using the <a href="../../api/utilities/#RayTracer.get_params"><code>RayTracer.get_params</code></a> function, we want to optimize.</p><pre><code class="language-julia">initial_parameters = RayTracer.get_params(light_guess)[end-3:end]</code></pre><p>Since the input to the <code>loss_function</code> is an abstract array we need to convert it into a form that the RayTracer understands. For this we shall use the <a href="../../api/utilities/#RayTracer.set_params!"><code>RayTracer.set_params!</code></a> function which will modify the parameters inplace.</p><p>In this function we simply compute the loss values and print it for our reference</p><pre><code class="language-julia">function loss_function(θ::AbstractArray)
+    light_optim = deepcopy(light_guess)
+    RayTracer.set_params!(light_optim.intensity, θ[1:1])
+    RayTracer.set_params!(light_optim.position, θ[2:end])
+    loss = sum((render(light_optim, scene) .- target_img) .^ 2)
+    @show loss
+    return loss
+end</code></pre><p>RayTracer uses Zygote&#39;s Reverse Mode AD for computing the derivatives. However, the default in Optim is ForwardDiff. Hence, we need to override that by giving our own gradient function.</p><pre><code class="language-julia">function ∇loss_function!(G, θ::AbstractArray)
+    light_optim = deepcopy(light_guess)
+    RayTracer.set_params!(light_optim.intensity, θ[1:1])
+    RayTracer.set_params!(light_optim.position, θ[2:end])
+    gs = gradient(light_optim) do L
+        sum((render(L, scene) .- target_img) .^ 2)
+    end
+    G .= RayTracer.get_params(gs[1])[end-3:end]
+end</code></pre><p>Now we simply call the <code>optimize</code> function with <code>LBFGS</code> optimizer.</p><pre><code class="language-julia">res = optimize(loss_function, ∇loss_function!, initial_parameters, LBFGS())
+
+@show res.minimizer</code></pre><p>It might be interesting to note that convergence using LBFGS was much faster (only 252 iterations) compared to ADAM (401 iterations).</p><p>If we generate a <code>gif</code> for the optimization process it will look similar to this</p><p align="center">
+     <img width=300 height=300 src="../../assets/inv_lighting_optim.gif">
+</p><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p><footer><hr/><a class="previous" href="../inverse_lighting/"><span class="direction">Previous</span><span class="title">Inverse Lighting</span></a><a class="next" href="../../api/utilities/"><span class="direction">Next</span><span class="title">General Utilities</span></a></footer></article></body></html>
