@@ -593,11 +593,11 @@ version = "0.4.0"
 
 [[RayTracer]]
 deps = ["Compat", "Distributed", "Flux", "ImageMagick", "Images", "Statistics", "Zygote"]
-git-tree-sha1 = "6cf2a574da4946cee0da5c1a4d6ecbd055b9fd2f"
-repo-rev = "ap/updates"
+git-tree-sha1 = "fb4672d8dd242ef260663d0cfc817020070bcdb2"
+repo-rev = "master"
 repo-url = "https://github.com/avik-pal/RayTracer.jl.git"
 uuid = "60dacb86-48ff-11e9-0f01-03ab8794bbc9"
-version = "0.1.1"
+version = "0.1.2"
 
 [[Reexport]]
 deps = ["Pkg"]
