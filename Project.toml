@@ -1,7 +1,7 @@
 name = "RayTracer"
 uuid = "60dacb86-48ff-11e9-0f01-03ab8794bbc9"
 authors = ["Avik Pal <avikpal@iitk.ac.in>"]
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
