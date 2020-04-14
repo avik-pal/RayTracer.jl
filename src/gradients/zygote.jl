@@ -158,7 +158,7 @@ end
     
 @adjoint literal_getproperty(m::Material, ::Val{:specular_exponent}) =
     getproperty(m, :specular_exponent), Δ -> (Material(zero(m.color_ambient), zero(m.color_diffuse),
-                                                       zero(m.color_specular), Δ, zero(m.reflection),
+                                                       zero(m.color_specular), real.(Δ), zero(m.reflection),
                                                        isnothing(m.texture_ambient) ? nothing : zero(m.texture_ambient),
                                                        isnothing(m.texture_diffuse) ? nothing : zero(m.texture_diffuse),
                                                        isnothing(m.texture_specular) ? nothing : zero(m.texture_specular),
