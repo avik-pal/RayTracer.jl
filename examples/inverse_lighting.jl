@@ -105,15 +105,16 @@ save("./results_inv_lighting/inv_light_initial.png",
 # We will use the ADAM optimizer from Flux. (Try experimenting with other
 # optimizers as well). We can also use frameworks like Optim.jl for optimization.
 # We will show how to do it in a future tutorial
+opt = ADAM(1.0)
 
 for i in 1:401
-    loss, back_fn = Zygote.forward(light_guess) do L
+    loss, back_fn = Zygote._pullback(light_guess) do L
         sum((render(L, scene) .- target_img) .^ 2)
     end
     @show loss
     gs = back_fn(1.0f0)
-    update!(opt, light_guess.intensity, gs[1].intensity)
-    update!(opt, light_guess.position, gs[1].position)
+    update!(opt, light_guess.intensity, gs[2].intensity)
+    update!(opt, light_guess.position, gs[2].position)
     if i % 5 == 1
         save("./results_inv_lighting/iteration_$i.png",
              showimg(zeroonenorm(render(light_guess, scene))))

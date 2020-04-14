@@ -1,6 +1,6 @@
 # RayTracer.jl
 
-[![Build Status](https://travis-ci.com/avik-pal/RayTracer.jl.svg?branch=master)](https://travis-ci.com/avik-pal/RayTracer.jl)
+![CI](https://github.com/avik-pal/RayTracer.jl/workflows/CI/badge.svg?branch=master)
 [![codecov](https://codecov.io/gh/avik-pal/RayTracer.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/avik-pal/RayTracer.jl)
 [![Build status](https://ci.appveyor.com/api/projects/status/887v1miv7ig4mod2?svg=true)](https://ci.appveyor.com/project/avik-pal/raytracer-jl) 
 [![Latest Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://avik-pal.github.io/RayTracer.jl/dev/)
