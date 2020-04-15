@@ -17,16 +17,18 @@ by Zygote to differentiate through the Ray Tracer.
 
 ## INSTALLATION
 
-The package is currently not registered. So open up a Julia 1.1+ repl and enter the pkg mode.
+This package is registered. So open up a Julia 1.3+ repl and enter the pkg mode.
 
 ```julia
-] add RayTracer
+julia> ]
+(v1.3) pkg> add RayTracer
 ```
 
-For GPU Support
+To use the master branch (not recommended) do.
 
 ```julia
-] add RayTracer#ap/gpu
+julia> ]
+(v1.3) pkg> add RayTracer#master
 ```
 
 ## TUTORIALS
