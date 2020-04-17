@@ -88,9 +88,9 @@ version = "0.7.0"
 
 [[ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
-git-tree-sha1 = "c4c1cca28748906265ed62c788d6fe6f0134d264"
+git-tree-sha1 = "dc232130b48be37c2612d32a3196f37f3aa50e24"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
-version = "0.10.0"
+version = "0.10.1"
 
 [[ColorVectorSpace]]
 deps = ["ColorTypes", "Colors", "FixedPointNumbers", "LinearAlgebra", "SpecialFunctions", "Statistics", "StatsBase"]
@@ -358,9 +358,9 @@ version = "0.8.4"
 
 [[Images]]
 deps = ["AxisArrays", "Base64", "ColorVectorSpace", "FileIO", "Graphics", "ImageAxes", "ImageContrastAdjustment", "ImageCore", "ImageDistances", "ImageFiltering", "ImageMetadata", "ImageMorphology", "ImageQualityIndexes", "ImageShow", "ImageTransformations", "IndirectArrays", "MappedArrays", "OffsetArrays", "Random", "Reexport", "SparseArrays", "StaticArrays", "Statistics", "StatsBase", "TiledIteration"]
-git-tree-sha1 = "30618bbbb5cbae4ce14f4adf0cdce71f9be4e9b6"
+git-tree-sha1 = "bc7ecabe5ef4d64fea25660bc5aa514a603e4468"
 uuid = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
-version = "0.22.1"
+version = "0.22.2"
 
 [[IndirectArrays]]
 git-tree-sha1 = "c2a145a145dc03a7620af1444e0264ef907bd44f"
@@ -557,7 +557,7 @@ version = "0.4.0"
 
 [[RayTracer]]
 deps = ["Compat", "Distributed", "Flux", "ImageMagick", "Images", "Statistics", "Zygote"]
-git-tree-sha1 = "d54dd3f461553954f68cbe9a7622937e7947f85f"
+git-tree-sha1 = "46220f25609e02b51f41d8148a7c6b9a8ffdff74"
 repo-rev = "master"
 repo-url = "https://github.com/avik-pal/RayTracer.jl.git"
 uuid = "60dacb86-48ff-11e9-0f01-03ab8794bbc9"
