@@ -32,9 +32,9 @@ version = "1.0.0"
 
 [[AxisArrays]]
 deps = ["Dates", "IntervalSets", "IterTools", "RangeArrays"]
-git-tree-sha1 = "4781a1dc368d9f1630281ed4a4240a0f34a420de"
+git-tree-sha1 = "f31f50712cbdf40ee8287f0443b57503e34122ef"
 uuid = "39de3d68-74b9-583c-8d2d-e117c070f3a9"
-version = "0.4.0"
+version = "0.4.3"
 
 [[Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -151,9 +151,9 @@ uuid = "dc8bdbbb-1ca9-579f-8c36-e416f6a65cce"
 version = "1.0.0"
 
 [[DataAPI]]
-git-tree-sha1 = "674b67f344687a88310213ddfa8a2b3c76cc4252"
+git-tree-sha1 = "00612b2fbe534a539dc7f70106c71e3a943d9b98"
 uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
-version = "1.1.0"
+version = "1.2.0"
 
 [[DataStructures]]
 deps = ["InteractiveUtils", "OrderedCollections"]
@@ -262,9 +262,9 @@ version = "0.10.10"
 
 [[GPUArrays]]
 deps = ["AbstractFFTs", "Adapt", "LinearAlgebra", "Printf", "Random", "Serialization"]
-git-tree-sha1 = "d586762b08dcda13228df8967119b9cb6f22ade5"
+git-tree-sha1 = "c63cb01e3b6f48ab39f1e35c31ba870650814a18"
 uuid = "0c68f7d7-f131-5f86-a1c3-88cf8149b2d7"
-version = "3.1.0"
+version = "3.2.0"
 
 [[Graphics]]
 deps = ["Colors", "LinearAlgebra", "NaNMath"]
@@ -509,9 +509,9 @@ version = "1.1.0"
 
 [[PaddedViews]]
 deps = ["OffsetArrays"]
-git-tree-sha1 = "b40a1b901468f343dce95b16a48b4023373caca0"
+git-tree-sha1 = "100195a79b577d5747db98bf1732c3686285fa1e"
 uuid = "5432bcbf-9aad-5242-b902-cca2824c8663"
-version = "0.5.4"
+version = "0.5.5"
 
 [[Parameters]]
 deps = ["OrderedCollections"]
