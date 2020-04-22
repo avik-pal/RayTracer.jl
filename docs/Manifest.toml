@@ -141,9 +141,9 @@ version = "1.0.2"
 
 [[CuArrays]]
 deps = ["AbstractFFTs", "Adapt", "CEnum", "CUDAapi", "CUDAdrv", "CUDAnative", "DataStructures", "GPUArrays", "Libdl", "LinearAlgebra", "MacroTools", "NNlib", "Pkg", "Printf", "Random", "Reexport", "Requires", "SparseArrays", "Statistics", "TimerOutputs"]
-git-tree-sha1 = "e8c55b38dcca955f5aed8ec4479cdc95810db1e1"
+git-tree-sha1 = "ad04351946e2ee59a0f1295de28a750dc4917704"
 uuid = "3a865a2d-5b23-5a0f-bc46-62713ec82fae"
-version = "2.0.1"
+version = "2.1.0"
 
 [[CustomUnitRanges]]
 git-tree-sha1 = "0d42a23be3acfb3c58569b28ed3ab8bd67af5ced"
@@ -274,9 +274,9 @@ version = "1.0.2"
 
 [[IRTools]]
 deps = ["InteractiveUtils", "MacroTools", "Test"]
-git-tree-sha1 = "1a4355e4b5b50be2311ebb644f34f3306dbd0410"
+git-tree-sha1 = "8845400bd2d9815d37720251f1b53d27a335e1f4"
 uuid = "7869d1d1-7146-5819-86e3-90919afe41df"
-version = "0.3.1"
+version = "0.3.2"
 
 [[IdentityRanges]]
 deps = ["OffsetArrays"]
