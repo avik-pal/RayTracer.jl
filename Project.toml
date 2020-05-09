@@ -16,6 +16,7 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 [compat]
 Compat = "3.8"
 Flux = "0.10"
+ImageIO = "0.1"
 ImageMagick = "1.1"
 Images = "0.22"
 Zygote = "0.4"
