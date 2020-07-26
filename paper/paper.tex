@@ -25,8 +25,6 @@
 \begin{abstract}
 In this paper, we present RayTracer.jl, a renderer in Julia that is fully differentiable using source-to-source Automatic Differentiation (AD). This means that RayTracer not only renders 2D images from 3D scene parameters, but it can be used to optimize for model parameters that generate a target image in a Differentiable Programming (DP) pipeline. Our renderer is a complete general purpose renderer, which means that unlike most previous work, we do not make any changes to the renderer to make it differentiable. Additionally, we interface our renderer with the deep learning framework Flux for use in combination with neural networks. In this paper, we also demonstrate the use of this differentiable renderer in rendering tasks and in solving inverse graphics problems using gradients.
 
-\headingtable
-
 \end{abstract}
 
 % IMAGES
