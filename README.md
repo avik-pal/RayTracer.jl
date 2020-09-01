@@ -12,6 +12,8 @@
     </video>
 </p>
 
+> This package was written in the early days of Flux / Zygote. Both these packages have significantly improved over time. Unfortunately the current state of this package of has not been updated to reflect those improvements. However, I do plan to do a major overhaul of the package around Jan 2021 to integrate these improvements along with the direct use of Flux3D.jl to use more efficient kernels for mesh operations.
+
 A Ray Tracer written completely in Julia. This allows us to leverage the AD capablities provided
 by Zygote to differentiate through the Ray Tracer.
 
@@ -146,9 +148,8 @@ These are not listed in any particular order
 
 - [X] Add more types of common objects (use mesh rendering for this)
 - [X] Add support for rendering arbitrary mesh
-- [ ] GPU Support using CuArrays (partially supported in `ap/gpu` branch)
 - [X] Inverse Rendering Examples
-- [ ] Application in Machine Learning Models through Flux (work in progress)
 - [X] Texture Rendering
-- [ ] Make everything differentiable:
-  - [ ] Triangle Mesh
+- [ ] Application in Machine Learning Models through Flux (work in progress)
+- [ ] Major Overhaul using Flux3D.jl
+- [ ] Exploit the latest improvements to Flux and Zygote
