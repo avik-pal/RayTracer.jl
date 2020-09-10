@@ -1,7 +1,10 @@
 module RayTracer
 
-using Zygote, Flux, Images, Distributed, Statistics
+using Zygote, Flux, Images, Flux3D, CUDA, NNlib
+using LinearAlgebra, Statistics
 import Base.show
+
+using Flux: @functor
 
 using Compat
 import Compat.isnothing
@@ -9,24 +12,12 @@ import Compat.isnothing
 # Rendering Utilities
 include("utils.jl")
 include("light.jl")
-include("materials.jl")
-include("objects.jl")
-include("camera.jl")
-include("optimize.jl")
 
-# Acceleration Structures
-include("bvh.jl")
-
-# Renderers
-include("renderers/blinnphong.jl")
-include("renderers/rasterizer.jl")
-include("renderers/accelerated_raytracer.jl")
-
-# Image Utilities
-include("imutils.jl")
-
-# Differentiable Rendering
-include("gradients/zygote.jl")
-include("gradients/numerical.jl")
+# Exports
+## Custom Types
+export DirectionalLight, PointLight
+## Functions
+export compute_diffuse_lighting, compute_specular_lighting
+export spherical_to_cartesian
 
 end

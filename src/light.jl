@@ -1,146 +1,157 @@
-export PointLight, DistantLight
-
-# ----- #
-# Light #
-# ----- #
-
-"""
-    Light
-
-All objects emitting light should be a subtype of this. To add a custom light
-source, two only two functions need to be defined.
-
-* `get_direction(l::MyCustomLightSource, pt::Vec3)` - `pt` is the point receiving the
-                                                      light from this source
-* `get_intensity(l::MyCustomLightSource, pt::Vec3, dist::Array)` - `dist` is the array
-                                                                   representing the distance
-                                                                   of the point from the light
-                                                                   source
-"""
-abstract type Light end
-
-"""
-    get_shading_info(l::Light, pt::Vec3)
-
-Returns the `direction` of light incident from the light source onto that
-Point and the intensity of that light ray. It computes these by internally
-calling the `get_direction` and `get_intensity` functions and hence this
-function never has to be modified for any `Light` subtype.
-
-### Arguments:
-
-* `l`  - The Object of the [`Light`](@ref) subtype
-* `pt` - The Point in 3D Space for which the shading information is queried
-"""
-function get_shading_info(l::Light, pt::Vec3)
-    dir = get_direction(l, pt)
-    dist = sqrt.(l2norm(dir))
-    intensity = get_intensity(l, pt, dist)
-    return normalize(dir), intensity
+function compute_diffuse_lighting(normals::AbstractArray{T, 3},
+                                  colors::AbstractArray{T, 2},
+                                  directions::AbstractArray{T, 2}) where T
+    # normals --> 3 x F x N
+    # colors --> 3 x (N / 1)
+    # directions --> 3 x (N / 1)
+    colors = reshape(colors, 3, 1, size(colors, 2))  # 3 x 1 x (N / 1)
+    directions = reshape(directions, 3, 1, size(directions, 2))  # 3 x 1 x (N / 1)
+    normals = _normalize(normals, 1)
+    directions = _normalize(directions, 1)
+    return compute_diffuse_lighting(normals, colors, directions)
 end
 
-"""
-    get_direction(l::Light, pt::Vec3)
-
-Returns the direction of light incident from the light source to `pt`.
-"""
-function get_direction(l::Light, pt::Vec3) end
-
-"""
-    get_intensity(l::Light, pt::Vec3, dist::Array)
-
-Computed the intensity of the light ray incident at `pt`.
-"""
-function get_intensity(l::Light, pt::Vec3, dist::AbstractArray) end
-
-# --------------- #
-# - Point Light - #
-# --------------- #
-
-"""
-    PointLight
-
-A source of light which emits light rays from a point in 3D space. The
-intensity for this light source diminishes as inverse square of the distance
-from the point.
-
-### Fields:
-
-* `color`     - Color of the Light Rays emitted from the source.
-* `intensity` - Intensity of the Light Source. This decreases as ``\\frac{1}{r^2}``
-                where ``r`` is the distance of the point from the light source.
-* `position`  - Location of the light source in 3D world space.
-
-### Available Constructors:
-
-* `PointLight(;color = Vec3(1.0f0), intensity::Real = 100.0f0, position = Vec3(0.0f0))`
-* `PointLight(color, intensity::Real, position)`
-"""
-struct PointLight{T<:AbstractArray} <: Light
-    color::Vec3{T}
-    intensity::T
-    position::Vec3{T}
+function compute_diffuse_lighting(normals::AbstractArray{T, 3},
+                                  colors::AbstractArray{T, 2},
+                                  directions::AbstractArray{T, 3}) where T
+    # normals --> 3 x F x N
+    # colors --> 3 x (N / 1)
+    # directions --> 3 x (F / 1) x (N / 1)
+    colors = reshape(colors, 3, 1, size(colors, 2))  # 3 x 1 x (N / 1)
+    normals = _normalize(normals, 1)
+    directions = _normalize(directions, 1)
+    return compute_diffuse_lighting(normals, colors, directions)
 end
 
-PointLight(;color = Vec3(1.0f0), intensity::Real = 100.0f0, position = Vec3(0.0f0)) =
-    PointLight(color, intensity, position)
-    
-PointLight(c, i::Real, p) = PointLight(clamp(c, 0.0f0, 1.0f0), [i], p)
 
-show(io::IO, pl::PointLight) =
-    print(io, "Point Light\n    Color - ", pl.color, "\n    Intensity - ",
-          pl.intensity[], "\n    Position - ", pl.position)
-
-@diffops PointLight
-
-get_direction(p::PointLight, pt::Vec3) = p.position - pt
-
-get_intensity(p::PointLight, pt::Vec3, dist::AbstractArray) =
-    p.intensity[] * p.color / (4 .* (eltype(p.color.x))(π) .* (dist .^ 2))    
-
-# ----------------- #
-# - Distant Light - #
-# ----------------- #
-
-"""
-    DistantLight
-
-A source of light that is present at infinity as such the rays from it are
-in a constant direction. The intensity for this light source always remains
-constant. This is extremely useful when we are trying to render a large scene
-like a city.
-
-### Fields:
-
-* `color`     - Color of the Light Rays emitted from the Source.
-* `intensity` - Intensity of the Light Source.
-* `direction` - Direction of the Light Rays emitted by the Source.
-
-### Available Constructors:
-
-* `DistantLight(;color = Vec3(1.0f0), intensity::Real = 1.0f0,
-                 direction = Vec3(0.0f0, 1.0f0, 0.0f0))`
-* `DistantLight(color, intensity::Real, direction)`
-"""
-struct DistantLight{T<:AbstractArray} <: Light
-    color::Vec3{T}
-    intensity::T
-    direction::Vec3{T}  # Must be normalized
+function compute_diffuse_lighting(normals::AbstractArray{T, 3},
+                                  colors::AbstractArray{T, 3},
+                                  directions::AbstractArray{T, 3}) where T
+    # normals --> 3 x F x N
+    # colors --> 3 x 1 x (N / 1)
+    # directions --> 3 x 1 x (N / 1)
+    # Assumes normalized versions of normals and directions
+    angle = relu.(sum(normals .* directions, dims = 1))  # 1 x F x N
+    return colors .* angle  # 3 x F x N
 end
 
-DistantLight(;color = Vec3(1.0f0), intensity::Real = 1.0f0,
-              direction = Vec3(0.0f0, 1.0f0, 0.0f0)) =
-    DistantLight(color, intensity, direction)
 
-DistantLight(c, i::Real, d) = DistantLight(clamp(c, 0.0f0, 1.0f0), [i], normalize(d))
+function compute_specular_lighting(points::AbstractArray{T, 3},
+                                   normals::AbstractArray{T, 3},
+                                   colors::AbstractArray{T, 2},
+                                   directions::AbstractArray{T, 2},
+                                   camera_positions::AbstractArray{T, 2},
+                                   specular_exponents::AbstractArray{T, 1}) where T
+    # points --> 3 x P x N
+    # normals --> 3 x P x N
+    # colors --> 3 x (N / 1)
+    # directions --> 3 x (N / 1)
+    # camera_positions --> 3 x (N / 1)
+    # specular_exponents --> (N / 1)
+    colors = reshape(colors, 3, 1, size(colors, 2))
+    directions = reshape(directions, 3, 1, size(directions, 2))
+    camera_positions = reshape(camera_positions, 3, 1, size(camera_positions, 2))
+    specular_exponents = reshape(specular_exponents, 1, 1, length(specular_exponents))
+    normals = _normalize(normals, 1)
+    directions = _normalize(directions, 1)
 
-show(io::IO, dl::DistantLight) =
-    print(io, "Distant Light\n    Color - ", dl.color, "\n    Intensity - ",
-          dl.intensity[], "\n    Direction - ", dl.direction)
+    return compute_specular_lighting(points, normals, colors, directions,
+                                     camera_positions, specular_exponents)
+end
 
-@diffops DistantLight
+function compute_specular_lighting(points::AbstractArray{T, 3},
+                                   normals::AbstractArray{T, 3},
+                                   colors::AbstractArray{T, 2},
+                                   directions::AbstractArray{T, 3},
+                                   camera_positions::AbstractArray{T, 2},
+                                   specular_exponents::AbstractArray{T, 1}) where T
+    # points --> 3 x P x N
+    # normals --> 3 x P x N
+    # colors --> 3 x (N / 1)
+    # directions --> 3 x (P / 1) x (N / 1)
+    # camera_positions --> 3 x (N / 1)
+    # specular_exponents --> (N / 1)
+    colors = reshape(colors, 3, 1, size(colors, 2))
+    camera_positions = reshape(camera_positions, 3, 1, size(camera_positions, 2))
+    specular_exponents = reshape(specular_exponents, 1, 1, length(specular_exponents))
+    normals = _normalize(normals, 1)
+    directions = _normalize(directions, 1)
 
-get_direction(d::DistantLight, pt::Vec3) = d.direction
+    return compute_specular_lighting(points, normals, colors, directions,
+                                     camera_positions, specular_exponents)
+end
 
-get_intensity(d::DistantLight, pt::Vec3, dist::AbstractArray) = d.intensity[]
 
+function compute_specular_lighting(points::AbstractArray{T, 3},
+                                   normals::AbstractArray{T, 3},
+                                   colors::AbstractArray{T, 3},
+                                   directions::AbstractArray{T, 3},
+                                   camera_positions::AbstractArray{T, 3},
+                                   specular_exponents::AbstractArray{T, 3}) where T
+    # points --> 3 x P x N
+    # normals --> 3 x P x N
+    # colors --> 3 x 1 x (N / 1)
+    # directions --> 3 x 1 x (N / 1)
+    # camera_positions --> 3 x 1 x (N / 1)
+    # specular_exponents --> 1 x 1 x (N / 1)
+    cos_angle = sum(normals .* directions, dims = 1)  # 1 x P x N
+    mask = cos_angle .> 0  # 1 x P x N
+
+    view_direction = _normalize(camera_positions .- points, 1)  # 3 x P x N
+    reflect_direction = -directions .+ 2 .* cos_angle .* normals  # 3 x P x N
+
+    α = relu.(sum(view_direction .* reflect_direction, dims = 1)) .* mask  # 1 x P x N
+    return colors .* (α .^ specular_exponents)  # 3 x P x N
+end
+
+
+struct DirectionalLight{A, D, S, V}
+    ambient_color::A
+    diffuse_color::D
+    specular_color::S
+    direction::V
+end
+
+@functor DirectionalLight
+
+function compute_diffuse_lighting(d::DirectionalLight;
+                                  normals::AbstractArray{T, 3},
+                                  points::AbstractArray{T, 3}) where T
+    return compute_diffuse_lighting(normals, d.diffuse_color, d.direction)
+end
+
+function compute_specular_lighting(d::DirectionalLight;
+                                   normals::AbstractArray{T, 3},
+                                   points::AbstractArray{T, 3},
+                                   camera_positions::AbstractArray{T, 2},
+                                   specular_exponents::AbstractArray{T, 1}) where T
+    return compute_specular_lighting(points, normals, d.specular_color,
+                                     d.direction, camera_positions,
+                                     specular_exponents)
+end
+
+
+struct PointLight{A, D, S, P}
+    ambient_color::A
+    diffuse_color::D
+    specular_color::S
+    position::P
+end
+
+@functor PointLight
+
+function compute_diffuse_lighting(p::PointLight;
+                                  normals::AbstractArray{T, 3},
+                                  points::AbstractArray{T, 3}) where T
+    return compute_diffuse_lighting(normals, p.diffuse_color, p.position .- points)
+end
+
+function compute_specular_lighting(p::PointLight;
+                                   normals::AbstractArray{T, 3},
+                                   points::AbstractArray{T, 3},
+                                   camera_positions::AbstractArray{T, 2},
+                                   specular_exponents::AbstractArray{T, 1}) where T
+    return compute_specular_lighting(points, normals, p.specular_color,
+                                     p.position .- points, camera_positions,
+                                     specular_exponents)
+end
