@@ -7,4 +7,3 @@ build
 site
 .ipynb*
 *.cls
-Manifest.toml
