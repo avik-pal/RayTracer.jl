@@ -3,7 +3,7 @@
 ![CI](https://github.com/avik-pal/RayTracer.jl/workflows/CI/badge.svg?branch=master)
 [![codecov](https://codecov.io/gh/avik-pal/RayTracer.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/avik-pal/RayTracer.jl)
 [![Latest Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://avik-pal.github.io/RayTracer.jl/dev/)
-[![status](https://submissions.juliacon.org/papers/ebd92f2a47780826004bd88a6fd1f717/status.svg)](https://submissions.juliacon.org/papers/ebd92f2a47780826004bd88a6fd1f717)
+[![DOI](https://proceedings.juliacon.org/papers/10.21105/jcon.00037/status.svg)](https://doi.org/10.21105/jcon.00037)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1442781.svg)](https://doi.org/10.5281/zenodo.1442781)
 
 <p align="center">
@@ -12,10 +12,9 @@
     </video>
 </p>
 
-> This package was written in the early days of Flux / Zygote. Both these packages have significantly improved over time. Unfortunately the current state of this package of has not been updated to reflect those improvements. However, I do plan to do a major overhaul of the package around Jan 2021 to integrate these improvements along with the direct use of Flux3D.jl to use more efficient kernels for mesh operations.
+> This package was written in the early days of Flux / Zygote. Both these packages have significantly improved over time. Unfortunately the current state of this package of has not been updated to reflect those improvements. It also seems that it might be better to gradually transition to AD systems like Diffractor (which will potentially have good support for mutations) / define the adjoints directly using ChainRules since Zygote will likely not be having these features (note there has not been an official announcement and the statement is based on some discussions in zulip forum)
 
-A Ray Tracer written completely in Julia. This allows us to leverage the AD capablities provided
-by Zygote to differentiate through the Ray Tracer.
+A Ray Tracer written completely in Julia. This allows us to leverage the AD capablities provided by Zygote to differentiate through the Ray Tracer.
 
 ## INSTALLATION
 
@@ -132,13 +131,17 @@ of a self-driving car environment. For more complex examples of RayTracer, check
 This software was developed as part of academic research. If you would like to help support it, please star the repository. If you use this software as part of your research, teaching, or other activities, we would be grateful if you could cite the following:
 
 ```
-@misc{pal2019raytracerjl,
-    title={{RayTracer.jl: A Differentiable Renderer that supports Parameter Optimization for Scene Reconstruction}},
-    author={Avik Pal},
-    year={2019},
-    eprint={1907.07198},
-    archivePrefix={arXiv},
-    primaryClass={cs.GR}
+@article{Pal2020,
+  doi = {10.21105/jcon.00037},
+  url = {https://doi.org/10.21105/jcon.00037},
+  year = {2020},
+  publisher = {The Open Journal},
+  volume = {1},
+  number = {1},
+  pages = {37},
+  author = {Avik Pal},
+  title = {RayTracer.jl: A Differentiable Renderer that supports Parameter Optimization for Scene Reconstruction},
+  journal = {Proceedings of the JuliaCon Conferences}
 }
 ```
 
