@@ -12,7 +12,7 @@
     </video>
 </p>
 
-> This package was written in the early days of Flux / Zygote. Both these packages have significantly improved over time. Unfortunately the current state of this package of has not been updated to reflect those improvements. It also seems that it might be better to gradually transition to AD systems like Diffractor (which will potentially have good support for mutations) / define the adjoints directly using ChainRules since Zygote will likely not be having these features (note there has not been an official announcement and the statement is based on some discussions in zulip forum)
+> This package was written in the early days of Flux / Zygote. Both these packages have significantly improved over time. Unfortunately the current state of this package of has not been updated to reflect those improvements. It also seems that it might be better to gradually transition to defining the adjoints directly using ChainRules
 
 A Ray Tracer written completely in Julia. This allows us to leverage the AD capablities provided by Zygote to differentiate through the Ray Tracer.
 
